@@ -1,0 +1,9 @@
+README.md
+
+{{- if ne .chezmoi.os "darwin" }}
+# skip if not MacOS
+.config/alacritty
+.config/karabiner
+.config/skhd
+.config/yabai
+{{- end }}
