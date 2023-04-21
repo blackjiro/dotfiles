@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-#  下記のhash値が変わっていたら、brew bundleを実行する
-# .config/fish/fish_plugins hash: {{ include "dot_config/private_fish/fish_plugins.tmpl" | sha256sum }}
-cd {{.chezmoi.sourceDir}}
-fisher update
-

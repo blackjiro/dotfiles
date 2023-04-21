@@ -1,6 +1,9 @@
+#!/usr/bin/env bash
+
 {{ if eq .chezmoi.os "linux" -}}
 
-#!/usr/bin/env bash
+echo "Installing homebrew"
+
 mkdir homebrew && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C homebrew
 eval "$(homebrew/bin/brew shellenv)"
 brew update --force --quiet
@@ -8,7 +11,6 @@ chmod -R go-w "$(brew --prefix)/share/zsh"
 
 {{ else if eq .chezmoi.os "darwin" -}}
 
-#!/usr/bin/env bash
 export HOMEBREW_NO_INSTALL_FROM_API=1
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
