@@ -1,4 +1,8 @@
 # Dotfiles
+1. install Homebrew
+2. brew bundle
+3. setup fish
+4. setup asdf
 
 ## TODO
 - [ ] Mac環境で、GUI環境を構築できるようにする。
@@ -6,7 +10,6 @@
 - [ ] 複数環境で動くことを担保するため、CIを作成する。
 
 # 調整が必要
-- fish周り, どのfileを保存するか
 - Raycast の setting import 周り
 - Secret系をどうするか
 - tmux.confを整理
