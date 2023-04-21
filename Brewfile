@@ -1,13 +1,17 @@
+if OS.mac?
+  tap "aws/tap"
+  tap "cybozu/assam" 
+  tap "homebrew/cask"
+  tap "koekeishiya/formulae"
+end
+
 tap "aws/tap"
 tap "benbjohnson/litestream"
-tap "cybozu/assam" if OS.mac?
 tap "heroku/brew"
 tap "homebrew/bundle"
-tap "homebrew/cask"
 tap "homebrew/cask-fonts"
 tap "homebrew/core"
 tap "homebrew/services"
-tap "koekeishiya/formulae"
 tap "nektos/tap"
 tap "planetscale/tap"
 
@@ -57,17 +61,19 @@ brew "koekeishiya/formulae/skhd" if OS.mac?
 brew "koekeishiya/formulae/yabai" if OS.mac?
 brew "planetscale/tap/pscale"
 
+cask "font-hack-nerd-font"
+cask "font-jetbrains-mono-nerd-font"
+
 if OS.mac?
   cask_args appdir: "/Applications"
   cask "1password"
+  cask "1password-cli"
   cask "alacritty"
   cask "bettertouchtool"
   cask "charles"
   cask "cyberduck"
   cask "docker"
   cask "dropbox"
-  cask "font-hack-nerd-font"
-  cask "font-jetbrains-mono-nerd-font"
   cask "google-chrome"
   cask "google-japanese-ime"
   cask "insomnia"
