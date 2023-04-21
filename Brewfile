@@ -26,6 +26,7 @@ brew "fzf"
 brew "gh"
 brew "git"
 brew "go"
+brew "htop"
 brew "jq"
 brew "k6"
 brew "lazygit"
@@ -57,6 +58,7 @@ brew "koekeishiya/formulae/yabai" if OS.mac?
 brew "planetscale/tap/pscale"
 
 if OS.mac?
+  cask_args appdir: "/Applications"
   cask "1password"
   cask "alacritty"
   cask "bettertouchtool"

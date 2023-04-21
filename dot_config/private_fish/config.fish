@@ -13,12 +13,8 @@ fish_add_path /opt/homebrew/opt/openjdk@11/bin
 fish_add_path /usr/local/bin
 
 # abbrs
-abbr uscpa tmuxinator start uscpa
 abbr vf "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim"
 abbr vd "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && nvim ."
-
-# Setting rbenv
-status --is-interactive; and rbenv init - fish | source
 
 # Setting go (homebrew)
 set -x GOPATH $HOME/go
