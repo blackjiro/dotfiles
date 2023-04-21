@@ -14,5 +14,9 @@
 - Secret系をどうするか
 - tmux.confを整理
 - 1passwordと.sshなどの管理
+  - .aws / .ssh
 - [starshipにしてみる](https://gist.github.com/ryo-ARAKI/48a11585299f9032fa4bda60c9bba593)
+- Yabaiの設定手順をor fileを書く
+- karabinarのGUIからの変更を反映できるようにする
+- CI/CD書く
 
