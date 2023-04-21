@@ -1,6 +1,8 @@
-#!/usr/bin/fish
+#!/bin/bash
 
-chsh -s (which fish)
+{{ template "set_brew_path.sh.tmpl" . }}
+
+/usr/bin/env fish
 
 if not type -q fisher
   echo "Installing fisher"

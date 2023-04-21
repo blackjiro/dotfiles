@@ -3,11 +3,7 @@
 #  下記のhash値が変わっていたら、brew bundleを実行する
 #  Brewfile hash : {{ include "Brewfile" | sha256sum }}
 
-{{ if eq .chezmoi.os "linux" -}}
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-{{ else if eq .chezmoi.os "darwin" -}}
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-{{ end -}}
+{{ template "set_brew_path.sh.tmpl" . }}
 
 cd {{.chezmoi.sourceDir}}
 brew bundle
