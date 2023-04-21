@@ -11,4 +11,5 @@ chezmoi.toml
 .config/karabiner
 .config/skhd
 .config/yabai
+.ssh
 {{- end }}
