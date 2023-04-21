@@ -1,6 +1,5 @@
 eval (/opt/homebrew/bin/brew shellenv)
 
-
 set -g -x fish_greeting ''
 set -g -x FZF_DEFAULT_COMMAND "fd . $HOME"
 
@@ -21,16 +20,6 @@ set -x GOPATH $HOME/go
 set -x GOROOT "$(brew --prefix golang)/libexec"
 fish_add_path $GOPATH/bin
 fish_add_path $GOROOT/bin
-
-# Setting pyenv
-alias brew="env PATH=(string replace (pyenv root)/shims '' \"\$PATH\") brew"
-set -x PYENV_ROOT $HOME/.pyenv
-fish_add_path $PYENV_ROOT/bin
-pyenv init - | source
-
-# Setting n
-set -x N_PREFIX $HOME/.n
-fish_add_path $N_PREFIX/n/bin
 
 
 # alias awsume=". awsume"
