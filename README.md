@@ -4,16 +4,19 @@
 3. setup fish
 4. setup asdf
 
-# Steps
+## Steps
 1. execute `./bootstrap.sh`
 2. setup 1password : [instruction](https://developer.1password.com/docs/cli/get-started/)
+
+### Raycast設定
+1. Dropboxを設定する
+2. DropboxからRaycastの最新のconfigをimportする
 
 ## TODO
 - [ ] Linux環境でもGUI以外の環境が構築できるようにする。 (GitHub Codespace or GitPod)
 - [ ] 複数環境で動くことを担保するため、CIを作成する。
 
 # 調整が必要
--  Raycast の setting import 周り
 - [starshipにしてみる](https://gist.github.com/ryo-ARAKI/48a11585299f9032fa4bda60c9bba593)
 -  tmux.confを整理
 - Yabaiの設定手順をor fileを書く
