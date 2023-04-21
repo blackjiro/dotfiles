@@ -1,12 +1,10 @@
 # Dotfiles
-1. install Homebrew
-2. brew bundle
-3. setup fish
-4. setup asdf
+[chezmoi](https://www.chezmoi.io/) + [Homebrew](https://brew.sh/)
 
 ## Steps
 1. execute `./bootstrap.sh`
 2. setup 1password : [instruction](https://developer.1password.com/docs/cli/get-started/)
+3. re bootstrap (only for mac)
 
 ### Raycast設定
 1. Dropboxを設定する
