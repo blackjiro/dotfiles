@@ -47,6 +47,7 @@ if OS.mac?
   tap "planetscale/tap"
   brew "planetscale/tap/pscale"
 
+  brew "dagger"
   brew "git"
   brew "mysql" 
   brew "mysql-client" 
