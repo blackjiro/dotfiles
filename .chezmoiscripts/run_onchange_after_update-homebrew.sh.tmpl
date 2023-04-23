@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-#  下記のhash値が変わっていたら、brew bundleを実行する
 #  Brewfile hash : {{ include "Brewfile" | sha256sum }}
 
 {{ template "set_brew_path.sh.tmpl" . }}
 
 cd {{.chezmoi.sourceDir}}
-brew bundle
+brew bundle --no-lock
+
 

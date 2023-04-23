@@ -1,6 +1,10 @@
 # Dotfiles
 [chezmoi](https://www.chezmoi.io/) + [Homebrew](https://brew.sh/)
 
+```sh
+ssh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply blackjiro
+```
+
 ## Steps
 1. execute `./bootstrap.sh`
 2. setup 1password : [instruction](https://developer.1password.com/docs/cli/get-started/)
