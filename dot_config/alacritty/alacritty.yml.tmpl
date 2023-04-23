@@ -3,8 +3,15 @@ window:
   class:
     instance: Alacritty
     general: Alacritty
+
+{{ if eq .chezmoi.os "linux" -}}
+shell: 
+  program: /home/linuxbrew/.linuxbrew/bin/fish
+{{ else if eq .chezmoi.os "darwin" -}}
 shell: 
   program: /opt/homebrew/bin/fish
+{{ end -}}
+
 scrolling:
   history: 10000
 font:
