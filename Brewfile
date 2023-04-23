@@ -73,6 +73,7 @@ if OS.mac?
   cask "1password"
   cask "1password-cli"
   cask "alacritty"
+  cask "bettertouchtool"
   cask "charles"
   cask "cyberduck"
   cask "docker"
@@ -95,6 +96,7 @@ if OS.mac?
   cask "via"
   cask "visual-studio-code"
 
+  mas "BetterSnapTool", id: 417375580
   mas "LINE", id: 539883307
   mas "Microsoft Excel", id: 462058435
   mas "Microsoft PowerPoint", id: 462062816
