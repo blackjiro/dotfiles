@@ -12,9 +12,10 @@ fish_add_path /opt/homebrew/opt/openjdk@11/bin
 fish_add_path /usr/local/bin
 
 # abbrs
-abbr vf "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim"
+abbr cdf "cd (nd . $HOME --type d --hidden --exclude .git | fzf )"
 abbr vd "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && nvim ."
-abbr dot "chezmoi cd && nvim ."
+abbr vf "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim"
+abbr dot "chezmoi edit"
 
 # Setting go (homebrew)
 set -x GOPATH $HOME/go

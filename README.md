@@ -5,6 +5,8 @@
 1. execute `./bootstrap.sh`
 2. setup 1password : [instruction](https://developer.1password.com/docs/cli/get-started/)
 3. re bootstrap (only for mac)
+4. setup tmux (<C-t> I)
+5. setup yabai / skhd
 
 ### Raycast設定
 1. Dropboxを設定する
