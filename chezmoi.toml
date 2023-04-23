@@ -1,2 +1,5 @@
 [edit]
 command = "vi"
+[git]
+autoCommit = true
+autoPush = true

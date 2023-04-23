@@ -2,7 +2,6 @@ README.md
 bootstrap.sh
 .chezmoitemplates
 Brewfile
-chezmoi.toml
 
 {{- if ne .chezmoi.os "darwin" }}
 # skip if not MacOS
