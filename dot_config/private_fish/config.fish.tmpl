@@ -1,4 +1,4 @@
-eval (/opt/homebrew/bin/brew shellenv)
+{{ template "set_brew_path.sh.tmpl" . }}
 
 set -g -x fish_greeting ''
 set -g -x FZF_DEFAULT_COMMAND "fd . $HOME"
