@@ -1,7 +1,7 @@
 {{ if eq .chezmoi.os "linux" -}}
-eval "(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+eval (/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 {{ else if eq .chezmoi.os "darwin" -}}
-eval "(/opt/homebrew/bin/brew shellenv)"
+eval (/opt/homebrew/bin/brew shellenv)
 {{ end -}}
 
 set -g -x fish_greeting ''
@@ -21,9 +21,9 @@ abbr vd "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && nvim ."
 abbr vf "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim"
 abbr dot "chezmoi edit --apply -v"
 
-# Setting go (homebrew)
+# Setting go (by homebrew)
 set -x GOPATH $HOME/go
-set -x GOROOT "$(brew --prefix golang)/libexec"
+set -x GOROOT (brew --prefix golang)/libexec
 fish_add_path $GOPATH/bin
 fish_add_path $GOROOT/bin
 
