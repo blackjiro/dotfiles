@@ -43,6 +43,7 @@ brew "nkf"
 brew "openjdk@11" if OS.mac?
 brew "pandoc" if OS.mac?
 brew "pipx"
+brew "postgresql@14"
 brew "ripgrep"
 brew "rnr"
 brew "rustup-init"

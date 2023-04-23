@@ -14,6 +14,7 @@ fish_add_path /usr/local/bin
 # abbrs
 abbr vf "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim"
 abbr vd "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && nvim ."
+abbr dot "chezmoi cd && nvim ."
 
 # Setting go (homebrew)
 set -x GOPATH $HOME/go
@@ -30,6 +31,7 @@ if [ -f '/Users/hirokigoto/google-cloud-sdk/path.fish.inc' ]
 end
 
 
+starship init fish | source
 source /opt/homebrew/opt/asdf/libexec/asdf.fish
 
 set -x VISUAL nvim
