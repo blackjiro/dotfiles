@@ -8,8 +8,6 @@ echo "Installing homebrew"
 cd {{.chezmoi.sourceDir}}
 brew bundle --no-lock
 
-chsh -s $(which fish)
-
 if [ -x "$(command -v rustup-init)" ]; then
   rustup-init -y
 fi
