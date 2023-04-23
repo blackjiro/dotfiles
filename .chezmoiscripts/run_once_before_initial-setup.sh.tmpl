@@ -5,4 +5,7 @@ echo "Installing homebrew"
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 {{ template "set_brew_path.sh.tmpl" . }}
+cd {{.chezmoi.sourceDir}}
 brew bundle --no-lock
+
+rustup-init -y

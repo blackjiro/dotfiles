@@ -2,7 +2,7 @@
 [chezmoi](https://www.chezmoi.io/) + [Homebrew](https://brew.sh/)
 
 ```sh
-ssh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply blackjiro
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply blackjiro
 ```
 
 ## Steps
