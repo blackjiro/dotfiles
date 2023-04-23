@@ -8,4 +8,6 @@ echo "Installing homebrew"
 cd {{.chezmoi.sourceDir}}
 brew bundle --no-lock
 
-rustup-init -y
+if [ -x "$(command -v rustup-init)" ]; then
+  rustup-init -y
+fi
