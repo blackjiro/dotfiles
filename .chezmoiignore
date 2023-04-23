@@ -10,5 +10,6 @@ symlinked
 .config/karabiner
 .config/skhd
 .config/yabai
+.aws
 .ssh
 {{- end }}

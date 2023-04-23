@@ -1,10 +1,3 @@
-if OS.mac?
-  tap "aws/tap"
-  tap "cybozu/assam" 
-  tap "homebrew/cask"
-  tap "koekeishiya/formulae"
-end
-
 tap "aws/tap"
 tap "benbjohnson/litestream"
 tap "heroku/brew"
@@ -28,22 +21,14 @@ brew "fish"
 brew "flyctl"
 brew "fzf"
 brew "gh"
-brew "git"
 brew "go"
 brew "htop"
 brew "jq"
 brew "k6"
 brew "lazygit"
-brew "mysql" if OS.mac?
-brew "mysql-client" if OS.mac?
-brew "mas" if OS.mac?
 brew "tree-sitter"
 brew "neovim"
-brew "nkf"
-brew "openjdk@11" if OS.mac?
-brew "pandoc" if OS.mac?
 brew "pipx"
-brew "postgresql@14"
 brew "ripgrep"
 brew "rnr"
 brew "rustup-init"
@@ -52,21 +37,20 @@ brew "tmux"
 brew "tmuxinator"
 brew "tree"
 brew "wasm-pack"
-brew "watch"
-brew "wget"
-brew "wireshark"
 brew "aws/tap/copilot-cli"
 brew "benbjohnson/litestream/litestream"
-brew "cybozu/assam/assam" if OS.mac?
 brew "heroku/brew/heroku"
-brew "koekeishiya/formulae/skhd" if OS.mac?
-brew "koekeishiya/formulae/yabai" if OS.mac?
 brew "planetscale/tap/pscale"
 
 cask "font-hack-nerd-font"
 cask "font-jetbrains-mono-nerd-font"
 
 if OS.mac?
+  tap "aws/tap"
+  tap "cybozu/assam" 
+  tap "homebrew/cask"
+  tap "koekeishiya/formulae"
+
   cask_args appdir: "/Applications"
   cask "1password"
   cask "1password-cli"
@@ -94,6 +78,21 @@ if OS.mac?
   cask "tunnelblick"
   cask "via"
   cask "visual-studio-code"
+
+  brew "git"
+  brew "mysql" 
+  brew "mysql-client" 
+  brew "openjdk@11"
+  brew "pandoc"
+  brew "mas" 
+  brew "wireshark"
+  brew "postgresql@14"
+  brew "nkf"
+  brew "watch"
+  brew "wget"
+  brew "cybozu/assam/assam"
+  brew "koekeishiya/formulae/skhd"
+  brew "koekeishiya/formulae/yabai"
 
   mas "BetterSnapTool", id: 417375580
   mas "LINE", id: 539883307
