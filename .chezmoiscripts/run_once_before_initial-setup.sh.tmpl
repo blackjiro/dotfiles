@@ -8,7 +8,7 @@ echo "Installing homebrew"
 cd {{.chezmoi.sourceDir}}
 brew bundle --no-lock
 
-{{ if .chezmoi.os == "darwin" }}
+{{ if eq .chezmoi.os "darwin" -}}
 export PATH="/usr/local/bin:$PATH"
 eval $(op signin)
 {{ end }}
