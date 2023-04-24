@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eufo pipefail
 
+{{ template "set_brew_path.sh.tmpl" . }}
+
 {{ if eq .chezmoi.os "darwin" -}}
 chsh -s "$(brew --prefix)/bin/fish"
 {{ else if .headless -}}
