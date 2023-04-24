@@ -1,0 +1,15 @@
+{{ if eq .chezmoi.os "darwin" -}}
+
+#!/usr/bin/env bash
+
+#  asdf hash : {{ include "dot_tool-versions" | sha256sum }}
+cd {{.chezmoi.sourceDir}}
+
+asdf plugin add python
+asdf plugin add ruby
+asdf plugin add terraform
+asdf plugin add nodejs
+
+asdf install
+
+{{ end -}}
