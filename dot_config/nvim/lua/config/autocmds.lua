@@ -10,5 +10,10 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 
 vim.api.nvim_create_autocmd("VimEnter", {
   group = augroup("cd_pwd"),
-  command = "cd %:p",
+  command = function()
+    local path = vim.fn.expand("%:p")
+    if vim.fn.isdirectory(path) then
+      vim.cmd("cd " .. path)
+    end
+  end,
 })
