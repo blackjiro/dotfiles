@@ -11,6 +11,7 @@ cd {{.chezmoi.sourceDir}}
 brew bundle --no-lock
 
 {{ if eq .chezmoi.os "darwin" -}}
+# TODO: 1回目は1passwordにログインさせるためexitする
 export PATH="/usr/local/bin:$PATH"
 eval $(op signin)
 {{ end }}
