@@ -12,7 +12,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
   group = augroup("cd_pwd"),
   callback = function()
     local path = vim.fn.expand("%:p")
-    if vim.fn.isdirectory(path) then
+    if vim.fn.isdirectory(path) == 1 then
       vim.cmd("cd " .. path)
     end
   end,
