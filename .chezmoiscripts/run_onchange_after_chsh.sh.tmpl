@@ -1,0 +1,8 @@
+#!/bin/bash
+set -eufo pipefail
+
+{{ if eq .chezmoi.os "darwin" -}}
+chsh -shell "$(brew --prefix)/bin/fish"
+{{ else if .headless -}}
+sudo chsh "$(id -un)" --shell "$(brew --prefix)/bin/fish"
+{{ end -}}
