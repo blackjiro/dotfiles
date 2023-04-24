@@ -2,10 +2,6 @@
 
 {{ template "set_brew_path.sh.tmpl" . }}
 
-if ! fish -c "type fisher" > /dev/null 2>&1; then
-  echo "Installing fisher"
-  fish -c "curl -sL https://git.io/fisher | bash -c 'source /dev/stdin && fisher install jorgebucaran/fisher'"
-fi
 if ! fish -c "type fisher" >/dev/null 2>&1; then
 	echo "Installing fisher"
 	fish -c "curl -sL https://git.io/fisher | bash -c 'source /dev/stdin && fisher install jorgebucaran/fisher'"
