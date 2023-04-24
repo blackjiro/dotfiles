@@ -3,6 +3,7 @@ bootstrap.sh
 .chezmoitemplates
 Brewfile
 symlinked
+ci
 
 {{- if ne .chezmoi.os "darwin" }}
 # skip if not MacOS
