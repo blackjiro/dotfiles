@@ -8,6 +8,13 @@ echo "Installing homebrew"
 cd {{.chezmoi.sourceDir}}
 brew bundle --no-lock
 
+{{ if .chezmoi.os == "darwin" }}
+export PATH="/usr/local/bin:$PATH"
+eval $(op signin)
+{{ end }}
+
+
+
 if [ -x "$(command -v rustup-init)" ]; then
   rustup-init -y
 fi
