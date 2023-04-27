@@ -2,6 +2,7 @@
 
 set -g -x fish_greeting ''
 set -g -x FZF_DEFAULT_COMMAND "fd . $HOME"
+set -g -x SHELL (which fish)
 
 # path
 fish_add_path $HOME/.n/bin
@@ -16,6 +17,9 @@ abbr cdf "cd (nd . $HOME --type d --hidden --exclude .git | fzf )"
 abbr vd "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && nvim ."
 abbr vf "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim"
 abbr dot "chezmoi edit"
+abbr dc docker compose
+abbr dcr docker compose run --rm 
+abbr dce docker compose exec
 
 # Setting go (by homebrew)
 set -x GOPATH $HOME/go
@@ -27,8 +31,8 @@ fish_add_path $GOROOT/bin
 # alias awsume=". awsume"
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/hirokigoto/google-cloud-sdk/path.fish.inc' ]
-    . '/Users/hirokigoto/google-cloud-sdk/path.fish.inc'
+if [ -f "$HOME/google-cloud-sdk/path.fish.inc" ]
+    . "$HOME/google-cloud-sdk/path.fish.inc"
 end
 
 
