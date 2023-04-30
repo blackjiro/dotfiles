@@ -19,6 +19,7 @@ return {
       },
       panel = { enabled = false },
       filetypes = {
+        yaml = true,
         markdown = false,
         help = false,
         gitcommit = false,
