@@ -9,8 +9,7 @@ return {
         enabled = true,
         auto_trigger = true,
         keymap = {
-          -- accept = "<TAB>", -- TODO: TAB補完が効かなくなったので <C-y> に一旦変更
-          accept = "<C-y>",
+          accept = "<TAB>",
           accept_word = false,
           accept_line = false,
           next = "<M-]>",
