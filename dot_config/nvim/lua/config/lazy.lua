@@ -20,7 +20,7 @@ require("lazy").setup({
     lazy = false,
     version = false, -- always use the latest git commit
   },
-  install = { colorscheme = { "darcula", "tokyonight", "habamax" } },
+  install = { colorscheme = { "darcula-solid", "tokyonight", "habamax" } },
   checker = { enabled = true }, -- automatically check for plugin updates
   performance = {
     rtp = {

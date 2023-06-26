@@ -1,10 +1,11 @@
 return {
-  { "doums/darcula" },
+  -- { "doums/darcula" },
+  { "rktjmp/lush.nvim" },
+  { "briones-gabriel/darcula-solid.nvim" },
   {
-
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "darcula",
+      colorscheme = "darcula-solid",
     },
   },
 }
