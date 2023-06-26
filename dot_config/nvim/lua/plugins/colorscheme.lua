@@ -1,10 +1,10 @@
 return {
-  { "Mofiqul/dracula.nvim" },
+  { "doums/darcula" },
   {
 
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "dracula",
+      colorscheme = "darcula",
     },
   },
 }
