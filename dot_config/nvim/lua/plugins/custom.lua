@@ -1,11 +1,7 @@
 return {
-  {
-    "folke/neodev.nvim",
-    opts = { experimental = { pathStrict = true } },
-    library = { plugins = { "nvim-dap-ui" }, types = true },
-  },
   { "tpope/vim-rails" },
   { "mattn/emmet-vim" },
+  { "sindrets/diffview.nvim" },
   {
     "williamboman/mason.nvim",
     opts = {
@@ -14,9 +10,7 @@ return {
         "shellcheck",
         "shfmt",
         "flake8",
-        "gopls",
         "terraform-ls",
-        "solargraph",
         "rust-analyzer",
         "lua-language-server",
         "svelte-language-server",
