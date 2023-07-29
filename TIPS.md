@@ -13,10 +13,11 @@ op document create ~/$PATH_FROM_HOME --tags chezmoi --title $PATH_FROM_HOME --va
 {{- onepasswordDocument "<uuid>" -}}
 ```
 
-#### 機密情報をドキュメント以外で保存する場合
-1. 1passwordのGUIから登録
-2. `op item list --vault dev` コマンドでIDを取得
-3. `{{ onepasswordRead "op://vault/id/field" }}` で読み込む
+#### 機密情報をセキュアノートで保存する場合
+1. ノート名を設定 `export TITLE=<タイトル>`
+2. `op item create --vault dev --category "SECURE NOTE" --title $TITLE` で作成
+3. GUIで中身を編集
+4. `{{ onepasswordRead "op://dev/<タイトル>/notesPlain" }}` で読み込む
 
 ### 外部から変更されるファイルの設定
 - [参照](https://www.chezmoi.io/user-guide/manage-different-types-of-file/#handle-configuration-files-which-are-externally-modified)
