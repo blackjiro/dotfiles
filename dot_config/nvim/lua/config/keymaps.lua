@@ -19,3 +19,7 @@ map("n", "<S-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase window w
 
 map("n", "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", { desc = "Curret File History" })
 map("n", "<leader>ge", "<cmd>DiffviewClose<cr>", { desc = "Exit diff view" })
+
+-- only yank command register clipboards
+map("n", "<leader>y", '"*y', { desc = "Yank to clipboard" })
+map("v", "<leader>y", '"*y', { desc = "Yank to clipboard" })
