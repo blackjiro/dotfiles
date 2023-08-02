@@ -6,16 +6,8 @@ echo "Installing homebrew"
 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-{{ template "set_brew_path.sh.tmpl" . }}
-cd {{.chezmoi.sourceDir}}
-brew bundle --no-lock
-
 {{ if eq .chezmoi.os "darwin" -}}
 # TODO: 1回目は1Passwordにログインしないとだめなので、ここでExitしてログインを促すか、
 # もしくは、ログインしていない場合は1Passを利用しているファイルをスキップするようにしたい。
 {{ end }}
 
-
-if [ -x "$(command -v rustup-init)" ]; then
-  rustup-init -y
-fi

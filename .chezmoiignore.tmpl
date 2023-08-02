@@ -6,7 +6,6 @@ Brewfile
 symlinked
 
 {{- if ne .chezmoi.os "darwin" }}
-# skip if not MacOS
 .config/alacritty
 .config/karabiner
 .config/skhd
@@ -14,4 +13,11 @@ symlinked
 .tool-versoins
 .aws
 .ssh
+{{- end }}
+
+{{- if ne .chezmoi.os "personal" }}
+.ssh/google_compute_engine
+.ssh/google_compute_engine.pub
+.ssh/id_rsa
+.ssh/id_rsa.pub
 {{- end }}

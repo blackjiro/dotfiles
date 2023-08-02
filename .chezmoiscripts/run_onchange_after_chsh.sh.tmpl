@@ -4,7 +4,7 @@ set -eufo pipefail
 {{ template "set_brew_path.sh.tmpl" . }}
 
 {{ if eq .chezmoi.os "darwin" -}}
-# TODO env/shellに追加する必要あり
+# TODO etc/shellsに追加する必要あり
 chsh -s "$(brew --prefix)/bin/fish"
 {{ else if .headless -}}
 sudo chsh "$(id -un)" --shell "$(brew --prefix)/bin/fish"
