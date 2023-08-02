@@ -1,3 +1,7 @@
 Include codespaces
 
-{{ onepasswordRead "op://dev/ssh_config/notesPlain" }}
+{{ if .personal }}
+{{  onepasswordRead "op://dev/ssh_config/notesPlain" }}
+{{ else if .work }}
+{{  onepasswordRead "op://work/ssh_config/notesPlain" -}}
+{{ end }}

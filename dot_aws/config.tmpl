@@ -1,1 +1,6 @@
-{{- onepasswordRead "op://dev/aws_config/notesPlain" -}}
+{{- if .personal }}
+{{-   onepasswordRead "op://dev/aws_config/notesPlain" -}}
+{{- else if .work }}
+{{-   onepasswordRead "op://work/aws_config/notesPlain" -}}
+{{- end }}
+
