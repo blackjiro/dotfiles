@@ -59,9 +59,8 @@ if OS.mac?
   cask "raycast"
   cask "spotify"
   cask "visual-studio-code"
-end
 
-{{ if .personal }}
+{{- if .personal }}
   tap "benbjohnson/litestream"
   brew "benbjohnson/litestream/litestream"
 
@@ -90,9 +89,7 @@ end
   # mas "Microsoft PowerPoint", id: 462062816
   # mas "Microsoft Word", id: 462054704
   # mas "Tailscale", id: 1475387142
-{{ else if .work }}
-
-  cask "gas-mask
-
-{{ end }}
-
+{{- else if .work }}
+  cask "gas-mask"
+{{- end }}
+end
