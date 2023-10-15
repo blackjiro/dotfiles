@@ -73,18 +73,18 @@ swap-main:
 
 # 下記のバグによりうまく動作しないため、GUIで設定する
 # https://github.com/ianyh/Amethyst/issues/1521
-throw-space-1:
-  mod: mod4
-  key: 1
-throw-space-2:
-  mod: mod4
-  key: 2
-throw-space-3:
-  mod: mod4
-  key: 3
-throw-space-4:
-  mod: mod4
-  key: 4
+#throw-space-1:
+#  mod: mod4
+#  key: 1
+#throw-space-2:
+#  mod: mod4
+#  key: 2
+#throw-space-3:
+#  mod: mod4
+#  key: 3
+#throw-space-4:
+#  mod: mod4
+#  key: 4
 
 # Select tall layout
 select-tall-layout:
