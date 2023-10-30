@@ -1,0 +1,13 @@
+[user]
+{{- if .personal }}
+	name = hiroki.goto
+	email = blackjiro46248@gmail.com
+{{- else if .work }}
+	name = goto-hiroki
+	email = goto-hiroki@dmm.com
+{{- end }}
+
+[core]
+	autocrlf = input
+
+excludesfile = ~/.gitignore_global
