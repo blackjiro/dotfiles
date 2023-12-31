@@ -1,4 +1,158 @@
-nnoremap <Space> :action LeaderAction<cr>
-vnoremap <Space> :action LeaderAction<cr>
+
+" configs
+" ----------------------------------------
 set visualbell
 set noerrorbells
+set scrolloff=10
+set relativenumber
+set commentary
+
+fet ignorecase
+set smartcase
+set incsearch
+set hlsearch
+
+" plugins
+" ----------------------------------------
+set highlightedyank
+set easymotion
+set notimeout
+set nerdtree
+
+
+
+" which-key and keymaps
+" ----------------------------------------
+set which-key
+set notimeout
+set timeoutlen=1000
+let g:WhichKey_FontSize = 14
+let g:WhichKey_CommandColor = "#41ead4"
+let g:WhichKey_PrefixColor = "#f335b2"
+let g:WhichKey_SortOrder = "by_key_prefix_first"
+let g:WhichKey_HighlightGroup = "WhichKey"
+
+let g:WhichKeyDesc_leader = "<leader> Leader key"
+let g:WhichKeyDesc_commentray_prefix = "gc"
+let g:WhichKeyDesc_commentray_action = "gcc"
+
+
+let mapleader = " "
+
+" Jump around with easymotion
+map <leader>j <Plug>(easymotion-s)
+
+
+" Folding
+map <leader>zc :action CollapseAllRegions<CR>
+map <leader>zo :action ExpandAllRegions<CR>
+
+" Navigation
+let g:WhichKeyDesc_select_in_project_view = "<leader>e select in project view"
+map <leader>e <action>(SelectInProjectView)
+
+" Window splits
+let g:WhichKeyDesc_window = "<leader>w window"
+let g:WhichKeyDesc_split_vertically = "<leader>wv split vertically"
+let g:WhichKeyDesc_split_horizontally = "<leader>ws split horizontally"
+let g:WhichKeyDesc_window_close = "<leader>wd close window"
+let g:WhichKeyDesc_window_move = "<leader>wm move window"
+let g:WhichKeyDesc_window_close_content = "<leader>wq close content"
+map <leader>wv <Action>(SplitVertically)
+map <leader>ws <Action>(Splitaorizontally)
+map <leader>wd <Action>(Unsplit)
+map <leader>wm <Action>(MoveEditorToOppositeTabGroup)
+map <leader>wq <action>(CloseContent)
+
+" UI options
+let g:WhichKeyDesc_ui = "<leader>u UI options"
+let g:WhichKeyDesc_distraction_mode = "<leader>ud toggle distraction mode"
+let g:WhichKeyDesc_zen_mode = "<leader>uz toggle zen mode"
+let g:WhichKeyDesc_full_screen = "<leader>uf toggle full screen"
+map <leader>ud <action>(ToggleDistractionFreeMode)
+map <leader>uz <action>(ToggleZenMode)
+map <leader>uf <action>(ToggleFullScreen)
+
+" Search options
+let g:WhichKeyDesc_search = "<leader>s Search options"
+let g:WhichKeyDesc_search_everywhere = "<leader>ss search everywhere"
+let g:WhichKeyDesc_find_in_path = "<leader>sg find in path"
+let g:WhichKeyDesc_replace_in_files = "<leader>sr replace in files"
+let g:WhichKeyDesc_search_action = "<leader>sa search action"
+map <leader>ss <action>(SearchEverywhere)
+map <leader>sg <action>(FindInPath)
+map <leader>sr <action>(ReplaceInPath)
+map <leader>sa <action>(GotoAction)
+
+" File navigation
+let g:WhichKeyDesc_file = "<leader>f File options"
+let g:WhichKeyDesc_goto_file = "<leader>ff goto file"
+let g:WhichKeyDesc_recent_files = "<leader>fr recent files"
+let g:WhichKeyDesc_recent_locations = "<leader>fl recent locations"
+let g:WhichKeyDesc_new_scratch_file = "<leader>fs new scratch file"
+map <leader>ff <action>(GotoFile)
+map <leader>fr <action>(RecentFiles)
+map <leader><leader> <Action>(RecentFiles)
+map <leader>fl <action>(RecentLocations)
+map <leader>fs <action>(NewScratchFile)
+
+" Code editing
+let g:WhichKeyDesc_code = "<leader>c Code editing"
+let g:WhichKeyDesc_code_action = "<leader>ca code action"
+let g:WhichKeyDesc_code_format = "<leader>cf code format"
+let g:WhichKeyDesc_code_rename = "<leader>cr code rename"
+map <leader>ca <action>(ShowIntentionActions)
+map <leader>cf <action>(ReformatCode)
+map <leader>cr <action>(RenameElement)
+
+" Refactoring
+let g:WhichKeyDesc_refactor = "<leader>r Refactoring"
+let g:WhichKeyDesc_rename_element = "<leader>rn rename element"
+let g:WhichKeyDesc_extract_method = "<leader>rm extract method"
+let g:WhichKeyDesc_introduce_variable = "<leader>rv introduce variable"
+let g:WhichKeyDesc_introduce_field = "<leader>rf introduce field"
+let g:WhichKeyDesc_change_signature = "<leader>rs change signature"
+let g:WhichKeyDesc_quick_list_popup = "<leader>rr quick list popup"
+map <leader>rn <Action>(RenameElement)
+map <leader>rm <Action>(ExtractMethod)
+map <leader>rv <Action>(IntroduceVariable)
+map <leader>rf <Action>(IntroduceField)
+map <leader>rs <Action>(ChangeSignature)
+map <leader>rr <Action>(Refactorings.QuickListPopupAction)
+
+" Git
+let g:WhichKeyDesc_git = "<leader>g Git"
+let g:WhichKeyDesc_git_log = "<leader>gl git log"
+nmap <leader>gl <Action>(Vcs.Show.Log)
+
+" Go to code
+nmap gd <Action>(GotoDeclaration)
+let g:WhichKeyDesc_goto_declaration = "gd goto declaration"
+nmap gy <Action>(GotoTypeDeclaration)
+let g:WhichKeyDesc_goto_type_declaration = "gy goto type declaration"
+nmap gi <Action>(GotoImplementation)
+let g:WhichKeyDesc_goto_implementation = "gi goto implementation"
+nmap gu <Action>(ShowUsages)
+let g:WhichKeyDesc_show_usages = "gu show usages"
+nmap gt <Action>(GotoTest)
+let g:WhichKeyDesc_goto_test = "gt goto test"
+nmap gf <Action>(Back)
+let g:WhichKeyDesc_goto_back = "gf goto back"
+nmap gb <Action>(Forward)
+let g:WhichKeyDesc_goto_forward = "gb goto forward"
+
+" Errors
+"map <leader>en <Action>(ReSharperGotoNextErrorInSolution)
+"map <leader>ep <Action>(ReSharperGotoPrevErrorInSolution)
+
+
+" for ataman
+" ----------------------------------------
+" nnoremap <Space> :action LeaderAction<cr>
+" vnoremap <Space> :action LeaderAction<cr>
+
+
+" Jump between methods
+nnoremap [[ <Action>(MethodUp)
+nnoremap ]] <Action>(MethodDown)
+
