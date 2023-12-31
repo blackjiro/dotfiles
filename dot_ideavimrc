@@ -1,4 +1,3 @@
-
 " configs
 " ----------------------------------------
 set visualbell
@@ -69,9 +68,11 @@ let g:WhichKeyDesc_ui = "<leader>u UI options"
 let g:WhichKeyDesc_distraction_mode = "<leader>ud toggle distraction mode"
 let g:WhichKeyDesc_zen_mode = "<leader>uz toggle zen mode"
 let g:WhichKeyDesc_full_screen = "<leader>uf toggle full screen"
+let g:WhichKeyDesc_hide_all_tool_window = "<leader>uu hide all tool window"
 map <leader>ud <action>(ToggleDistractionFreeMode)
 map <leader>uz <action>(ToggleZenMode)
 map <leader>uf <action>(ToggleFullScreen)
+map <leader>uu <action>(HideAllWindows)
 
 " Search options
 let g:WhichKeyDesc_search = "<leader>s Search options"
@@ -124,6 +125,7 @@ map <leader>rr <Action>(Refactorings.QuickListPopupAction)
 let g:WhichKeyDesc_git = "<leader>g Git"
 let g:WhichKeyDesc_git_log = "<leader>gl git log"
 nmap <leader>gl <Action>(Vcs.Show.Log)
+nmap <leader>gg <Action>(Tool_External Tools_lazygit)
 
 " Go to code
 nmap gd <Action>(GotoDeclaration)
