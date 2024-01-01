@@ -36,6 +36,25 @@ let g:WhichKeyDesc_commentray_prefix = "gc"
 let g:WhichKeyDesc_commentray_action = "gcc"
 
 
+" Basic keymaps
+" ----------------------------------------
+
+" Pane navigation
+nnoremap <c-h> <C-w>h
+nnoremap <c-l> <C-w>l
+nnoremap <c-k> <C-w>k
+nnoremap <c-j> <C-w>j
+
+" Jump between methods
+nnoremap [[ <Action>(MethodUp)
+nnoremap ]] <Action>(MethodDown)
+
+" Tab navigation
+nnoremap <c-n> :tabnext<CR>
+nnoremap <c-p> :tabprev<CR>\
+
+" Leader key
+" ----------------------------------------
 let mapleader = " "
 
 " Jump around with easymotion
@@ -53,12 +72,12 @@ map <leader>e <action>(SelectInProjectView)
 " Window splits
 let g:WhichKeyDesc_window = "<leader>w window"
 let g:WhichKeyDesc_split_vertically = "<leader>wv split vertically"
-let g:WhichKeyDesc_split_horizontally = "<leader>ws split horizontally"
+let g:WhichKeyDesc_split_horizontally = "<leader>wh split horizontally"
 let g:WhichKeyDesc_window_close = "<leader>wd close window"
 let g:WhichKeyDesc_window_move = "<leader>wm move window"
 let g:WhichKeyDesc_window_close_content = "<leader>wq close content"
 map <leader>wv <Action>(SplitVertically)
-map <leader>ws <Action>(Splitaorizontally)
+map <leader>wh <Action>(SplitHorizontally)
 map <leader>wd <Action>(Unsplit)
 map <leader>wm <Action>(MoveEditorToOppositeTabGroup)
 map <leader>wq <action>(CloseContent)
@@ -152,9 +171,3 @@ let g:WhichKeyDesc_goto_forward = "gb goto forward"
 " ----------------------------------------
 " nnoremap <Space> :action LeaderAction<cr>
 " vnoremap <Space> :action LeaderAction<cr>
-
-
-" Jump between methods
-nnoremap [[ <Action>(MethodUp)
-nnoremap ]] <Action>(MethodDown)
-
