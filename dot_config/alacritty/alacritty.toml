@@ -3,15 +3,12 @@ size = 12
 
 [font.bold]
 family = "Hack Nerd Font"
-stype = "Bold"
 
 [font.bold_italic]
 family = "Hack Nerd Font"
-stype = "BoldItalic"
 
 [font.italic]
 family = "Hack Nerd Font"
-stype = "MediumItalic"
 
 [font.normal]
 family = "Hack Nerd Font"
