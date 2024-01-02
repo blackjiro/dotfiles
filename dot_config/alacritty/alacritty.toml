@@ -21,6 +21,7 @@ program = "/opt/homebrew/bin/fish"
 
 [window]
 opacity = 0.9
+decorations = "none"
 
 [window.class]
 general = "Alacritty"
