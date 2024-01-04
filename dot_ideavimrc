@@ -143,8 +143,10 @@ map <leader>rr <Action>(Refactorings.QuickListPopupAction)
 " Git
 let g:WhichKeyDesc_git = "<leader>g Git"
 let g:WhichKeyDesc_git_log = "<leader>gl git log"
-nmap <leader>gl <Action>(Vcs.Show.Log)
-nmap <leader>gg <Action>(Tool_External Tools_lazygit)
+let g:WhichKeyDesc_git_commit = "<leader>gc git commit window"
+map <leader>gl <Action>(Vcs.Show.Log)
+map <leader>gc <Action>(ActivateCommitToolWindow)
+map <leader>gg <Action>(Tool_External Tools_lazygit)
 
 " Go to code
 nmap gd <Action>(GotoDeclaration)
@@ -171,3 +173,4 @@ let g:WhichKeyDesc_goto_forward = "gb goto forward"
 " ----------------------------------------
 " nnoremap <Space> :action LeaderAction<cr>
 " vnoremap <Space> :action LeaderAction<cr>
+
