@@ -66,8 +66,8 @@ map <leader>zc :action CollapseAllRegions<CR>
 map <leader>zo :action ExpandAllRegions<CR>
 
 " Navigation
-let g:WhichKeyDesc_select_in_project_view = "<leader>e select in project view"
-map <leader>e <action>(SelectInProjectView)
+let g:WhichKeyDesc_select_in_project_view = "<leader>n select in project view"
+map <leader>n <action>(SelectInProjectView)
 
 " Window splits
 let g:WhichKeyDesc_window = "<leader>w window"
