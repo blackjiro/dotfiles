@@ -1,0 +1,57 @@
+editor = 'vi'
+
+cursor = '▇'
+
+blinking-cursor = false
+
+ignore-selection-foreground-color = true
+
+theme = "darcula"
+
+padding-x = 0
+
+
+[window]
+width = 600
+height = 400
+mode = "Windowed"
+foreground-opacity = 1.0
+background-opacity = 1.0
+blur = false
+decorations = "Disabled"
+
+[fonts]
+size = 16
+family = "Hack Nerd Font"
+
+[fonts.regular]
+style = "normal"
+weight = 400
+
+[fonts.bold]
+style = "normal"
+weight = 800
+
+[fonts.italic]
+style = "italic"
+weight = 400
+
+[fonts.bold-italic]
+style = "italic"
+weight = 800
+
+[scroll]
+multiplier = 3.0
+divider = 1.0
+
+[navigation]
+mode = "NativeTab"
+clickable = true
+use-current-path = false
+color-automation = []
+
+[shell]
+program = "/opt/homebrew/bin/fish"
+args = []
+
+

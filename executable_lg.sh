@@ -1,2 +1,2 @@
 #! /bin/bash
-alacritty --working-directory $(pwd) -e lazygit
+rio --working-dir $(pwd) -e lazygit
