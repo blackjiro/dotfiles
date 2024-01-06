@@ -1,5 +1,5 @@
 [font]
-size = 12
+size = 13
 
 [font.bold]
 family = "Hack Nerd Font"
@@ -20,9 +20,6 @@ history = 10000
 program = "/opt/homebrew/bin/fish"
 
 [window]
-opacity = 0.9
-decorations = "none"
-
-[window.class]
-general = "Alacritty"
-instance = "Alacritty"
+opacity = 1
+decorations = "None"
+dynamic_padding = true
