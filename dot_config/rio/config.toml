@@ -12,8 +12,8 @@ padding-x = 0
 
 
 [window]
-width = 600
-height = 400
+width = 1200
+height = 800
 mode = "Windowed"
 foreground-opacity = 1.0
 background-opacity = 1.0
