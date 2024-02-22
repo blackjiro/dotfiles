@@ -6,11 +6,7 @@ return {
     -- build = ":Copilot auth",
     opts = {
       suggestion = {
-      {{- if .work }}
-        enabled = false,
-      {{- else }}
         enabled = true,
-      {{- end }}
         auto_trigger = true,
         keymap = {
           accept = "<C-l>",
