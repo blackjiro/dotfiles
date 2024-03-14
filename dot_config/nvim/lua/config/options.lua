@@ -4,3 +4,7 @@
 
 -- Disable LazyVim auto format
 vim.g.autoformat = false
+
+-- Disable sync with system clipboard
+vim.g.clipboard = ""
+
