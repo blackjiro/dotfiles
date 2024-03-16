@@ -5,6 +5,9 @@
 -- Disable LazyVim auto format
 vim.g.autoformat = false
 
--- Disable sync with system clipboard
-vim.g.clipboard = ""
+if vim.g.vscode then
+  -- diaable leader key for vspacecode
+  vim.g.mapleader = ""
+  vim.g.clipboard = ""
+end
 

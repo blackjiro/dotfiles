@@ -1,25 +1,19 @@
-local function map(mode, lhs, rhs, opts)
-  local keys = require("lazy.core.handler").handlers.keys
-  ---@cast keys LazyKeysHandler
-  -- do not create the keymap if a lazy keys handler exists
-  if not keys.active[keys.parse({ lhs, mode = mode }).id] then
-    opts = opts or {}
-    opts.silent = opts.silent ~= false
-    if opts.remap and not vim.g.vscode then
-      opts.remap = nil
-    end
-    vim.keymap.set(mode, lhs, rhs, opts)
-  end
-end
+-- reseize
+vim.keymap.set("n", "<S-Up>", "<cmd>resize +2<cr>", { desc = "Increase window height" })
+vim.keymap.set("n", "<S-Down>", "<cmd>resize -2<cr>", { desc = "Decrease window height" })
+vim.keymap.set("n", "<S-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease window width" })
+vim.keymap.set("n", "<S-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase window width" })
 
-map("n", "<S-Up>", "<cmd>resize +2<cr>", { desc = "Increase window height" })
-map("n", "<S-Down>", "<cmd>resize -2<cr>", { desc = "Decrease window height" })
-map("n", "<S-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease window width" })
-map("n", "<S-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase window width" })
-
-map("n", "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", { desc = "Curret File History" })
-map("n", "<leader>ge", "<cmd>DiffviewClose<cr>", { desc = "Exit diff view" })
+-- file history
+vim.keymap.set("n", "<leader>gf", "<cmd>DiffviewFileHistory %<cr>", { desc = "Curret File History" })
+vim.keymap.set("n", "<leader>ge", "<cmd>DiffviewClose<cr>", { desc = "Exit diff view" })
 
 -- only yank command register clipboards
-map("n", "<leader>y", '"*y', { desc = "Yank to clipboard" })
-map("v", "<leader>y", '"*y', { desc = "Yank to clipboard" })
+vim.keymap.set("n", "<leader>y", '"*', { desc = "Yank to clipboard" })
+vim.keymap.set("v", "<leader>y", '"*y', { desc = "Yank to clipboard" })
+
+if vim.g.vscode then
+  vim.keymap.set({"n", "v"}, "<space>", function()
+    vim.cmd("call VSCodeNotify('vspacecode.space')")
+  end, { noremap = true, desc = "VSpaceCode: Show VSpaceCode Menu" })
+end
