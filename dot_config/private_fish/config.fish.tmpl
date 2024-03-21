@@ -16,6 +16,8 @@ fish_add_path /usr/local/bin
 abbr cdf "cd (fd . $HOME --type d --hidden --exclude .git | fzf )"
 abbr vd "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && nvim ."
 abbr vf "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim"
+abbr tm "tmux attach -t (basename $PWD) || tmux new -s (basename $PWD)"
+abbr tmf "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && tmux attach -t (basename $PWD) || tmux new -s (basename $PWD)"
 abbr dot "chezmoi edit"
 abbr dc docker compose
 abbr dcr docker compose run --rm 
