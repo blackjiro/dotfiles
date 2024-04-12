@@ -10,4 +10,9 @@
 [core]
 	autocrlf = input
 
+{{- if .work }}
+[url "git@git.dmm.com:"]
+        insteadOf = https://git.dmm.com/
+{{- end }}
+
 excludesfile = ~/.gitignore_global
