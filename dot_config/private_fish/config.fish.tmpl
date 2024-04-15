@@ -36,6 +36,9 @@ if [ -f "$HOME/google-cloud-sdk/path.fish.inc" ]
     . "$HOME/google-cloud-sdk/path.fish.inc"
 end
 
+# direnv
+eval (direnv hook fish)
+
 
 starship init fish | source
 source /opt/homebrew/opt/asdf/libexec/asdf.fish
