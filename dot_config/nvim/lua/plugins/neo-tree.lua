@@ -4,9 +4,16 @@ return {
     opts = {
       sources = { "filesystem", "buffers", "diagnostics" },
       filesystem = {
-        show_hidden = false,
-        hide_dotfiles = true,
-        hide_gitignored = true,
+        filtered_items = {
+          hide_dotfiles = false,
+          hide_gitignored = false,
+          hide_by_name = {
+            ".DS_Store",
+            "node_modules",
+            "target",
+            "build",
+          },
+        },
       },
     },
   },
