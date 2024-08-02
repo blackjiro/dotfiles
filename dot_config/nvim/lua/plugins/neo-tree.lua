@@ -2,7 +2,7 @@ return {
   {
     "nvim-neo-tree/neo-tree.nvim",
     opts = {
-      sources = { "filesystem", "buffers", "diagnostics" },
+      sources = { "filesystem", "buffers" },
       filesystem = {
         filtered_items = {
           hide_dotfiles = false,
