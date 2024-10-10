@@ -107,5 +107,7 @@ if OS.mac?
   # mas "Tailscale", id: 1475387142
 {{- else if .work }}
   cask "gas-mask"
+  tap "aquaproj/aqua"
+  brew "aquaproj/aqua/aqua"
 {{- end }}
 end
