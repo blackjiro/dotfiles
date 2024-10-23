@@ -16,7 +16,7 @@ family = "Hack Nerd Font"
 [scrolling]
 history = 10000
 
-[shell]
+[terminal.shell]
 program = "/opt/homebrew/bin/fish"
 
 [window]
