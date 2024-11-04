@@ -1,8 +1,0 @@
-. "$HOME/.cargo/env"
-
-
-# Added by Toolbox App
-export PATH="$PATH:/Users/goto-hiroki/Library/Application Support/JetBrains/Toolbox/scripts"
-export EDITOR=vim
-
-eval "$(/opt/homebrew/bin/brew shellenv)"

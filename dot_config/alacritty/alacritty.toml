@@ -17,7 +17,7 @@ family = "Hack Nerd Font"
 history = 10000
 
 [terminal.shell]
-program = "/opt/homebrew/bin/fish"
+program = "/bin/zsh"
 
 [window]
 opacity = 1
