@@ -1,13 +1,15 @@
+{{ if eq .chezmoi.os "darwin" -}}
 #!/usr/bin/env bash
 
 set -euo pipefail
 
+if command -v brew &> /dev/null
+then
+    echo "Homebrew is already installed. Skipping."
+    exit 0
+fi
+
 echo "Installing homebrew"
-
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-{{ if eq .chezmoi.os "darwin" -}}
-# TODO: 1回目は1Passwordにログインしないとだめなので、ここでExitしてログインを促すか、
-# もしくは、ログインしていない場合は1Passを利用しているファイルをスキップするようにしたい。
 {{ end }}
 
