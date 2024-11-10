@@ -29,7 +29,7 @@ in
     lazygit
     mise
     neovim
-    nerdfonts
+    (nerdfonts.override { fonts = [ "FiraCode" "Hack" "JetBrainsMono" ]; })
     nkf
     _1password-cli
     ripgrep
@@ -128,7 +128,6 @@ in
       { name = "grc"; src = pkgs.fishPlugins.grc.src; }
       { name = "z"; src = pkgs.fishPlugins.z.src; }
       { name = "fzf-fish"; src = pkgs.fishPlugins.fzf-fish.src; }
-      { name = "tide"; src = pkgs.fishPlugins.tide.src; }
       { name = "fish-you-should-use"; src = pkgs.fishPlugins.fish-you-should-use.src; }
       { name = "bass"; src = pkgs.fishPlugins.bass.src; }
     ];
@@ -144,6 +143,10 @@ in
         "python" = "3.11";
       };
     };
+  };
+  programs.starship = {
+    enable = true;
+    enableFishIntegration = true;
   };
 }
 
