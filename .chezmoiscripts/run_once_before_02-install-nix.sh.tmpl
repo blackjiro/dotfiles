@@ -2,7 +2,11 @@
 
 set -euo pipefail
 
+if command -v nix &> /dev/null
+then
+    echo "Nix is already installed. Skipping."
+    exit 0
+fi
+
 echo "Installing nix"
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
-echo "Installling home-manager"
-nix run home-manager/master -- init --switch
