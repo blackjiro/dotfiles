@@ -92,6 +92,7 @@ in
     interactiveShellInit = ''
       if test -x /opt/homebrew/bin/brew
           eval "$(/opt/homebrew/bin/brew shellenv)"
+          fish_add_path /opt/homebrew/opt/libpq/bin
       end
 
       set fish_greeting # Disable greeting
