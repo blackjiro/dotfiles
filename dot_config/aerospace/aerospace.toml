@@ -40,14 +40,14 @@ outer.right = 0
 # '''
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
-shift-ctrl-alt-f = 'layout tiles horizontal vertical' # TODO: fix keyboard laytout to use 't' key
+shift-ctrl-alt-f = 'layout tiles horizontal vertical'     # TODO: fix keyboard laytout to use 't' key
 shift-ctrl-alt-a = 'layout accordion horizontal vertical'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#focus
-shift-ctrl-alt-h = 'focus left'
-shift-ctrl-alt-j = 'focus down'
-shift-ctrl-alt-k = 'focus up'
-shift-ctrl-alt-l = 'focus right'
+ctrl-left = 'focus left'
+ctrl-down = 'focus down'
+ctrl-up = 'focus up'
+ctrl-right = 'focus right'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#move
 alt-shift-h = 'move left'
@@ -107,4 +107,3 @@ alt-shift-h = ['join-with left', 'mode main']
 alt-shift-j = ['join-with down', 'mode main']
 alt-shift-k = ['join-with up', 'mode main']
 alt-shift-l = ['join-with right', 'mode main']
-
