@@ -38,10 +38,10 @@ in
     skim
     starship
     superfile
-    tmux
     tree
     tree-sitter
     wget
+    zellij
   ] ++ lib.optionals isMacOS [
     awscli2
   ];  
@@ -79,8 +79,8 @@ in
       cdf = "cd (fd . $HOME --type d --hidden --exclude .git | fzf )";
       vd = "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && nvim .";
       vf = "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim";
-      tm = "tmux attach -t (basename $PWD) || tmux new -s (basename $PWD)";
-      tmf = "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && tmux attach -t (basename (pwd)) || tmux new -s (basename (pwd))";
+      zmf = "cd (fd . $HOME --type d --hidden --exclude .git | fzf) && zellij attach $(basename $(pwd)) || zellij -s $(basename $(pwd))";
+
       dot = "chezmoi edit";
       dc = "docker compose";
       dcr = "docker compose run --rm";
