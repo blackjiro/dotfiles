@@ -110,13 +110,6 @@ in
       fish_add_path /usr/local/bin
       fish_add_path $HOME/.local/share/aquaproj-aqua/bin
 
-      # Setting go (by homebrew)
-      set -x GOPATH $HOME/go
-      set -x GOROOT (brew --prefix golang)/libexec
-      fish_add_path $GOPATH/bin
-      fish_add_path $GOROOT/bin
-
-
       # The next line updates PATH for the Google Cloud SDK.
       if [ -f "$HOME/google-cloud-sdk/path.fish.inc" ]
           . "$HOME/google-cloud-sdk/path.fish.inc"
@@ -145,6 +138,7 @@ in
         "ruby" = "3";
         "terraform" = "latest";
         "python" = "3.11";
+        "go" = "1.23";
       };
     };
   };
