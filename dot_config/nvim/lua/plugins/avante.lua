@@ -5,6 +5,10 @@ return {
   version = false, -- set this if you want to always pull the latest change
   opts = {
     provider = "copilot",
+    cursor_applying_provider = "copilot",
+    behavior = {
+      enable_cursor_planning_mode = true,
+    },
   },
   -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
   build = "make",
