@@ -11,3 +11,7 @@ if vim.g.vscode then
   vim.g.clipboard = ""
 end
 
+
+local opt = vim.opt
+
+opt.spelllang = { "en", "cjk" }
