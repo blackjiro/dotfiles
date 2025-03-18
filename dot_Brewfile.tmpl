@@ -38,6 +38,9 @@ if OS.mac?
   tap "planetscale/tap"
   brew "planetscale/tap/pscale"
 
+  tap "aquaproj/aqua"
+  brew "aquaproj/aqua/aqua"
+
   brew "aicommits"
   brew "cloud-sql-proxy"
   brew "flyctl"
@@ -65,8 +68,6 @@ if OS.mac?
   mas "Tailscale", id: 1475387142
 {{- else if .work }}
   cask "gas-mask"
-  tap "aquaproj/aqua"
-  brew "aquaproj/aqua/aqua"
   cask "aws-vault"
 {{- end }}
 end
