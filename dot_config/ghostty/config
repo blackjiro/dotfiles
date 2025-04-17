@@ -4,3 +4,6 @@ quick-terminal-position = top
 quick-terminal-screen = mouse
 
 font-family = "Hack Nerd Font"
+font-feature = "-calt"
+font-feature = "-dlig"
+font-feature = "-liga"
