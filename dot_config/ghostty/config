@@ -2,6 +2,7 @@
 keybind = global:alt+t=toggle_quick_terminal
 quick-terminal-position = top
 quick-terminal-screen = mouse
+quick-terminal-autohide = false
 
 font-family = "Hack Nerd Font"
 font-feature = "-calt"
