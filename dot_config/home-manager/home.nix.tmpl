@@ -83,7 +83,7 @@ in
       vf = "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim";
       zmf = "cd (fd . $HOME --type d --hidden --exclude .git | fzf) && zellij attach $(basename $(pwd)) || zellij -s $(basename $(pwd))";
 
-      dot = "chezmoi edit";
+      dot = "cd (chezmoi source-path); and vi .";
       dc = "docker compose";
       dcr = "docker compose run --rm";
       dce = "docker compose exec";
