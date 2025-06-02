@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker:*)",
+      "Bash(mise:*)",
+      "Bash(grep:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git rebase:*)",
+      "Bash(terminal-notifier:*)",
+      "Bash(find:*)"
+    ],
+    "deny": []
+  }
+}
+
