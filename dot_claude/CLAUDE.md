@@ -17,4 +17,11 @@ Use these commands at appropriate completion points to keep the user informed wh
 
 ## Pull Request Creation
 
-When creating pull requests, check for and use the format from `.github/pull_request_template.md` if it exists in the repository. Follow the template structure and requirements when drafting PR descriptions.
+**MANDATORY**: Before creating any pull request, you MUST:
+
+1. **ALWAYS** first check if `.github/pull_request_template.md` exists in the repository using the Read tool
+2. If the template exists, you MUST read its contents and follow the exact format and structure
+3. Include ALL required sections from the template in your PR description
+4. Never create a PR without checking for and using the template if it exists
+
+**CRITICAL**: This is a mandatory step that cannot be skipped. The template check and usage is required for every single PR creation request.
