@@ -1,3 +1,4 @@
 .idea/
 .supermaven/
 .env
+.claude/settings.local.json
