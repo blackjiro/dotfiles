@@ -25,3 +25,17 @@ Use these commands at appropriate completion points to keep the user informed wh
 4. Never create a PR without checking for and using the template if it exists
 
 **CRITICAL**: This is a mandatory step that cannot be skipped. The template check and usage is required for every single PR creation request.
+
+## Gemini Search
+
+`gemini` is google gemini cli. **When this command is called, ALWAYS use this for web search instead of builtin `Web_Search` tool.**
+
+When web search is needed, you MUST use `gemini --prompt` via Task Tool.
+
+Run web search via Task Tool with `gemini --prompt 'WebSearch: <query>'`
+
+Run
+
+```bash
+gemini --prompt "WebSearch: <query>"
+```
