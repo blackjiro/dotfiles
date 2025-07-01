@@ -23,7 +23,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "terminal-notifier -title 'Claude Code' -message 'Task completed' -sound default"
+            "command": "jq -r '.request_summary // \"Task completed\"' | xargs -I {} terminal-notifier -title 'Claude Code' -message '{}' -sound default"
           }
         ]
       }
