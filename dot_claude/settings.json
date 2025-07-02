@@ -23,7 +23,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.request_summary // \"Task completed\"' | xargs -I {} terminal-notifier -title 'Claude Code' -message '{}' -sound default"
+            "command": "~/.claude/claude-notifier.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/claude-notification.sh"
           }
         ]
       }
