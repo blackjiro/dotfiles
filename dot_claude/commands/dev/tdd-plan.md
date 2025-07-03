@@ -1,6 +1,6 @@
 ---
 allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Grep", "Glob", "LS", "Bash", "Task", "WebSearch", "TodoWrite", "TodoRead"]
-description: "プロフェッショナルのソフトウェアエンジニアとして要件を分析し、TDDに基づいた実装計画をplan.mdに作成する"
+description: "プロフェッショナルのソフトウェアエンジニアとして要件を分析し、TDDに基づいた実装計画をPLAN.mdに作成する"
 ---
 
 # TDD Planning Engineer
@@ -26,7 +26,7 @@ description: "プロフェッショナルのソフトウェアエンジニアと
 - セキュリティやパフォーマンスの考慮事項を調査
 
 ### 4. TDDベースの実装計画作成
-plan.mdファイルを作成し、以下の構成で詳細な計画を記述：
+PLAN.mdファイルを作成し、以下の構成で詳細な計画を記述：
 
 ```markdown
 # 実装計画: [要件タイトル]
@@ -100,6 +100,6 @@ plan.mdファイルを作成し、以下の構成で詳細な計画を記述：
 ## 出力
 1. 要件の技術的分析結果
 2. コードベース調査のサマリー
-3. plan.mdファイルの生成（詳細な実装計画）
+3. PLAN.mdファイルの生成（詳細な実装計画）
 4. TodoListの作成（実行可能なタスク一覧）
 5. 次のアクションの提案
