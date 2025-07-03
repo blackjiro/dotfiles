@@ -110,6 +110,7 @@
       "Bash(make *)",
       "Bash(make build*)",
       "Bash(make test*)",
+      "Bash(gemini:*)",
 
       "TodoRead()",
       "TodoWrite(**)",
@@ -186,9 +187,7 @@
       "Bash(rm /var/log/*)",
       "Bash(rm -rf /var/log/*)",
       "Bash(> /var/log/*)",
-      "Bash(truncate -s 0 /var/log/*)",
-
-      "Bash(gemini:*)"
+      "Bash(truncate -s 0 /var/log/*)"
     ]
   },
   "env": {
