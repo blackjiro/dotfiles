@@ -84,6 +84,7 @@ in
       zmf = "cd (fd . $HOME --type d --hidden --exclude .git | fzf) && zellij attach $(basename $(pwd)) || zellij -s $(basename $(pwd))";
 
       dot = "cd (chezmoi source-path); and vi .";
+      dotc = "cd (chezmoi source-path); claude";
       dc = "docker compose";
       dcr = "docker compose run --rm";
       dce = "docker compose exec";
