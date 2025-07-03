@@ -186,7 +186,9 @@
       "Bash(rm /var/log/*)",
       "Bash(rm -rf /var/log/*)",
       "Bash(> /var/log/*)",
-      "Bash(truncate -s 0 /var/log/*)"
+      "Bash(truncate -s 0 /var/log/*)",
+
+      "Bash(gemini:*)"
     ]
   },
   "env": {
