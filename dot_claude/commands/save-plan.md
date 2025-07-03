@@ -1,3 +1,8 @@
+---
+allowed-tools: ["Task", "Read", "Write", "Grep", "Glob", "LS", "WebSearch", "TodoWrite", "TodoRead"]
+description: "指定されたトピックについて調査・分析を行い、実装計画を作成してSCRATCH_PAD.mdファイルに保存"
+---
+
 # save-plan
 
 ## 概要

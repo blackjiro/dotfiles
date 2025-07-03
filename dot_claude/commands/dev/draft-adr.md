@@ -1,3 +1,8 @@
+---
+allowed-tools: ["Task", "Read", "Write", "Grep", "Glob", "LS", "WebSearch", "TodoWrite", "TodoRead"]
+description: "技術的な意思決定を文書化するためのADR（Architecture Decision Record）を作成"
+---
+
 # ADR（アーキテクチャデシジョンレコード）作成支援
 
 技術的な意思決定を文書化するためのADR（Architecture Decision Record）を作成します。MADR（Markdown Architectural Decision Records）形式で出力します。

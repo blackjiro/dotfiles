@@ -1,3 +1,8 @@
+---
+allowed-tools: ["Bash", "Read", "Write", "Edit", "LS", "TodoWrite", "TodoRead"]
+description: "taskコマンドをaqua経由でセットアップし、Taskfile.ymlに新しいタスクを追加"
+---
+
 # Setup Aqua Task
 
 taskコマンドをaqua経由でセットアップし、Taskfile.ymlに新しいタスクを追加するためのコマンドです。

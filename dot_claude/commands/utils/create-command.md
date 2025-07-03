@@ -1,6 +1,6 @@
 ---
 allowed-tools: Edit, ReadFile, Bash(mkdir:*)
-description: "Generate custom slash commands for various development workflows based on requirements"
+description: "要件に基づいて様々な開発ワークフロー用のカスタムスラッシュコマンドを生成"
 ---
 
 # Generate Custom Slash Command

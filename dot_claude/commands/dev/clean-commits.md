@@ -1,3 +1,8 @@
+---
+allowed-tools: ["Bash", "Read", "TodoWrite", "TodoRead"]
+description: "PRのコミット履歴をクリーンアップし、論理的なコミットに整理"
+---
+
 # Clean Commits
 
 The PR is ready for review. Please reorganize the commit history on this branch by:
