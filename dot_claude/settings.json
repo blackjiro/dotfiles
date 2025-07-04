@@ -112,6 +112,11 @@
       "Bash(make test*)",
       "Bash(gemini:*)",
 
+      "Bash(go test*)",
+      "Bash(go build*)",
+      "Bash(go run*)",
+      "Bash(go mod *)",
+
       "TodoRead()",
       "TodoWrite(**)",
       "Task(**)"
