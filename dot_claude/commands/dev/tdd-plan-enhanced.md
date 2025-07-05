@@ -141,16 +141,6 @@ graph TD
     I -.->|Error| M[handleValidationError]
     K -.->|Error| N[handleDatabaseError]
     
-    %% スタイリング
-    classDef mainFunc fill:#f9f,stroke:#333,stroke-width:4px;
-    classDef authFunc fill:#bbf,stroke:#333,stroke-width:2px;
-    classDef dataFunc fill:#bfb,stroke:#333,stroke-width:2px;
-    classDef errorFunc fill:#fbb,stroke:#333,stroke-width:2px;
-    
-    class A mainFunc;
-    class E,F,G authFunc;
-    class H,I,J,K dataFunc;
-    class L,M,N errorFunc;
 ```
 
 ### 3.5 データフロー図
