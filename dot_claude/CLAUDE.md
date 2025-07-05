@@ -22,13 +22,12 @@ When web search is needed, you MUST use `gemini --model gemini-2.5-flash --promp
 Run web search via Task Tool with enhanced prompts for current data:
 
 ```bash
-gemini --model gemini-2.5-flash --prompt "WebSearch: <query> latest 2024 2025 current recent updated"
+gemini --model gemini-2.5-flash --prompt "WebSearch: <query> latest"
 ```
 
 Or use time-specific queries:
 
 ```bash
-gemini --model gemini-2.5-flash --prompt "WebSearch: <query> as of 2025 current status latest updates"
+gemini --model gemini-2.5-flash --prompt "WebSearch: <query> as of 20XX current status latest updates"
 ```
 
-Always include temporal keywords like "latest", "current", "2024", "2025", "recent", "updated" to ensure fresh results.
