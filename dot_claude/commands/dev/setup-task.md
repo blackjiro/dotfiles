@@ -1,5 +1,5 @@
 ---
-allowed-tools: ["Bash", "Read", "Write", "Edit", "LS", "TodoWrite", "TodoRead"]
+allowed-tools: Bash(*), Read(*), Write(*), Edit(*), LS(*), TodoWrite(*), TodoRead(*)
 description: "taskコマンドをaqua経由でセットアップし、Taskfile.ymlに新しいタスクを追加"
 ---
 

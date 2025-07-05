@@ -1,5 +1,5 @@
 ---
-allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Glob", "Grep", "LS", "Task", "TodoWrite", "TodoRead"]
+allowed-tools: Read(*), Write(*), Edit(*), MultiEdit(*), Glob(*), Grep(*), LS(*), Task(*), TodoWrite(*), TodoRead(*)
 description: "既存のClaude Codeカスタムコマンドを分析・強化し、プロンプトとワークフローを最適化する高度なメタコマンド"
 ---
 

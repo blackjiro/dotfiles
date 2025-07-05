@@ -1,5 +1,5 @@
 ---
-allowed-tools: ["Read", "Write", "Edit", "MultiEdit", "Grep", "Glob", "LS", "Bash", "Task", "WebSearch", "TodoWrite", "TodoRead"]
+allowed-tools: Read(*), Write(*), Edit(*), MultiEdit(*), Grep(*), Glob(*), LS(*), Bash(*), Task(*), WebSearch(*), TodoWrite(*), TodoRead(*)
 description: "プロフェッショナルのソフトウェアエンジニアとして要件を分析し、TDDに基づいた実装計画をPLAN.mdに作成する"
 ---
 

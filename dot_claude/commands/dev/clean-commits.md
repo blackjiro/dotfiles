@@ -1,5 +1,5 @@
 ---
-allowed-tools: ["Bash", "Read", "Write", "Edit", "TodoWrite", "TodoRead", "Grep", "Glob"]
+allowed-tools: Bash(*), Read(*), Write(*), Edit(*), TodoWrite(*), TodoRead(*), Grep(*), Glob(*)
 description: "PRのコミット履歴を分析し、論理的な単位を提案してからクリーンアップ"
 ---
 

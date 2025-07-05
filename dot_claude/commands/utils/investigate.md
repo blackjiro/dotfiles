@@ -1,5 +1,5 @@
 ---
-allowed-tools: ["Task", "Bash", "Write", "Read"]
+allowed-tools: Task(*), Bash(*), Write(*), Read(*)
 description: "問題を調査してシンプルな解決方法を提案"
 ---
 

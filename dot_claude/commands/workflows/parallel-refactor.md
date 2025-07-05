@@ -1,5 +1,5 @@
 ---
-allowed-tools: ["Task", "Read", "Edit", "MultiEdit", "Write", "Grep", "Glob", "TodoWrite", "TodoRead"]
+allowed-tools: Task(*), Read(*), Edit(*), MultiEdit(*), Write(*), Grep(*), Glob(*), TodoWrite(*), TodoRead(*)
 description: "Claude Codeのサブタスクを使用してファイルの競合を回避しながら複数のリファクタリングタスクを並列実行"
 ---
 

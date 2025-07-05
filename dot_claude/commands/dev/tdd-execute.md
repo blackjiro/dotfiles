@@ -1,5 +1,5 @@
 ---
-allowed-tools: ["Bash", "Read", "Write", "Edit", "Grep", "Glob", "TodoWrite", "TodoRead"]
+allowed-tools: Bash(*), Read(*), Write(*), Edit(*), Grep(*), Glob(*), TodoWrite(*), TodoRead(*)
 description: "TDDで最新のPLAN.mdまたはSCRATCHPAD.mdからタスクを実行"
 ---
 
