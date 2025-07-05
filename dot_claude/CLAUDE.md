@@ -15,12 +15,20 @@
 
 `gemini` is google gemini cli. **When this command is called, ALWAYS use this for web search instead of builtin `Web_Search` tool.**
 
-When web search is needed, you MUST use `gemini --prompt` via Task Tool.
+When web search is needed, you MUST use `gemini --model gemini-2.5-flash --prompt` via Task Tool.
 
-Run web search via Task Tool with `gemini --prompt 'WebSearch: <query>'`
+**IMPORTANT**: Always ensure you get the most current and up-to-date information by explicitly requesting recent data in your search queries.
 
-Run
+Run web search via Task Tool with enhanced prompts for current data:
 
 ```bash
-gemini --prompt "WebSearch: <query>"
+gemini --model gemini-2.5-flash --prompt "WebSearch: <query> latest 2024 2025 current recent updated"
 ```
+
+Or use time-specific queries:
+
+```bash
+gemini --model gemini-2.5-flash --prompt "WebSearch: <query> as of 2025 current status latest updates"
+```
+
+Always include temporal keywords like "latest", "current", "2024", "2025", "recent", "updated" to ensure fresh results.
