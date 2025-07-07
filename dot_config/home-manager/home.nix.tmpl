@@ -82,6 +82,7 @@ in
       vd = "cd (fd . $HOME --type d --hidden --exclude .git | fzf ) && nvim .";
       vf = "fd . $HOME --type f --hidden --exclude .git | fzf | xargs nvim";
       zmf = "cd (fd . $HOME --type d --hidden --exclude .git | fzf) && zellij attach $(basename $(pwd)) || zellij -s $(basename $(pwd))";
+      gwcd = "cd (git worktree list | awk '{print $1}' | fzf)";
 
       dot = "cd (chezmoi source-path); and vi .";
       dotc = "cd (chezmoi source-path); claude";
