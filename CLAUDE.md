@@ -71,3 +71,27 @@ This repository includes Claude Code configurations:
 - Terminal notifications are configured via `terminal-notifier`
 - Custom commands in `dot_claude/commands/`
 - Settings allow Docker, Git, mise, and other development tools
+
+## Implementation Guidelines
+
+When working on this repository, follow these principles:
+
+### Simplicity First
+- Always implement solutions in the simplest way possible that meets the requirements
+- Avoid adding unnecessary features, options, or complexity
+- Do not implement "nice-to-have" features unless explicitly requested
+
+### No Unplanned Features
+- Stick exactly to what was asked - nothing more, nothing less
+- Do not add extra options, configurations, or features that weren't requested
+- Avoid proactive enhancements or improvements unless specifically asked
+
+### User Confirmation Required
+- If the requirements necessitate design decisions or implementations not explicitly mentioned in the instructions, you MUST ask the user for confirmation before proceeding
+- When implementation details are ambiguous, ask for clarification rather than making assumptions
+- Present options to the user when multiple valid approaches exist
+
+### Minimal Changes
+- Prefer minimal, focused changes over comprehensive refactoring unless specifically requested
+- Make only the changes necessary to fulfill the request
+- Maintain existing code style and patterns
