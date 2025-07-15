@@ -28,6 +28,6 @@ gemini --model gemini-2.5-flash --prompt "WebSearch: <query> latest"
 Or use time-specific queries:
 
 ```bash
-gemini --model gemini-2.5-flash --prompt "WebSearch: <query> as of 20XX current status latest updates"
+gemini --model gemini-2.5-flash --prompt "WebSearch: <query> as of 2025 current status latest updates"
 ```
 
