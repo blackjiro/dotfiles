@@ -110,7 +110,7 @@ Generate commands using these proven patterns:
 ### Basic Command Template:
 ```markdown
 ---
-allowed-tools: [Tools]
+allowed-tools: Tools
 description: "[Description]"
 ---
 
