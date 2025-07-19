@@ -50,3 +50,12 @@ When implementing code or planning implementation:
 4. **Test First**: Never write implementation code before writing tests
 5. **Small Steps**: Work in small iterations, one test at a time
 
+## External Modules and Tools
+
+**When using external modules, libraries, or development tools**:
+
+1. **Always use context7 MCP server** to retrieve up-to-date documentation and code examples
+2. **Check library documentation first**: Before implementing code with external dependencies, consult context7 for current best practices and usage patterns
+3. **Version-aware queries**: When available, specify the library version to get accurate documentation
+4. **Verify compatibility**: Use context7 to confirm module compatibility and requirements before implementation
+
