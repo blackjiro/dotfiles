@@ -52,6 +52,63 @@ Create a new slash command based on: $ARGUMENTS
    [Concrete examples of command invocation]
    ```
 
+## Allowed-Tools Configuration Guide
+
+### Available Tools
+
+The `allowed-tools` field controls which tools Claude can use when executing the command. Here are all available tools:
+
+#### Tools Requiring Permission:
+- **Bash**: Execute shell commands
+  - Can be limited to specific commands: `Bash(git:*)`, `Bash(npm:*)`, `Bash(mkdir:*)`
+  - Deny specific commands: Use deny list in permissions
+- **Edit**: Edit existing files
+- **MultiEdit**: Make multiple edits to a single file
+- **NotebookEdit**: Edit Jupyter notebook cells
+- **WebFetch**: Fetch content from URLs
+- **WebSearch**: Search the web
+- **Write**: Create new files or overwrite existing ones
+
+#### Tools Not Requiring Permission:
+- **Glob**: File pattern matching
+- **Grep**: Search file contents with regex
+- **LS**: List directory contents
+- **NotebookRead**: Read Jupyter notebooks
+- **Read**: Read file contents
+- **Task**: Launch sub-agents for complex searches
+- **TodoWrite**: Manage task lists
+
+### Configuration Examples
+
+```yaml
+# Basic tool list
+allowed-tools: Read, Edit, Bash
+
+# Tools with specific command restrictions
+allowed-tools: Read, Edit, Bash(git:*), Bash(npm:*)
+
+# Multiple tools for complex workflows
+allowed-tools: Read, Write, Edit, MultiEdit, Grep, Glob, Bash
+
+# Analysis commands (read-only)
+allowed-tools: Read, Grep, Glob, LS
+
+# File generation commands
+allowed-tools: Read, Write, Edit, Bash(mkdir:*)
+
+# Web-based commands
+allowed-tools: WebSearch, WebFetch, Read, Write
+```
+
+### Tool Selection Guidelines
+
+- **Analysis/Review Commands**: Read, Grep, Glob, LS
+- **Code Generation**: Read, Write, Edit, MultiEdit, Bash(mkdir:*)
+- **Testing/Build**: Read, Bash(npm:*), Bash(yarn:*), Bash(pnpm:*)
+- **Git Operations**: Read, Bash(git:*)
+- **Documentation**: Read, Write, Edit, WebFetch
+- **Search/Research**: Task, Grep, Glob, WebSearch
+
 ## Phase 3: Command Content Generation
 
 Based on the command type, include appropriate sections:
@@ -87,7 +144,7 @@ Based on the command type, include appropriate sections:
 
 1. **Optimize the generated command**
    - Ensure clarity and conciseness
-   - Add appropriate context loading with !`commands` and @files
+   - Add appropriate context loading with `!commands` and @files
    - Include relevant tool permissions
    - Implement efficient workflows
 
@@ -110,7 +167,7 @@ Generate commands using these proven patterns:
 ### Basic Command Template:
 ```markdown
 ---
-allowed-tools: Tools
+allowed-tools: Read, Edit, Bash(git:*)
 description: "[Description]"
 ---
 
@@ -134,7 +191,7 @@ description: "[Description]"
 ### Advanced Workflow Template:
 ```markdown
 ---
-allowed-tools: [Multiple tools]
+allowed-tools: Read, Write, Edit, MultiEdit, Bash, Grep, Glob
 description: "[Complex workflow description]"
 ---
 
@@ -142,8 +199,8 @@ description: "[Complex workflow description]"
 [Purpose]: $ARGUMENTS
 
 ## Current Context
-- Status: !`[status command]`
-- Config: @[config file]
+- Status: `![status command]`
+- Config: `@[config file]`
 
 ## Multi-Phase Workflow
 1. **Pre-flight Checks**
@@ -153,6 +210,40 @@ description: "[Complex workflow description]"
 
 ## Error Recovery
 [Specific error handling strategies]
+```
+
+### Analysis Command Template:
+```markdown
+---
+allowed-tools: Read, Grep, Glob, LS
+description: "[Analysis task description]"
+---
+
+# [Analysis Title]
+Analyze: $ARGUMENTS
+
+## Analysis Criteria
+[Specific metrics and checks]
+
+## Report Format
+[Output structure]
+```
+
+### Generation Command Template:
+```markdown
+---
+allowed-tools: Read, Write, Edit, Bash(mkdir:*)
+description: "[Generation task description]"
+---
+
+# [Generator Title]
+Generate: $ARGUMENTS
+
+## Template Selection
+[Logic for choosing templates]
+
+## File Structure
+[Expected output structure]
 ```
 
 ## Usage Examples
