@@ -273,6 +273,12 @@ function __gw_remove_worktree
         set -l branch_name (git -C $selected branch --show-current)
         echo "Removing worktree: $selected (branch: $branch_name)"
         git worktree remove $selected
+        
+        # Also delete the branch
+        if test -n "$branch_name"
+            echo "Deleting branch: $branch_name"
+            git branch -D $branch_name
+        end
     end
 end
 
