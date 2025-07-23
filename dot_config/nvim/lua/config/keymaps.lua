@@ -17,3 +17,12 @@ if vim.g.vscode then
     vim.cmd("call VSCodeNotify('vspacecode.space')")
   end, { noremap = true, desc = "VSpaceCode: Show VSpaceCode Menu" })
 end
+
+-- Zellij integration: Pass through keybindings to unlock and switch modes
+vim.keymap.set({ "n", "i", "v", "t" }, "<C-t>", function()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-t>", true, false, true), "n", false)
+end, { desc = "Pass Ctrl+t to Zellij for tab mode" })
+
+vim.keymap.set({ "n", "i", "v", "t" }, "<C-p>", function()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-p>", true, false, true), "n", false)
+end, { desc = "Pass Ctrl+p to Zellij for pane mode" })
