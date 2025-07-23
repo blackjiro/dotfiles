@@ -21,6 +21,8 @@ keybinds {
     }
     locked {
         bind "Ctrl g" { SwitchToMode "Normal"; }
+        bind "Ctrl t" { SwitchToMode "Tab"; }
+        bind "Ctrl p" { SwitchToMode "Pane"; }
         bind "Alt z" {
             MessagePlugin "autolock" {payload "disable";};
             SwitchToMode "Normal";
