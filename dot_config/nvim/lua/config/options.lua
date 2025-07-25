@@ -15,3 +15,4 @@ end
 local opt = vim.opt
 
 opt.spelllang = { "en", "cjk" }
+opt.inlay_hints.enabled = false
