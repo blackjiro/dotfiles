@@ -40,7 +40,7 @@ When implementing code or planning implementation:
 3. **DRY Principle**: When similar logic exists in util files or the same file, consolidate by extracting common functions to avoid duplication
 4. **Maintain Cohesion**: Keep related functionality together to improve code organization and maintainability
 
-## Test-Driven Development (TDD)
+## Test-Driven Development (TDD) & Tidy First Principles
 
 **Always follow TDD principles when developing code**:
 
@@ -49,6 +49,17 @@ When implementing code or planning implementation:
 3. **Refactor**: Improve the code while keeping tests passing
 4. **Test First**: Never write implementation code before writing tests
 5. **Small Steps**: Work in small iterations, one test at a time
+
+**Follow Kent Beck's Tidy First refactoring approach**:
+
+1. **Simplicity First**: Always choose the simplest implementation that works
+2. **Avoid Duplication**: Extract common functionality into reusable functions to eliminate similar code patterns
+3. **Small Refactoring Steps**: Make tiny, safe improvements before adding new features
+4. **Clean Code Incrementally**: Tidy up existing code structure before implementing new functionality
+5. **Minimize Complexity**: Avoid over-engineering and unnecessary abstractions
+6. **Function Clarity**: Each function should have a single, clear responsibility
+7. **Remove Dead Code**: Eliminate unused functions, variables, and imports
+8. **Consistent Naming**: Use clear, descriptive names that express intent
 
 ## External Modules and Tools
 
