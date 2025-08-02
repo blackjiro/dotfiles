@@ -312,6 +312,13 @@ function __gw_clean_worktrees
             if test $is_merged -gt 0 -o $remote_exists -eq 0
                 echo "Removing worktree: $worktree (branch: $branch)"
                 git worktree remove $worktree
+                
+                # Also delete the branch
+                if test -n "$branch"
+                    echo "Deleting branch: $branch"
+                    git branch -D $branch
+                end
+                
                 set removed_count (math $removed_count + 1)
             end
         end
