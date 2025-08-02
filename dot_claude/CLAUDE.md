@@ -39,6 +39,9 @@ When implementing code or planning implementation:
 2. **Reuse and Extend**: Look for opportunities to implement new functionality within existing files rather than creating new ones
 3. **DRY Principle**: When similar logic exists in util files or the same file, consolidate by extracting common functions to avoid duplication
 4. **Maintain Cohesion**: Keep related functionality together to improve code organization and maintainability
+5. **Minimal Implementation**: Write only the minimum code necessary to fulfill requirements - avoid adding unnecessary features, options, or complexity
+6. **Prioritize Existing Functions**: Before creating new functions, always check if existing functions can be modified or refactored to handle new requirements
+7. **No Speculative Features**: Do not implement functionality that might be useful in the future - only implement what is explicitly needed now
 
 ## Test-Driven Development (TDD) & Tidy First Principles
 
