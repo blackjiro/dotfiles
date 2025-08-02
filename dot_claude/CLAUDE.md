@@ -42,6 +42,7 @@ When implementing code or planning implementation:
 5. **Minimal Implementation**: Write only the minimum code necessary to fulfill requirements - avoid adding unnecessary features, options, or complexity
 6. **Prioritize Existing Functions**: Before creating new functions, always check if existing functions can be modified or refactored to handle new requirements
 7. **No Speculative Features**: Do not implement functionality that might be useful in the future - only implement what is explicitly needed now
+8. **Allow Destructive Changes for Simplicity**: When refactoring or reimplementing code, prioritize simplicity over preserving existing code. Breaking changes are acceptable if they result in cleaner, simpler implementations with no unnecessary code left behind
 
 ## Test-Driven Development (TDD) & Tidy First Principles
 
@@ -72,4 +73,5 @@ When implementing code or planning implementation:
 2. **Check library documentation first**: Before implementing code with external dependencies, consult context7 for current best practices and usage patterns
 3. **Version-aware queries**: When available, specify the library version to get accurate documentation
 4. **Verify compatibility**: Use context7 to confirm module compatibility and requirements before implementation
+
 
