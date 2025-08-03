@@ -26,3 +26,12 @@ end, { desc = "Pass Ctrl+t to Zellij for tab mode" })
 vim.keymap.set({ "n", "i", "v", "t" }, "<C-p>", function()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-p>", true, false, true), "n", false)
 end, { desc = "Pass Ctrl+p to Zellij for pane mode" })
+
+-- Copy relative path from working directory and line number to clipboard
+vim.keymap.set("n", "<leader>cp", function()
+  local filename = vim.fn.expand("%:~:.")
+  local line_num = vim.fn.line(".")
+  local result = "@" .. filename .. ":" .. line_num
+  vim.fn.setreg("+", result)
+  vim.notify("Copied: " .. result)
+end, { desc = "Copy relative path from cwd:line to clipboard" })
