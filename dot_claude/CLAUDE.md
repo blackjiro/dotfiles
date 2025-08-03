@@ -54,6 +54,14 @@ When implementing code or planning implementation:
 4. **Test First**: Never write implementation code before writing tests
 5. **Small Steps**: Work in small iterations, one test at a time
 
+**Test Strategy for Refactoring Resistance**:
+
+1. **No Direct Testing of Private Functions**: Never create separate test files or test functions for private (internal) functions that are not exposed to external packages or classes
+2. **Extend Public Function Tests**: When testing private function behavior, extend existing tests for the related public functions that call them
+3. **Test Through Public Interface**: Always test private implementation details through the public API that uses them
+4. **Avoid Implementation Coupling**: Tests should focus on behavior and outcomes, not internal implementation details
+5. **Preserve Test Stability**: This approach ensures tests remain stable during refactoring as long as public behavior is maintained
+
 **Follow Kent Beck's Tidy First refactoring approach**:
 
 1. **Simplicity First**: Always choose the simplest implementation that works
