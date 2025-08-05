@@ -12,6 +12,7 @@ description: "GitHub organizationの本日のコミットを分析し、マー�
 1. **リポジトリ一覧の取得**
    - prime-consulting-inc organizationの全リポジトリを取得
    - アクティブなリポジトリを特定
+   - ghコマンドを利用
 
 2. **今日のコミット分析**
    - 各リポジトリの本日のコミットを収集
@@ -26,55 +27,6 @@ description: "GitHub organizationの本日のコミットを分析し、マー�
 4. **画像キャプチャの提案**
    - 投稿に効果的な画像の種類を提案
    - 具体的なキャプチャ方法を説明
-
-## 2025-08-02 Development Progress Report
-
-### Active Repositories (16 total)
-**Most Active Today:**
-1. **hojokin-crawler-poc** (Python) - Last updated: 12:17:01Z
-2. **ipo-navi** (Svelte) - Last updated: 06:45:59Z
-
-### Today's Technical Achievements
-
-#### 🚀 hojokin-crawler-poc Repository
-**5 commits by Hiroki Goto:**
-
-1. **Merged branch 'change-top-page-structure'** (12:11:43Z)
-2. **Expanded Tokyo area coverage** (11:53:26Z)
-   - Added 13 new institutions including 東京都中小企業振興公社
-   - Added ward-level coverage: 江東区, 目黒区, 大田区, 世田谷区, 渋谷区, 中野区, 杉並区
-   - **Total coverage: 16 active institutions**
-
-3. **Configuration restructure** (11:14:52Z)
-   - Replaced 'top_pages' with flexible 'institutions' structure
-   - Added InstitutionConfig class supporting multiple URLs per institution
-   - Improved maintainability and configuration flexibility
-
-4. **Institution name preservation** (06:37:55Z)
-   - Enhanced data integrity by preserving institution names from list to detail pages
-   - Improved batch processing with proper institution associations
-
-#### 🌐 ipo-navi Repository
-**3 commits + 1 merged PR by Hiroki Goto:**
-
-1. **PR #168 Merged: WWW domain redirect implementation** (06:45:55Z)
-   - Implemented automatic redirect from www.ipo-navi.jp to ipo-navi.jp
-   - Added 301 permanent redirect with path/query preservation
-   - Improved SEO and user experience
-
-2. **Domain mapping enhancement** (06:13:08Z)
-3. **robots.txt optimization** (05:48:15Z)
-
-### Workflow Activity
-- **8 successful CI/CD runs** for ipo-navi today
-- **2 failed runs** resolved through iteration (showing robust testing process)
-
-### Marketing Insights
-**Key Achievements for SNS:**
-- **Geographic Expansion**: 13 new Tokyo institutions added to subsidy crawler
-- **Technical Excellence**: Multi-URL institution support showing scalable architecture
-- **User Experience**: SEO optimization with proper domain redirects
-- **Data Integrity**: Enhanced preservation of institutional metadata
 
 ## 使用例
 
