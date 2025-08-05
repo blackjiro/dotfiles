@@ -43,6 +43,7 @@ When implementing code or planning implementation:
 6. **Prioritize Existing Functions**: Before creating new functions, always check if existing functions can be modified or refactored to handle new requirements
 7. **No Speculative Features**: Do not implement functionality that might be useful in the future - only implement what is explicitly needed now
 8. **Allow Destructive Changes for Simplicity**: When refactoring or reimplementing code, prioritize simplicity over preserving existing code. Breaking changes are acceptable if they result in cleaner, simpler implementations with no unnecessary code left behind
+9. **No Code Comments**: Do not add code comments unless explicitly requested. The only exception is when explaining **why** something is implemented in a specific way is genuinely beneficial for understanding critical design decisions or non-obvious constraints
 
 ## Test-Driven Development (TDD) & Tidy First Principles
 
