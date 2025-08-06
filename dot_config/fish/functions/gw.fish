@@ -1,6 +1,6 @@
 function gw --description "Git worktree management tool"
     # Default patterns for ignored files to copy
-    set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*"
+    set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" ".serena/*"
 
     # Get current repository info first
     set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
@@ -346,11 +346,6 @@ function __gw_get_ignored_files
     # Filter by patterns
     set -l matched_files
     for file in $ignored_files
-        # Skip directories
-        if test -d "$source_dir/$file"
-            continue
-        end
-
         # Check against each pattern
         for pattern in $patterns
             # Convert glob pattern to regex-like matching
@@ -383,24 +378,34 @@ function __gw_copy_ignored_files
         set -l source_file "$source_dir/$file"
         set -l target_file "$target_dir/$file"
 
-        # Check file size (warn if > 1MB)
-        set -l file_size (stat -f%z "$source_file" 2>/dev/null; or stat -c%s "$source_file" 2>/dev/null)
-        if test -n "$file_size" -a $file_size -gt 1048576
-            set -l size_mb (math -s2 $file_size / 1048576)
-            echo "  Warning: $file is large ({$size_mb}MB)"
-        end
-
-        # Create target directory if needed
-        set -l target_file_dir (dirname $target_file)
-        if not test -d $target_file_dir
-            mkdir -p $target_file_dir
-        end
-
-        # Copy file
-        if cp "$source_file" "$target_file"
-            echo "  Copied: $file"
+        # Check if it's a directory
+        if test -d "$source_file"
+            # Copy directory recursively
+            if cp -r "$source_file" "$target_file"
+                echo "  Copied directory: $file"
+            else
+                echo "  Error copying directory: $file" >&2
+            end
         else
-            echo "  Error copying: $file" >&2
+            # Check file size (warn if > 1MB)
+            set -l file_size (stat -f%z "$source_file" 2>/dev/null; or stat -c%s "$source_file" 2>/dev/null)
+            if test -n "$file_size" -a $file_size -gt 1048576
+                set -l size_mb (math -s2 $file_size / 1048576)
+                echo "  Warning: $file is large ({$size_mb}MB)"
+            end
+
+            # Create target directory if needed
+            set -l target_file_dir (dirname $target_file)
+            if not test -d $target_file_dir
+                mkdir -p $target_file_dir
+            end
+
+            # Copy file
+            if cp "$source_file" "$target_file"
+                echo "  Copied: $file"
+            else
+                echo "  Error copying: $file" >&2
+            end
         end
     end
 end
