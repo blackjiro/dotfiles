@@ -23,7 +23,7 @@ return {
         function()
           require("telescope.builtin").find_files({
             hidden = true,
-            find_command = { "rg", "--files", "--hidden", "--glob", "!.git/*" },
+            find_command = { "rg", "--files", "--hidden", "--glob", "!.git/*", "--glob", "!node_modules/*" },
           })
         end,
         desc = "Find Files (including hidden)",
