@@ -30,21 +30,4 @@ return {
       },
     },
   },
-  {
-    "greggh/claude-code.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "folke/which-key.nvim",
-    },
-    config = function()
-      require("claude-code").setup({
-        -- You can configure options here if needed
-      })
-    end,
-    keys = {
-      { "<leader>cc", "<cmd>ClaudeCode<cr>", desc = "Claude Code" },
-      { "<leader>ca", "<cmd>ClaudeCodeAccept<cr>", desc = "Accept Claude Code" },
-      { "<leader>cr", "<cmd>ClaudeCodeReject<cr>", desc = "Reject Claude Code" },
-    },
-  },
 }
