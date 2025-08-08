@@ -35,3 +35,6 @@ vim.keymap.set("n", "<leader>cp", function()
   vim.fn.setreg("+", result)
   vim.notify("Copied: " .. result)
 end, { desc = "Copy relative path from cwd:line to clipboard" })
+
+-- Terminal mode mappings
+vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
