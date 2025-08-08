@@ -74,6 +74,13 @@ When implementing code or planning implementation:
 7. **Remove Dead Code**: Eliminate unused functions, variables, and imports
 8. **Consistent Naming**: Use clear, descriptive names that express intent
 
+## Post-Implementation Verification
+
+**After completing any code implementation**:
+
+1. **Refactoring Review**: Always invoke the tidy-first-refactoring-expert agent to review the implementation for potential improvements and apply any suggested refactoring
+2. **Code Quality Check**: If linter/formatter configuration exists in the project, invoke the code-formatter-linter agent to ensure all formatting and linting rules pass
+
 ## External Modules and Tools
 
 **When using external modules, libraries, or development tools**:
