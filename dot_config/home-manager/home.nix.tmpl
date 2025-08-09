@@ -39,7 +39,6 @@ in
     rnr
     skim
     starship
-    superfile
     tree
     tree-sitter
     wget
@@ -52,7 +51,7 @@ in
 
   programs.zsh = {
     enable = true;
-    initExtra = ''
+    initContent = ''
       if [[ $(ps -o comm= -p $PPID) != "fish" && ''$SHLVL == 1 ]]; then
         if [[ -o login ]]; then
           LOGIN_OPTION='--login'
