@@ -76,10 +76,31 @@ When implementing code or planning implementation:
 
 ## Post-Implementation Verification
 
-**After completing any code implementation**:
+**MANDATORY - DO NOT SKIP**: After completing a planned feature or set of related changes, you MUST perform these verification steps:
 
-1. **Refactoring Review**: Always invoke the tidy-first-refactoring-expert agent to review the implementation for potential improvements and apply any suggested refactoring
-2. **Code Quality Check**: If linter/formatter configuration exists in the project, invoke the code-formatter-linter agent to ensure all formatting and linting rules pass
+### ⚠️ CRITICAL REQUIREMENT ⚠️
+**This is NOT optional. These steps MUST be executed when the planned implementation is complete:**
+
+1. **Refactoring Review (REQUIRED)**: 
+   - **ACTION**: Invoke the `tidy-first-refactoring-expert` agent
+   - **PURPOSE**: Review the complete implementation for potential improvements and apply suggested refactoring
+   - **WHEN**: After finishing a complete feature, bug fix, or set of related changes
+   - **SCOPE**: Review all files modified during the implementation task
+
+2. **Code Quality Check (REQUIRED when applicable)**:
+   - **ACTION**: If linter/formatter configuration exists, invoke the `code-formatter-linter` agent
+   - **PURPOSE**: Ensure all formatting and linting rules pass
+   - **WHEN**: After completing the planned changes and any refactoring
+   - **CHECK FIRST**: Look for config files like `.eslintrc`, `ruff.toml`, `prettier.config.js`, etc.
+
+### ⛔ IMPORTANT: A task is NOT complete until these verification steps are done ⛔
+
+**EXECUTION TIMING**: Run these verification steps:
+- After completing a full feature implementation
+- After finishing a bug fix
+- After completing a set of related changes
+- Before reporting task completion to the user
+- NOT after every individual file edit or small code change
 
 ## External Modules and Tools
 
