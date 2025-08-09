@@ -1,6 +1,6 @@
 function gw --description "Git worktree management tool"
     # Default patterns for ignored files to copy
-    set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" ".serena/*"
+    set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*" ".serena/*"
 
     # Get current repository info first
     set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
@@ -273,7 +273,7 @@ function __gw_remove_worktree
         set -l branch_name (git -C $selected branch --show-current)
         echo "Removing worktree: $selected (branch: $branch_name)"
         git worktree remove $selected
-        
+
         # Also delete the branch
         if test -n "$branch_name"
             echo "Deleting branch: $branch_name"
@@ -312,13 +312,13 @@ function __gw_clean_worktrees
             if test $is_merged -gt 0 -o $remote_exists -eq 0
                 echo "Removing worktree: $worktree (branch: $branch)"
                 git worktree remove $worktree
-                
+
                 # Also delete the branch
                 if test -n "$branch"
                     echo "Deleting branch: $branch"
                     git branch -D $branch
                 end
-                
+
                 set removed_count (math $removed_count + 1)
             end
         end
@@ -336,28 +336,54 @@ function __gw_get_ignored_files
     set -l patterns $argv
     set -l source_dir (pwd)
 
-    # Get all ignored files
-    set -l ignored_files (git ls-files --others --ignored --exclude-standard)
-
-    if test -z "$ignored_files"
-        return
-    end
-
-    # Filter by patterns
     set -l matched_files
-    for file in $ignored_files
-        # Check against each pattern
-        for pattern in $patterns
-            # Convert glob pattern to regex-like matching
-            set -l regex_pattern (string escape --style=regex $pattern | string replace -a '\*' '.*')
-            if string match -r "^$regex_pattern\$" $file
-                set matched_files $matched_files $file
-                break
+
+    # Use find to search for files matching each pattern
+    for pattern in $patterns
+        # Handle different pattern types - check more specific patterns first
+        if string match -q "**/.*" $pattern
+            # Pattern like **/.env or **/.env.*
+            set -l base_pattern (string replace "**/" "" $pattern)
+            # Find files matching the pattern in any subdirectory
+            set -l found_files (find . -name "$base_pattern" -type f 2>/dev/null | sed 's|^\./||')
+            set matched_files $matched_files $found_files
+        else if string match -q "*/*" $pattern
+            # Pattern with directory like .serena/*
+            # Split the pattern into directory and file parts
+            set -l parts (string split -m 1 '/' $pattern)
+            set -l dir_pattern $parts[1]
+            set -l file_pattern $parts[2]
+
+            # Check if the directory exists first
+            if test -d "./$dir_pattern"
+                if test "$file_pattern" = "*"
+                    # If pattern is like .serena/*, include the directory itself
+                    # Add the directory as a special entry to copy the whole directory
+                    set matched_files $matched_files $dir_pattern
+                end
             end
+        else
+            # Simple pattern like .env or .env.*
+            # Search in all directories
+            set -l found_files (find . -name "$pattern" -type f 2>/dev/null | sed 's|^\./||')
+            set matched_files $matched_files $found_files
         end
     end
 
-    printf '%s\n' $matched_files
+    # Filter to only include files that are in .gitignore or are directories we want to copy
+    set -l final_files
+    for file in $matched_files
+        # For directories specified with /* pattern, always include them
+        if test -d "$file"
+            set final_files $final_files $file
+        else if git check-ignore "$file" 2>/dev/null
+            # Check if file is ignored by git
+            set final_files $final_files $file
+        end
+    end
+
+    # Remove duplicates and output
+    printf '%s\n' $final_files | sort -u
 end
 
 # Helper function: Copy ignored files to new worktree
@@ -409,4 +435,3 @@ function __gw_copy_ignored_files
         end
     end
 end
-
