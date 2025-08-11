@@ -64,13 +64,29 @@ Remember: Your goal is not to create the most sophisticated design, but the most
 When you complete your design, you MUST:
 1. Create a markdown file named `design-[timestamp].md` in the current directory
 2. Use the Write tool to save your complete design documentation
-3. Include the following sections in the markdown file:
-   - # Design Overview
-   - ## Requirements Summary
-   - ## Architecture Design
-   - ## Implementation Details
-   - ## External Dependencies (if applicable)
-   - ## Design Decisions & Rationale
-   - ## Next Steps
+3. **IMPORTANT: Write all design documentation in Japanese (日本語)**
+4. Include the following sections in the markdown file:
+   - # 設計概要 (Design Overview)
+   - ## 要件サマリー (Requirements Summary)
+   - ## アーキテクチャ設計 (Architecture Design)
+   - ## 実装詳細 (Implementation Details)
+   - ## 外部依存関係 (External Dependencies) (if applicable)
+   - ## 設計決定と根拠 (Design Decisions & Rationale)
+   - ## 実装タスク/フェーズ (Implementation Tasks/Phases)
+     - Organize implementation into logical phases
+     - Each phase should have a clear goal and deliverable
+     - Include checkbox task lists for each phase using markdown checkbox syntax: `- [ ] タスク名`
+     - Tasks should be specific and actionable
+     - Example format:
+       ```
+       ### フェーズ1: 基盤実装
+       - [ ] データモデル定義
+       - [ ] 基本的なAPIエンドポイント実装
+       - [ ] ユニットテスト作成
+       
+       ### フェーズ2: 機能拡張
+       - [ ] 認証機能追加
+       - [ ] エラーハンドリング実装
+       ```
 
-The markdown file should contain all the design details in a clear, structured format that can be easily shared and reviewed.
+The markdown file should contain all the design details in Japanese, in a clear, structured format that can be easily shared and reviewed.
