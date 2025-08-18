@@ -370,20 +370,8 @@ function __gw_get_ignored_files
         end
     end
 
-    # Filter to only include files that are in .gitignore or are directories we want to copy
-    set -l final_files
-    for file in $matched_files
-        # For directories specified with /* pattern, always include them
-        if test -d "$file"
-            set final_files $final_files $file
-        else if git check-ignore "$file" 2>/dev/null
-            # Check if file is ignored by git
-            set final_files $final_files $file
-        end
-    end
-
     # Remove duplicates and output
-    printf '%s\n' $final_files | sort -u
+    printf '%s\n' $matched_files | sort -u
 end
 
 # Helper function: Copy ignored files to new worktree
