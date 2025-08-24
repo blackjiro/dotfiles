@@ -5,7 +5,6 @@ input=$(cat)
 
 # Extract fields from JSON
 cwd=$(echo "$input" | jq -r '.workspace.current_dir')
-model=$(echo "$input" | jq -r '.model.display_name')
 style=$(echo "$input" | jq -r '.output_style.name')
 
 # Get git information
@@ -23,7 +22,6 @@ printf "\033[34m%s\033[0m" "$(basename "$cwd")"
 [ -n "$git_branch" ] && printf " \033[90m%s\033[0m" "$git_branch"
 [ "$git_status" -gt 0 ] && printf "\033[36m*\033[0m"
 [ -n "$venv" ] && printf " \033[90m%s\033[0m" "$venv"
-printf " \033[90m%s\033[0m" "$model"
 [ -n "$ccusage_info" ] && printf " %s" "$ccusage_info"
 printf " \033[90m[%s]\033[0m" "$style"
 
