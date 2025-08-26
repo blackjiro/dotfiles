@@ -90,6 +90,8 @@ in
       dce = "docker compose exec";
       cl  = "claude";
       cld = "claude --dangerously-skip-permissions";
+      clp = ''claude --append-system-prompt "$(cat ~/.claude/auto-plan-mode.txt)"'';
+
     };
     shellAliases = {
       vim = "nvim";
