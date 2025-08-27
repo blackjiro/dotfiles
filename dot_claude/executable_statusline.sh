@@ -5,7 +5,6 @@ input=$(cat)
 
 # Extract fields from JSON
 cwd=$(echo "$input" | jq -r '.workspace.current_dir')
-style=$(echo "$input" | jq -r '.output_style.name')
 
 # Get git information
 git_branch=$(cd "$cwd" && git branch --show-current 2>/dev/null || echo '')
@@ -23,5 +22,4 @@ printf "\033[34m%s\033[0m" "$(basename "$cwd")"
 [ "$git_status" -gt 0 ] && printf "\033[36m*\033[0m"
 [ -n "$venv" ] && printf " \033[90m%s\033[0m" "$venv"
 [ -n "$ccusage_info" ] && printf " %s" "$ccusage_info"
-printf " \033[90m[%s]\033[0m" "$style"
 
