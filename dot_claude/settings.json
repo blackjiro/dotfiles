@@ -112,6 +112,8 @@
       "Bash(make test*)",
       "Bash(gemini:*)",
 
+      "Bash(task dev)",
+
       "Bash(go test*)",
       "Bash(go build*)",
       "Bash(go run*)",
