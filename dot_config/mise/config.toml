@@ -5,8 +5,7 @@
 node = "lts"
 ruby = "3"
 terraform = "latest"
-python = "3.11"
-go = "1.23"
+python = "3.13"
 
 [settings]
 # Always use the latest version when "latest" is specified
