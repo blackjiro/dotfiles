@@ -1,0 +1,15 @@
+# Mise configuration
+# https://mise.jdx.dev/configuration.html
+
+[tools]
+node = "lts"
+ruby = "3"
+terraform = "latest"
+python = "3.11"
+go = "1.23"
+
+[settings]
+# Always use the latest version when "latest" is specified
+experimental = true
+# Use .nvmrc, .node-version, etc. files
+legacy_version_file = true

@@ -1,0 +1,15 @@
+# Bash configuration
+
+# Set default editor
+export EDITOR=vim
+
+# Switch to fish if available
+if command -v fish &> /dev/null; then
+    # Check if we're not already in fish and not in a non-interactive shell
+    if [[ $(ps -o comm= -p $PPID) != "fish" && -z "${BASH_EXECUTION_STRING}" ]]; then
+        exec fish --login
+    fi
+fi
+
+# If fish is not available or we're staying in bash, set up basic environment
+export PATH="/opt/homebrew/bin:$PATH"

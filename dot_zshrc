@@ -1,0 +1,15 @@
+# Zsh configuration
+
+# Set default editor
+export EDITOR=vim
+
+# Set up PATH first to ensure fish can be found
+export PATH="/opt/homebrew/bin:$PATH"
+
+# Switch to fish if available
+if [[ -x /opt/homebrew/bin/fish ]] || command -v fish &> /dev/null; then
+    # Only switch if we're in an interactive shell and not already in fish
+    if [[ -o interactive ]] && [[ $(ps -o comm= -p $PPID) != *"fish"* ]]; then
+        exec fish --login
+    fi
+fi
