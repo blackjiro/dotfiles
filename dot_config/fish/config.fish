@@ -19,6 +19,7 @@ fish_add_path $HOME/.local/bin
 fish_add_path $HOME/.cargo/bin
 fish_add_path /opt/homebrew/opt/openjdk@11/bin
 fish_add_path /usr/local/bin
+fish_add_path /opt/homebrew/share/google-cloud-sdk/bin
 
 # Abbreviations
 abbr --add -- cdf 'cd (fd . $HOME --type d --hidden --exclude .git | fzf )'
