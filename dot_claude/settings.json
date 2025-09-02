@@ -121,10 +121,10 @@
       "TodoWrite(**)",
       "Task(**)",
 
-      "mcp__context7__*",
-      "mcp__serena__*",
-      "mcp__playwright__*",
-      "mcp__terraform__*"
+      "mcp__context7",
+      "mcp__serena",
+      "mcp__playwright",
+      "mcp__terraform"
     ],
 
     "deny": [
