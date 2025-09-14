@@ -22,66 +22,40 @@ When web search is needed, you MUST use `gemini --model gemini-2.5-flash --promp
 Run web search via Task Tool with enhanced prompts for current data:
 
 ```bash
-gemini --model gemini-2.5-flash --prompt "WebSearch: <query> latest"
+gemini --model gemini-2.5-flash --prompt "WebSearch: <query>"
 ```
 
-Or use time-specific queries:
+## Development Principles (Kent Beck's TDD & Tidy First)
 
-```bash
-gemini --model gemini-2.5-flash --prompt "WebSearch: <query> as of 2025 current status latest updates"
-```
+**Core Philosophy**: Simplicity first, following Kent Beck's methodologies
 
-## Code Implementation Guidelines
+### Implementation Guidelines:
+1. **Check Existing Code First**: Review existing files before creating new ones
+2. **Reuse and Extend**: Implement in existing files when possible
+3. **DRY & Clean Code**: Remove duplication, dead code, maintain single responsibility
+4. **Minimal Implementation**: Only what's needed now - no speculative features
+5. **Destructive Simplicity**: Breaking changes acceptable for cleaner code
+6. **No Code Comments**: Unless explicitly requested (exception: critical design decisions)
 
-When implementing code or planning implementation:
+### TDD Cycle: Red → Green → Refactor
+- Write failing test first → Minimal code to pass → Improve while keeping tests green
+- Small iterations, test-first approach
+- Test only through public interfaces, never private functions directly
+- Focus on behavior/outcomes, not implementation details
 
-1. **Check Existing Code First**: Before creating new files, always review existing code to find files that handle the same domain or business logic
-2. **Reuse and Extend**: Look for opportunities to implement new functionality within existing files rather than creating new ones
-3. **DRY Principle**: When similar logic exists in util files or the same file, consolidate by extracting common functions to avoid duplication
-4. **Maintain Cohesion**: Keep related functionality together to improve code organization and maintainability
-5. **Minimal Implementation**: Write only the minimum code necessary to fulfill requirements - avoid adding unnecessary features, options, or complexity
-6. **Prioritize Existing Functions**: Before creating new functions, always check if existing functions can be modified or refactored to handle new requirements
-7. **No Speculative Features**: Do not implement functionality that might be useful in the future - only implement what is explicitly needed now
-8. **Allow Destructive Changes for Simplicity**: When refactoring or reimplementing code, prioritize simplicity over preserving existing code. Breaking changes are acceptable if they result in cleaner, simpler implementations with no unnecessary code left behind
-9. **No Code Comments**: You MUST NOT add code comments unless explicitly requested. The only exception is when explaining **why** something is implemented in a specific way is genuinely beneficial for understanding critical design decisions or non-obvious constraints
-
-## Test-Driven Development (TDD) & Tidy First Principles
-
-**Always follow TDD principles when developing code**:
-
-1. **Red**: Write a failing test first that describes the desired behavior
-2. **Green**: Write the minimal code necessary to make the test pass
-3. **Refactor**: Improve the code while keeping tests passing
-4. **Test First**: Never write implementation code before writing tests
-5. **Small Steps**: Work in small iterations, one test at a time
-
-**Test Strategy for Refactoring Resistance**:
-
-1. **No Direct Testing of Private Functions**: Never create separate test files or test functions for private (internal) functions that are not exposed to external packages or classes
-2. **Extend Public Function Tests**: When testing private function behavior, extend existing tests for the related public functions that call them
-3. **Test Through Public Interface**: Always test private implementation details through the public API that uses them
-4. **Avoid Implementation Coupling**: Tests should focus on behavior and outcomes, not internal implementation details
-5. **Preserve Test Stability**: This approach ensures tests remain stable during refactoring as long as public behavior is maintained
-
-**Follow Kent Beck's Tidy First refactoring approach**:
-
-1. **Simplicity First**: Always choose the simplest implementation that works
-2. **Avoid Duplication**: Extract common functionality into reusable functions to eliminate similar code patterns
-3. **Small Refactoring Steps**: Make tiny, safe improvements before adding new features
-4. **Clean Code Incrementally**: Tidy up existing code structure before implementing new functionality
-5. **Minimize Complexity**: Avoid over-engineering and unnecessary abstractions
-6. **Function Clarity**: Each function should have a single, clear responsibility
-7. **Remove Dead Code**: Eliminate unused functions, variables, and imports
-8. **Consistent Naming**: Use clear, descriptive names that express intent
+### Tidy First Refactoring:
+- Small, safe refactoring steps before new features
+- Maintain cohesion - keep related functionality together
 
 ## Post-Implementation Verification
 
 **MANDATORY - DO NOT SKIP**: After completing a planned feature or set of related changes, you MUST perform these verification steps:
 
 ### ⚠️ CRITICAL REQUIREMENT ⚠️
+
 **This is NOT optional. These steps MUST be executed when the planned implementation is complete:**
 
-1. **Refactoring Review (REQUIRED)**: 
+1. **Refactoring Review (REQUIRED)**:
    - **ACTION**: Invoke the `tidy-first-refactoring-expert` agent
    - **PURPOSE**: Review the complete implementation for potential improvements and apply suggested refactoring
    - **WHEN**: After finishing a complete feature, bug fix, or set of related changes
@@ -96,6 +70,7 @@ When implementing code or planning implementation:
 ### ⛔ IMPORTANT: A task is NOT complete until these verification steps are done ⛔
 
 **EXECUTION TIMING**: Run these verification steps:
+
 - After completing a full feature implementation
 - After finishing a bug fix
 - After completing a set of related changes
@@ -110,5 +85,3 @@ When implementing code or planning implementation:
 2. **Check library documentation first**: Before implementing code with external dependencies, consult context7 for current best practices and usage patterns
 3. **Version-aware queries**: When available, specify the library version to get accurate documentation
 4. **Verify compatibility**: Use context7 to confirm module compatibility and requirements before implementation
-
-
