@@ -227,8 +227,9 @@ function __gw_add_existing
         return 0
     end
 
-    set -l branch_name (basename $selected)
-    set -l worktree_path "$project_worktrees_dir/$branch_name"
+    set -l full_branch_name $selected
+    set -l safe_dir_name (string replace -a '/' '-' $selected)
+    set -l worktree_path "$project_worktrees_dir/$safe_dir_name"
 
     # Check if worktree already exists
     if test -d $worktree_path
@@ -240,12 +241,12 @@ function __gw_add_existing
     mkdir -p $project_worktrees_dir
 
     # Check if it's a remote branch
-    if git show-ref --verify --quiet "refs/remotes/origin/$selected"
-        echo "Creating worktree from remote branch 'origin/$selected'..."
-        git worktree add --track -b $branch_name $worktree_path origin/$selected
+    if git show-ref --verify --quiet "refs/remotes/origin/$full_branch_name"
+        echo "Creating worktree from remote branch 'origin/$full_branch_name'..."
+        git worktree add --track -b $full_branch_name $worktree_path origin/$full_branch_name
     else
-        echo "Creating worktree from local branch '$selected'..."
-        git worktree add $worktree_path $selected
+        echo "Creating worktree from local branch '$full_branch_name'..."
+        git worktree add $worktree_path $full_branch_name
     end
 
     if test $status -eq 0
