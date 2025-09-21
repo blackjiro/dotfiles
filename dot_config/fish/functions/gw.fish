@@ -1,6 +1,6 @@
 function gw --description "Git worktree management tool"
     # Default patterns for ignored files to copy
-    set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*" ".serena/*"
+    set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*"
 
     # Get current repository info first
     set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
