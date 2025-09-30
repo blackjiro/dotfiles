@@ -12,4 +12,5 @@ python = "3.13"
 experimental = true
 # Use .nvmrc, .node-version, etc. files
 legacy_version_file = true
+idiomatic_version_file_enable_tools = ["node"]
 
