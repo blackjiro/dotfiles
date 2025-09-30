@@ -36,6 +36,7 @@ abbr --add -- dce 'docker compose exec'
 abbr --add -- cl 'claude'
 abbr --add -- cld 'claude --dangerously-skip-permissions'
 abbr --add -- clp 'claude --permission-mode plan'
+abbr --add -- clap 'claude --append-system-prompt "$(cat ~/.claude/auto-plan-mode.txt)"'
 abbr --add -- lg 'lazygit'
 
 # Aliases
