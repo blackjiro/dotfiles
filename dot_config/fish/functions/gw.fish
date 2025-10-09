@@ -180,6 +180,7 @@ function __gw_create_new
         end
 
         cd $worktree_path
+        __gw_open_clap_pane $worktree_path
     end
 end
 
@@ -256,6 +257,7 @@ function __gw_add_existing
         end
 
         cd $worktree_path
+        __gw_open_clap_pane $worktree_path
     end
 end
 
@@ -422,5 +424,15 @@ function __gw_copy_ignored_files
                 echo "  Error copying: $file" >&2
             end
         end
+    end
+end
+
+# Helper function: Open claude in a new zellij pane
+function __gw_open_clap_pane
+    set -l worktree_path $argv[1]
+
+    # Only run if inside a zellij session
+    if set -q ZELLIJ
+        zellij action new-pane --direction right --cwd "$worktree_path" -- fish -c "claude --permission-mode plan"
     end
 end
