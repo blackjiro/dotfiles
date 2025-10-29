@@ -118,7 +118,8 @@
       "mcp__serena",
       "mcp__playwright",
       "mcp__terraform",
-      "mcp__linear-server__get_issue"
+      "mcp__linear-server__get_issue",
+      "Bash(openspec:*)"
     ],
     "deny": [
       "Bash(rm -rf /*)",
@@ -177,7 +178,6 @@
       "Bash(rm -rf /var/log:*)",
       "Bash(> /var/log:*)",
       "Bash(truncate -s 0 /var/log:*)",
-      "Bash(openspec:*)"
 
     ]
   },
