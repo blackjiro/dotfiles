@@ -62,3 +62,6 @@ end
 if type -q starship
     starship init fish | source
 end
+
+# Prevent Cursor to hang in shell command execution
+source $(code --locate-shell-integration-path fish)
