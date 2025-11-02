@@ -1,0 +1,26 @@
+# Zsh environment variables
+# This file is sourced by all zsh invocations (interactive and non-interactive)
+
+# Set up Homebrew PATH first
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# Basic PATH configuration (for non-interactive shells)
+# These paths should be available even when .zshrc is not loaded
+export PATH="$HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH"
+
+# mise (asdf replacement) - activate mise for full integration
+# This sets up PATH for installed tools and environment variables
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate zsh)"
+fi
+
+# aquaproj-aqua
+if [[ -d "$HOME/.local/share/aquaproj-aqua/bin" ]]; then
+    export PATH="$HOME/.local/share/aquaproj-aqua/bin:$PATH"
+fi
+
+# Editor
+export EDITOR=vim
+export VISUAL=nvim
