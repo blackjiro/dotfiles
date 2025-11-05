@@ -6,12 +6,12 @@ return {
   { "everviolet/nvim" },
   { "sainnhe/sonokai" },
   { "rebelot/kanagawa.nvim" },
+  { "projekt0n/github-nvim-theme" },
 
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "sonokai",
+      colorscheme = "github_dark",
     },
   },
 }
-
