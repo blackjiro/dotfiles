@@ -2,6 +2,7 @@ return {
   { "tpope/vim-rails" },
   { "mattn/emmet-vim" },
   { "sindrets/diffview.nvim" },
+  { "xiyaowong/transparent.nvim" },
   {
     "williamboman/mason.nvim",
     opts = {
@@ -40,4 +41,3 @@ return {
     },
   },
 }
-
