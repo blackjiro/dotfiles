@@ -2,13 +2,6 @@ function gw --description "Git worktree management tool"
     # Default patterns for ignored files to copy
     set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*"
 
-    # Tool configurations for experiment mode
-    # These can be overridden by setting the variables before calling gw exp
-    set -g GW_EXP_TOOL_1 "claude --permission-mode plan"
-    set -g GW_EXP_TOOL_2 "codex"
-    set -g GW_EXP_TOOL_2_FALLBACK "claude --permission-mode plan"
-    set -g GW_EXP_TOOL_DEFAULT "claude --permission-mode plan"
-
     # Get current repository info first
     set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
     if test -z "$repo_root"
@@ -59,8 +52,8 @@ function gw --description "Git worktree management tool"
                 echo "  gw add              - Create worktree from existing branch"
                 echo "  gw rm               - Remove a worktree"
                 echo "  gw clean            - Remove merged/deleted worktrees"
-                echo "  gw exp [<count>]    - Create experimental worktrees in zellij panes (default: 3)"
-                echo "  gw experiment [<count>] - Alias for 'gw exp'"
+                echo "  gw exp              - Create experimental worktrees in zellij panes (3 columns)"
+                echo "  gw experiment       - Alias for 'gw exp'"
                 echo ""
                 echo "Options for 'new' and 'add' commands:"
                 echo "  --copy-ignored <patterns>  - Copy specific ignored files (comma-separated)"
@@ -453,101 +446,95 @@ end
 function __gw_create_experiment
     set -l project_worktrees_dir $argv[1]
     set -l pane_count 3
-    
-    # Parse pane count if provided
-    if test (count $argv) -ge 2
-        set pane_count $argv[2]
-        # Validate that it's a positive integer
-        if not string match -qr '^[1-9][0-9]*$' $pane_count
-            echo "Error: Pane count must be a positive integer" >&2
-            return 1
-        end
-    end
-    
+
     # Check if we're in a zellij session
     if not set -q ZELLIJ
         echo "Error: Must be run inside a zellij session" >&2
         return 1
     end
-    
+
     # Get current branch as base
     set -l base_branch (git branch --show-current)
     if test -z "$base_branch"
         echo "Error: Not on a branch" >&2
         return 1
     end
-    
+
     # Create directory if needed
     mkdir -p $project_worktrees_dir
-    
+
     # Store current directory for copying ignored files
     set -l source_dir (pwd)
-    
-    # Create new tab for experiments
-    set -l tab_name "exp-$base_branch"
-    zellij action new-tab --name "$tab_name"
-    
-    # Create worktrees and panes
+
+    # Create worktrees first and collect paths
+    set -l worktree_paths
     for i in (seq 1 $pane_count)
         set -l branch_name "$base_branch-exp-$i"
         set -l worktree_path "$project_worktrees_dir/$branch_name"
-        
+
         # Check if worktree/branch already exists
         if test -d $worktree_path
             echo "Warning: Worktree already exists: $worktree_path, skipping..." >&2
+            set worktree_paths $worktree_paths ""
             continue
         end
-        
+
         if git show-ref --verify --quiet "refs/heads/$branch_name"
             echo "Warning: Branch already exists: $branch_name, skipping..." >&2
+            set worktree_paths $worktree_paths ""
             continue
         end
-        
+
         # Create worktree from current branch
         echo "Creating worktree '$branch_name' from '$base_branch'..."
         git worktree add -b $branch_name $worktree_path HEAD
-        
+
         if test $status -ne 0
             echo "Error: Failed to create worktree for $branch_name" >&2
+            set worktree_paths $worktree_paths ""
             continue
         end
-        
+
         # Copy ignored files
         __gw_copy_ignored_files $source_dir $worktree_path $GW_DEFAULT_COPY_PATTERNS
-        
-        # Determine which tool to use
-        set -l tool_command (__gw_get_exp_tool $i)
-        
-        # Create pane (first iteration uses current pane, others create new ones)
-        if test $i -eq 1
-            # First pane: use the current pane in the new tab
-            # Navigate to worktree and start tool
-            zellij action write-chars "cd $worktree_path && $tool_command"
-            zellij action write 13  # Send Enter key
+
+        set worktree_paths $worktree_paths $worktree_path
+    end
+
+    # Generate dynamic layout with worktree paths using cwd
+    set -l tab_name "exp-$base_branch"
+    set -l layout_dir "$HOME/.config/zellij/layouts"
+    mkdir -p $layout_dir
+    set -l temp_layout "$layout_dir/exp-dynamic.kdl"
+
+    set -l layout_content "layout {
+    pane split_direction=\"vertical\" {"
+
+    for i in (seq 1 $pane_count)
+        set -l size "33%"
+        if test $i -eq $pane_count
+            set size "34%"
+        end
+
+        set -l worktree_path $worktree_paths[$i]
+        if test -n "$worktree_path"
+            set layout_content "$layout_content
+        pane size=\"$size\" cwd=\"$worktree_path\""
         else
-            # Subsequent panes: create new pane to the right
-            zellij action new-pane --direction right --cwd "$worktree_path" -- fish -c "$tool_command"
+            set layout_content "$layout_content
+        pane size=\"$size\""
         end
     end
-    
-    echo "Created $pane_count experimental worktrees in tab '$tab_name'"
-end
 
-# Helper function: Get the appropriate tool command for a given pane index
-function __gw_get_exp_tool
-    set -l pane_index $argv[1]
-    
-    switch $pane_index
-        case 1
-            echo $GW_EXP_TOOL_1
-        case 2
-            # Check if codex is available
-            if command -v (string split ' ' $GW_EXP_TOOL_2)[1] >/dev/null 2>&1
-                echo $GW_EXP_TOOL_2
-            else
-                echo $GW_EXP_TOOL_2_FALLBACK
-            end
-        case '*'
-            echo $GW_EXP_TOOL_DEFAULT
-    end
+    set layout_content "$layout_content
+    }
+}"
+
+    # Write layout to config directory
+    echo "$layout_content" > $temp_layout
+
+    # Create new tab with dynamic layout
+    zellij action new-tab --layout "exp-dynamic" --name "$tab_name"
+
+    echo "Created $pane_count experimental worktrees in tab '$tab_name'"
 end
