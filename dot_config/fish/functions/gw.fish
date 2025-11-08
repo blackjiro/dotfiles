@@ -496,6 +496,15 @@ function __gw_create_experiment
     set -l temp_layout "$layout_dir/exp-dynamic.kdl"
 
     set -l layout_content "layout {
+  default_tab_template {
+      pane size=1 borderless=true {
+          plugin location=\"zellij:tab-bar\"
+      }
+      children
+      pane size=2 borderless=true {
+          plugin location=\"zellij:status-bar\"
+      }
+  }
     pane split_direction=\"vertical\" {"
 
     for i in (seq 1 $pane_count)
