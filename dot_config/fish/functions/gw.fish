@@ -354,6 +354,80 @@ function __gw_go_to_main
     cd $main_worktree
 end
 
+# Resolve upstream (e.g. origin/main) for the provided branch
+function __gw_get_upstream_for_branch
+    set -l branch $argv[1]
+    if test -z "$branch"
+        return 1
+    end
+
+    set -l upstream (git for-each-ref --format='%(upstream:short)' "refs/heads/$branch")
+    if test -n "$upstream"
+        echo $upstream
+        return 0
+    end
+
+    if git remote | grep -q '^origin$'
+        echo "origin/$branch"
+        return 0
+    end
+
+    echo "Error: No upstream remote configured for branch '$branch'" >&2
+    return 1
+end
+
+# Fast-forward the local branch to match its upstream remote reference
+function __gw_fast_forward_branch_from_remote
+    set -l branch $argv[1]
+    if test -z "$branch"
+        return 1
+    end
+
+    set -l upstream (__gw_get_upstream_for_branch $branch)
+    if test $status -ne 0
+        return 1
+    end
+
+    set -l upstream_parts (string split -m 1 '/' $upstream)
+    if test (count $upstream_parts) -lt 2
+        echo "Error: Invalid upstream format '$upstream'" >&2
+        return 1
+    end
+
+    set -l remote $upstream_parts[1]
+    set -l remote_branch $upstream_parts[2]
+
+    echo "Fetching latest '$remote_branch' from '$remote'..." >&2
+    git fetch --quiet $remote $remote_branch
+    if test $status -ne 0
+        echo "Error: Failed to fetch '$remote/$remote_branch'" >&2
+        return 1
+    end
+
+    set -l remote_ref "refs/remotes/$remote/$remote_branch"
+    set -l remote_sha (git rev-parse --verify $remote_ref 2>/dev/null)
+    if test -z "$remote_sha"
+        echo "Error: Remote ref '$remote_ref' not found after fetch" >&2
+        return 1
+    end
+
+    set -l local_ref "refs/heads/$branch"
+    set -l local_sha (git rev-parse --verify $local_ref 2>/dev/null)
+
+    if test -z "$local_sha"
+        git update-ref $local_ref $remote_sha
+        return $status
+    end
+
+    git merge-base --is-ancestor $local_sha $remote_sha >/dev/null
+    if test $status -eq 0
+        git update-ref $local_ref $remote_sha
+    else
+        echo "Warning: '$branch' has diverged from '$remote/$remote_branch'; skipped auto fast-forward." >&2
+        return 1
+    end
+end
+
 # Helper function: Create new worktree
 function __gw_create_new
     set -l project_worktrees_dir $argv[1]
@@ -417,6 +491,13 @@ function __gw_create_new
         if test $status -ne 0
             return 1
         end
+
+        __gw_fast_forward_branch_from_remote $main_branch
+        set -l sync_status $status
+        if test $sync_status -ne 0
+            echo "Continuing with local '$main_branch' state." >&2
+        end
+
         echo "Creating worktree '$branch_name' from '$main_branch'..."
         git worktree add -b $branch_name $worktree_path $main_branch
     end
