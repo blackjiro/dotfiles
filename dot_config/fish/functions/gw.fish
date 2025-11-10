@@ -610,6 +610,10 @@ function __gw_create_new
     end
 
     mkdir -p "$base_container"
+    set -l worktree_parent (dirname "$worktree_path")
+    if not test -d "$worktree_parent"
+        mkdir -p "$worktree_parent"
+    end
 
     if test $from_current -eq 1
         echo "Creating worktree '$branch_name' from current branch '$base_branch'..."
@@ -636,7 +640,14 @@ function __gw_add_existing
     set -l project_worktrees_dir $argv[1]
     set -l copy_patterns $GW_DEFAULT_COPY_PATTERNS
     set -l no_copy_ignored 0
+    set -l base_override ""
     set -l source_dir (pwd)
+    set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
+    if test -z "$repo_root"
+        echo "Error: Not inside a git repository" >&2
+        return 1
+    end
+    set -l repo_name (basename $repo_root)
 
     # Parse options (skip first arg which is project_worktrees_dir)
     set -l i 2
@@ -653,9 +664,17 @@ function __gw_add_existing
                 end
             case --no-copy-ignored
                 set no_copy_ignored 1
+            case --base
+                set i (math $i + 1)
+                if test $i -le (count $argv)
+                    set base_override $argv[$i]
+                else
+                    echo "Error: --base requires a value" >&2
+                    return 1
+                end
             case '*'
                 echo "Error: Unknown option: $argv[$i]" >&2
-                echo "Usage: gw add [--copy-ignored <patterns>] [--no-copy-ignored]" >&2
+                echo "Usage: gw add [--copy-ignored <patterns>] [--no-copy-ignored] [--base <branch>]" >&2
                 return 1
         end
         set i (math $i + 1)
@@ -676,34 +695,57 @@ function __gw_add_existing
     end
 
     set -l full_branch_name $selected
-    set -l safe_dir_name (string replace -a '/' '-' $selected)
-    set -l worktree_path "$project_worktrees_dir/$safe_dir_name"
+
+    set -l base_branch $base_override
+    if test -z "$base_branch"
+        set base_branch (__gw_get_main_branch)
+        if test $status -ne 0
+            return 1
+        end
+    end
+
+    set -l base_worktree (__gw_find_worktree_by_branch $base_branch)
+    if test -z "$base_worktree"
+        set -l root_branch (git -C $repo_root rev-parse --abbrev-ref HEAD 2>/dev/null)
+        if test "$root_branch" = "$base_branch"
+            set base_worktree $repo_root
+        end
+    end
+
+    if test -z "$base_worktree"
+        echo "Error: Unable to locate worktree for base branch '$base_branch'. Run 'gw main' first." >&2
+        return 1
+    end
+
+    set -l base_container "$project_worktrees_dir/$base_branch"
+    set -l worktree_path "$base_container/$full_branch_name"
 
     # Check if worktree already exists
-    if test -d $worktree_path
+    if test -d "$worktree_path"
         echo "Error: Worktree already exists: $worktree_path" >&2
         return 1
     end
 
-    # Create directory if needed
-    mkdir -p $project_worktrees_dir
+    mkdir -p "$base_container"
 
     # Check if it's a remote branch
     if git show-ref --verify --quiet "refs/remotes/origin/$full_branch_name"
         echo "Creating worktree from remote branch 'origin/$full_branch_name'..."
-        git worktree add --track -b $full_branch_name $worktree_path origin/$full_branch_name
+        git worktree add --track -b $full_branch_name "$worktree_path" origin/$full_branch_name
     else
         echo "Creating worktree from local branch '$full_branch_name'..."
-        git worktree add $worktree_path $full_branch_name
+        git worktree add "$worktree_path" $full_branch_name
     end
 
     if test $status -eq 0
         # Copy ignored files if not disabled
         if test $no_copy_ignored -eq 0
-            __gw_copy_ignored_files $source_dir $worktree_path $copy_patterns
+            __gw_copy_ignored_files $source_dir "$worktree_path" $copy_patterns
         end
 
-        cd $worktree_path
+        __gw_write_base_metadata "$worktree_path" $repo_name $base_branch $base_worktree
+
+        cd "$worktree_path"
     end
 end
 
