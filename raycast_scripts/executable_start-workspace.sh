@@ -18,5 +18,5 @@
 open -n -a Ghostty --args -e zellij -n workspace_odaily
 
 # ブラウザを開く
-sleep 1
-open -n /Applications/Google\ Chrome.app
+# sleep 1
+# open -n /Applications/Google\ Chrome.app
