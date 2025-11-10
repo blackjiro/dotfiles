@@ -1,3 +1,8 @@
+local function preview_with_chrome()
+  vim.fn.jobstart({ "open", "-n", "/Applications/Google Chrome.app" })
+  vim.cmd("MarkdownPreview")
+end
+
 return {
   {
     "iamcco/markdown-preview.nvim",
@@ -18,7 +23,8 @@ return {
       vim.g.mkdp_browser = "" -- Use default browser
     end,
     keys = {
-      { "<leader>mp", "<cmd>MarkdownPreview<cr>", desc = "Markdown Preview" },
+      { "<leader>mp", preview_with_chrome, desc = "Markdown Preview + Chrome" },
+      { "<leader>mP", "<cmd>MarkdownPreview<cr>", desc = "Markdown Preview" },
     },
   },
 }
