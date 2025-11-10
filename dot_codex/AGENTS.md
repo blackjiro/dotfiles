@@ -1,1 +1,1 @@
-- Think in English but please provide all answers in Japanese
+- Think in English but provide all answers and markdown document in Japanese unless otherwise specified.
