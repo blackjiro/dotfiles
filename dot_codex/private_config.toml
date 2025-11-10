@@ -1,7 +1,7 @@
 model = "gpt-5-codex"
 model_reasoning_effort = "medium"
 network_access = true
-approval_policy = "on-failure"
+approval_policy = "untrusted"
 
 notify = ["bash", "-lc", "afplay /System/Library/Sounds/Ping.aiff"]
 
