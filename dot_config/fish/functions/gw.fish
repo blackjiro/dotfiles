@@ -1,6 +1,8 @@
+set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*"
+set -g GW_BASE_METADATA_FILE ".gw-base"
+
 function gw --description "Git worktree management tool"
     # Default patterns for ignored files to copy
-    set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*"
 
     # Get current repository info first
     set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
@@ -81,35 +83,118 @@ function __gw_get_main_branch
     end
 end
 
-# Determine the base branch for the current worktree
-function __gw_detect_base_branch
-    set -l current_branch (git rev-parse --abbrev-ref HEAD 2>/dev/null)
-    if test -z "$current_branch"
-        echo "Error: Unable to determine current branch" >&2
+function __gw_metadata_file_for
+    set -l worktree_path $argv[1]
+    if test -z "$worktree_path"
+        return 1
+    end
+    echo "$worktree_path/$GW_BASE_METADATA_FILE"
+end
+
+function __gw_write_base_metadata
+    set -l worktree_path $argv[1]
+    set -l repo_name $argv[2]
+    set -l base_branch $argv[3]
+    set -l base_worktree $argv[4]
+
+    if test -z "$worktree_path" -o -z "$base_branch" -o -z "$base_worktree"
         return 1
     end
 
-    set -l base_line (git show-branch | grep '\\*' | grep -F -v "$current_branch" | head -n 1)
-    if test $status -ne 0 -o -z "$base_line"
-        echo "Error: Unable to determine base branch for '$current_branch'" >&2
+    set -l resolved_base (cd $base_worktree 2>/dev/null; and pwd)
+    if test -n "$resolved_base"
+        set base_worktree $resolved_base
+    end
+
+    set -l meta_file (__gw_metadata_file_for $worktree_path)
+    printf 'repo=%s\nbase_branch=%s\nbase_worktree=%s\n' "$repo_name" "$base_branch" "$base_worktree" > "$meta_file"
+end
+
+function __gw_read_base_metadata
+    set -l worktree_path $argv[1]
+    set -l meta_file (__gw_metadata_file_for $worktree_path)
+
+    if not test -f "$meta_file"
         return 1
     end
 
-    set -l base_branch (string replace -r '.*\\[([^\\]]+)\\].*' '$1' -- $base_line)
-    if test -z "$base_branch"
-        echo "Error: Failed to parse base branch from show-branch output" >&2
+    set -l base_branch ""
+    set -l base_worktree ""
+    set -l repo_name ""
+
+    while read -l line
+        set line (string trim $line)
+        if test -z "$line"
+            continue
+        end
+        if string match -q '#*' "$line"
+            continue
+        end
+
+        set -l parts (string split -m 1 '=' $line)
+        if test (count $parts) -lt 2
+            continue
+        end
+
+        set -l key (string trim $parts[1])
+        set -l value (string trim $parts[2])
+
+        switch $key
+            case repo
+                set repo_name $value
+            case base_branch
+                set base_branch $value
+            case base_worktree
+                set base_worktree $value
+        end
+    end < "$meta_file"
+
+    if test -z "$base_branch" -o -z "$base_worktree"
         return 1
-    end
-
-    if string match -q 'remotes/*' $base_branch
-        set base_branch (string replace 'remotes/' '' $base_branch)
-    end
-
-    if string match -q 'origin/*' $base_branch
-        set base_branch (string replace 'origin/' '' $base_branch)
     end
 
     echo $base_branch
+    echo $base_worktree
+    echo $repo_name
+    return 0
+end
+
+function __gw_resolve_base_info
+    set -l worktree_path $argv[1]
+    set -l base_branch ""
+    set -l base_worktree ""
+
+    set -l meta (__gw_read_base_metadata $worktree_path)
+    if test $status -eq 0
+        set base_branch $meta[1]
+        set base_worktree $meta[2]
+    end
+
+    if test -z "$base_branch" -o -z "$base_worktree"
+        if string match -q "$HOME/worktrees/*" "$worktree_path"
+            set -l parent (dirname $worktree_path)
+            if test -z "$base_branch"
+                set base_branch (basename $parent)
+            end
+            if test -z "$base_worktree"
+                set base_worktree $parent
+            end
+        end
+    end
+
+    if test -z "$base_branch" -o -z "$base_worktree"
+        echo "Error: Unable to resolve base worktree for '$worktree_path'." >&2
+        echo "Hint: recreate this worktree via 'gw new' or 'gw exp' to regenerate metadata." >&2
+        return 1
+    end
+
+    set -l resolved (cd "$base_worktree" 2>/dev/null; and pwd)
+    if test -n "$resolved"
+        set base_worktree $resolved
+    end
+
+    echo $base_branch
+    echo $base_worktree
 end
 
 # Find a worktree path for the provided branch name
@@ -144,7 +229,8 @@ function __gw_find_worktree_by_branch
 end
 
 # Apply current worktree changes onto its base worktree
-function __gw_apply_to_base
+
+function __gw_apply_to_base_impl
     set -l project_worktrees_dir $argv[1]
     set -l target_override ""
     if test (count $argv) -ge 2
@@ -167,45 +253,24 @@ function __gw_apply_to_base
     set -l base_worktree ""
 
     if test -n "$target_override"
-        if test -d $target_override
-            set base_worktree (cd $target_override 2>/dev/null; and pwd)
+        if test -d "$target_override"
+            set base_worktree (cd "$target_override" 2>/dev/null; and pwd)
             if test -z "$base_worktree"
                 echo "Error: Unable to resolve target path '$target_override'" >&2
                 return 1
             end
-            set base_branch (git -C $base_worktree rev-parse --abbrev-ref HEAD 2>/dev/null)
+            set base_branch (git -C "$base_worktree" rev-parse --abbrev-ref HEAD 2>/dev/null)
         else
             set base_branch $target_override
+            set base_worktree (__gw_find_worktree_by_branch $base_branch)
         end
     else
-        set -l detected (__gw_detect_base_branch)
+        set -l resolved (__gw_resolve_base_info $repo_root)
         if test $status -ne 0
             return 1
         end
-        set base_branch $detected
-    end
-
-    if test -z "$base_branch" -a -z "$base_worktree"
-        echo "Error: Could not determine a base branch or worktree" >&2
-        return 1
-    end
-
-    if test -n "$base_branch" -a "$base_branch" = "$current_branch"
-        echo "Error: Base branch resolved to current branch ($current_branch)" >&2
-        return 1
-    end
-
-    if test -z "$base_worktree" -a -n "$base_branch"
-        set base_worktree (__gw_find_worktree_by_branch $base_branch)
-        if test -z "$base_worktree"
-            set -l fallback "$project_worktrees_dir/$base_branch"
-            if test -d $fallback
-                set base_worktree $fallback
-            else
-                echo "Error: Worktree for base branch '$base_branch' not found" >&2
-                return 1
-            end
-        end
+        set base_branch $resolved[1]
+        set base_worktree $resolved[2]
     end
 
     if test -z "$base_worktree"
@@ -213,12 +278,27 @@ function __gw_apply_to_base
         return 1
     end
 
+    if not test -d "$base_worktree"
+        echo "Error: Base worktree path '$base_worktree' does not exist" >&2
+        return 1
+    end
+
     if test -z "$base_branch"
-        set base_branch (git -C $base_worktree rev-parse --abbrev-ref HEAD 2>/dev/null)
+        set base_branch (git -C "$base_worktree" rev-parse --abbrev-ref HEAD 2>/dev/null)
     end
 
     if test -z "$base_branch"
         set base_branch (basename $base_worktree)
+    end
+
+    if test -z "$base_branch"
+        echo "Error: Could not determine base branch name" >&2
+        return 1
+    end
+
+    if test "$base_branch" = "$current_branch"
+        echo "Error: Base branch resolved to current branch ($current_branch)" >&2
+        return 1
     end
 
     if test "$base_worktree" = "$repo_root"
@@ -226,18 +306,18 @@ function __gw_apply_to_base
         return 1
     end
 
-    set -l dirty_status (git -C $base_worktree status --porcelain)
+    set -l dirty_status (git -C "$base_worktree" status --porcelain)
     if test -n "$dirty_status"
         echo "Base worktree '$base_worktree' has uncommitted changes:" >&2
-        git -C $base_worktree status --short >&2
+        git -C "$base_worktree" status --short >&2
         read -l response -P "Discard base worktree changes before applying? [y/N] "
         set response (string lower (string trim $response))
         if not string match -q -r '^(y|yes)$' $response
             echo "Aborted." >&2
             return 1
         end
-        git -C $base_worktree reset --hard >/dev/null
-        git -C $base_worktree clean -fd >/dev/null
+        git -C "$base_worktree" reset --hard >/dev/null
+        git -C "$base_worktree" clean -fd >/dev/null
     end
 
     set -l temp_dir (mktemp -d /tmp/gw-apply.XXXXXX)
@@ -249,14 +329,14 @@ function __gw_apply_to_base
     set -l commit_patch "$temp_dir/commits.patch"
     set -l worktree_patch "$temp_dir/worktree.patch"
 
-    git diff --binary "$base_branch...$current_branch" > $commit_patch
+    git -C "$repo_root" diff --binary "$base_branch...$current_branch" > $commit_patch
     if test $status -ne 0
         rm -rf $temp_dir
         echo "Error: Failed to create diff between '$base_branch' and '$current_branch'" >&2
         return 1
     end
 
-    git diff --binary HEAD > $worktree_patch
+    git -C "$repo_root" diff --binary HEAD > $worktree_patch
     if test $status -ne 0
         rm -rf $temp_dir
         echo "Error: Failed to capture working tree changes" >&2
@@ -265,7 +345,7 @@ function __gw_apply_to_base
 
     set -l applied_commits 0
     if test -s $commit_patch
-        if git -C $base_worktree apply --3way --allow-empty --whitespace=nowarn $commit_patch
+        if git -C "$base_worktree" apply --3way --allow-empty --whitespace=nowarn $commit_patch
             set applied_commits 1
         else
             rm -rf $temp_dir
@@ -276,7 +356,7 @@ function __gw_apply_to_base
 
     set -l applied_worktree 0
     if test -s $worktree_patch
-        if git -C $base_worktree apply --allow-empty --whitespace=nowarn $worktree_patch
+        if git -C "$base_worktree" apply --allow-empty --whitespace=nowarn $worktree_patch
             set applied_worktree 1
         else
             rm -rf $temp_dir
@@ -286,7 +366,7 @@ function __gw_apply_to_base
     end
 
     set -l copied_untracked 0
-    set -l untracked_files (git ls-files --others --exclude-standard)
+    set -l untracked_files (git -C "$repo_root" ls-files --others --exclude-standard)
     for file in $untracked_files
         set -l source_path "$repo_root/$file"
         if not test -e $source_path
@@ -318,6 +398,18 @@ function __gw_apply_to_base
     if test $copied_untracked -eq 1
         echo "  - untracked files copied"
     end
+
+    return 0
+end
+
+function __gw_apply_to_base
+    set -l original_pwd (pwd)
+    __gw_apply_to_base_impl $argv
+    set -l apply_status $status
+    if test -n "$original_pwd" -a -d "$original_pwd"
+        cd "$original_pwd"
+    end
+    return $apply_status
 end
 
 # Helper function: Select and switch to worktree
@@ -436,6 +528,12 @@ function __gw_create_new
     set -l copy_patterns $GW_DEFAULT_COPY_PATTERNS
     set -l no_copy_ignored 0
     set -l source_dir (pwd)
+    set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
+    if test -z "$repo_root"
+        echo "Error: Not inside a git repository" >&2
+        return 1
+    end
+    set -l repo_name (basename $repo_root)
 
     # Parse options (skip first arg which is project_worktrees_dir)
     set -l i 2
@@ -468,47 +566,68 @@ function __gw_create_new
         return 1
     end
 
-    set -l worktree_path "$project_worktrees_dir/$branch_name"
+    set -l base_branch ""
+    set -l base_worktree ""
 
-    # Check if worktree already exists
-    if test -d $worktree_path
-        echo "Error: Worktree already exists: $worktree_path" >&2
-        return 1
-    end
-
-    # Create directory if needed
-    mkdir -p $project_worktrees_dir
-
-    # Create worktree
     if test $from_current -eq 1
-        # Create from current branch
-        set -l current_branch (git branch --show-current)
-        echo "Creating worktree '$branch_name' from current branch '$current_branch'..."
-        git worktree add -b $branch_name $worktree_path HEAD
+        set base_branch (git branch --show-current)
+        if test -z "$base_branch"
+            echo "Error: Unable to determine current branch" >&2
+            return 1
+        end
+        set base_worktree $repo_root
     else
-        # Create from main branch
-        set -l main_branch (__gw_get_main_branch)
+        set base_branch (__gw_get_main_branch)
         if test $status -ne 0
             return 1
         end
 
-        __gw_fast_forward_branch_from_remote $main_branch
-        set -l sync_status $status
-        if test $sync_status -ne 0
-            echo "Continuing with local '$main_branch' state." >&2
+        __gw_fast_forward_branch_from_remote $base_branch
+        if test $status -ne 0
+            echo "Continuing with local '$base_branch' state." >&2
         end
 
-        echo "Creating worktree '$branch_name' from '$main_branch'..."
-        git worktree add -b $branch_name $worktree_path $main_branch
+        set base_worktree (__gw_find_worktree_by_branch $base_branch)
+        if test -z "$base_worktree"
+            set -l root_branch (git -C $repo_root rev-parse --abbrev-ref HEAD 2>/dev/null)
+            if test "$root_branch" = "$base_branch"
+                set base_worktree $repo_root
+            end
+        end
+
+        if test -z "$base_worktree"
+            echo "Error: Unable to locate worktree for base branch '$base_branch'. Run 'gw main' first." >&2
+            return 1
+        end
+    end
+
+    set -l base_container "$project_worktrees_dir/$base_branch"
+    set -l worktree_path "$base_container/$branch_name"
+
+    if test -d "$worktree_path"
+        echo "Error: Worktree already exists: $worktree_path" >&2
+        return 1
+    end
+
+    mkdir -p "$base_container"
+
+    if test $from_current -eq 1
+        echo "Creating worktree '$branch_name' from current branch '$base_branch'..."
+        git worktree add -b $branch_name "$worktree_path" HEAD
+    else
+        echo "Creating worktree '$branch_name' from '$base_branch'..."
+        git worktree add -b $branch_name "$worktree_path" $base_branch
     end
 
     if test $status -eq 0
         # Copy ignored files if not disabled
         if test $no_copy_ignored -eq 0
-            __gw_copy_ignored_files $source_dir $worktree_path $copy_patterns
+            __gw_copy_ignored_files $source_dir "$worktree_path" $copy_patterns
         end
 
-        cd $worktree_path
+        __gw_write_base_metadata "$worktree_path" $repo_name $base_branch $base_worktree
+
+        cd "$worktree_path"
     end
 end
 
@@ -772,20 +891,25 @@ function __gw_create_experiment
         return 1
     end
 
-    # Create directory if needed
-    mkdir -p $project_worktrees_dir
-
     # Store current directory for copying ignored files
     set -l source_dir (pwd)
+    set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
+    if test -z "$repo_root"
+        echo "Error: Not inside a git repository" >&2
+        return 1
+    end
+    set -l repo_name (basename $repo_root)
+    set -l base_container "$project_worktrees_dir/$base_branch"
+    mkdir -p "$base_container"
 
     # Create worktrees first and collect paths
     set -l worktree_paths
     for i in (seq 1 $pane_count)
         set -l branch_name "$base_branch-exp-$i"
-        set -l worktree_path "$project_worktrees_dir/$branch_name"
+        set -l worktree_path "$base_container/$branch_name"
 
         # Check if worktree/branch already exists
-        if test -d $worktree_path
+        if test -d "$worktree_path"
             echo "Warning: Worktree already exists: $worktree_path, skipping..." >&2
             set worktree_paths $worktree_paths ""
             continue
@@ -799,7 +923,7 @@ function __gw_create_experiment
 
         # Create worktree from current branch
         echo "Creating worktree '$branch_name' from '$base_branch'..."
-        git worktree add -b $branch_name $worktree_path HEAD
+        git worktree add -b $branch_name "$worktree_path" HEAD
 
         if test $status -ne 0
             echo "Error: Failed to create worktree for $branch_name" >&2
@@ -808,7 +932,9 @@ function __gw_create_experiment
         end
 
         # Copy ignored files
-        __gw_copy_ignored_files $source_dir $worktree_path $GW_DEFAULT_COPY_PATTERNS
+        __gw_copy_ignored_files $source_dir "$worktree_path" $GW_DEFAULT_COPY_PATTERNS
+
+        __gw_write_base_metadata "$worktree_path" $repo_name $base_branch $source_dir
 
         set worktree_paths $worktree_paths $worktree_path
     end
