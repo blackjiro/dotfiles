@@ -4,8 +4,6 @@ network_access = true
 approval_policy = "on-request"
 sandbox_mode    = "workspace-write"
 
-notify = ["bash", "-lc", "afplay /System/Library/Sounds/Ping.aiff"]
-
 [mcp_servers.context7]
 command = "npx"
 args = ["-y", "@upstash/context7-mcp@latest"]
