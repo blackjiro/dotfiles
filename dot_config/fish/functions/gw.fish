@@ -44,6 +44,9 @@ function gw --description "Git worktree management tool"
             case exp experiment
                 # Create experimental worktrees in zellij panes
                 __gw_create_experiment $project_worktrees_dir $argv[2..-1]
+            case exp-clean exp-delete
+                # Remove experimental worktrees/branches
+                __gw_delete_experiment_worktrees $project_worktrees_dir $argv[2..-1]
             case apply
                 # Apply current worktree changes to its base branch worktree
                 __gw_apply_to_base $project_worktrees_dir $argv[2..-1]
@@ -71,6 +74,7 @@ function gw --description "Git worktree management tool"
                 echo "  gw clean [--force]  - Remove merged/deleted worktrees (force ignores local changes)"
                 echo "  gw exp              - Create experimental worktrees in zellij panes (3 columns)"
                 echo "  gw experiment       - Alias for 'gw exp'"
+                echo "  gw exp-clean        - Delete experiment worktrees for the current branch (forces removal)"
                 echo "  gw apply [target]   - Apply current worktree changes onto its base worktree"
                 echo "  gw prompt-gen compare - Generate an AI比較用プロンプト for experiment worktrees"
                 echo ""
@@ -1073,6 +1077,102 @@ function __gw_create_experiment
     zellij action new-tab --layout "exp-dynamic" --name "$tab_name"
 
     echo "Created $pane_count experimental worktrees in tab '$tab_name'"
+end
+
+# Helper function: Delete experimental worktrees/branches
+function __gw_delete_experiment_worktrees
+    set -l project_worktrees_dir $argv[1]
+
+    set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
+    if test -z "$repo_root"
+        echo "Error: Not inside a git repository" >&2
+        return 1
+    end
+
+    set -l base_branch (git branch --show-current)
+    if test -z "$base_branch"
+        echo "Error: Unable to determine current branch" >&2
+        return 1
+    end
+
+    set -l target_prefix "$base_branch-exp-"
+    set -l experiment_branches
+    set -l experiment_paths
+    set -l current_path ""
+
+    for line in (git worktree list --porcelain)
+        if string match -q -r '^worktree ' $line
+            set current_path (string replace -r '^worktree ' '' $line)
+        else if string match -q -r '^branch ' $line
+            set -l branch_ref (string replace -r '^branch ' '' $line)
+            set -l branch_name (string replace -r '^refs/heads/' '' $branch_ref)
+            if string match -q "$target_prefix*" $branch_name
+                set experiment_branches $experiment_branches $branch_name
+                set experiment_paths $experiment_paths $current_path
+            end
+        end
+    end
+
+    if test (count $experiment_branches) -eq 0
+        echo "Error: No experiment worktrees found for '$base_branch'. Run 'gw exp' first." >&2
+        return 1
+    end
+
+    echo "The following experiment worktrees/branches will be deleted:"
+    for idx in (seq 1 (count $experiment_branches))
+        set -l branch $experiment_branches[$idx]
+        set -l path $experiment_paths[$idx]
+        if test -n "$path"
+            echo "  - $branch ($path)"
+        else
+            echo "  - $branch (no worktree path detected)"
+        end
+    end
+
+    read -l response -P "Delete experiment worktrees for '$base_branch'? [y/N] "
+    set response (string lower (string trim $response))
+    if not string match -q -r '^(y|yes)$' $response
+        echo "Aborted."
+        return 1
+    end
+
+    set -l removed_count 0
+    for idx in (seq 1 (count $experiment_branches))
+        set -l branch $experiment_branches[$idx]
+        set -l path $experiment_paths[$idx]
+
+        if test -n "$path" -a -d "$path"
+            echo "Removing worktree: $path (branch: $branch)"
+            if not git -C "$repo_root" worktree remove --force "$path"
+                echo "Warning: Failed to remove worktree $path" >&2
+            end
+        else
+            echo "No worktree directory found for branch $branch, skipping worktree removal"
+        end
+
+        if git -C "$repo_root" show-ref --verify --quiet "refs/heads/$branch"
+            echo "Deleting branch: $branch"
+            if not git -C "$repo_root" branch -D $branch
+                echo "Warning: Failed to delete branch $branch" >&2
+            end
+        else
+            echo "Branch already deleted: $branch"
+        end
+
+        set removed_count (math $removed_count + 1)
+    end
+
+    if test -n "$project_worktrees_dir"
+        set -l base_container "$project_worktrees_dir/$base_branch"
+        if test -d "$base_container"
+            set -l remaining (find "$base_container" -mindepth 1 -maxdepth 1 2>/dev/null)
+            if test (count $remaining) -eq 0
+                rm -rf "$base_container"
+            end
+        end
+    end
+
+    echo "Removed $removed_count experiment branch(es) for '$base_branch'."
 end
 
 # Helper function: Generate comparison prompt for experiment worktrees
