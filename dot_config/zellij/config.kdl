@@ -23,6 +23,8 @@ keybinds {
         bind "Ctrl g" { SwitchToMode "Normal"; }
         bind "Ctrl t" { SwitchToMode "Tab"; }
         bind "Ctrl p" { SwitchToMode "Pane"; }
+        bind "Ctrl n" { SwitchToMode "Resize"; }
+        bind "Ctrl m" { SwitchToMode "Move"; }
         bind "Alt z" {
             MessagePlugin "autolock" {payload "disable";};
             SwitchToMode "Normal";

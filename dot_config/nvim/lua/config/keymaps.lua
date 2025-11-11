@@ -27,6 +27,14 @@ vim.keymap.set({ "n", "i", "v", "t" }, "<C-p>", function()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-p>", true, false, true), "n", false)
 end, { desc = "Pass Ctrl+p to Zellij for pane mode" })
 
+vim.keymap.set({ "n", "i", "v", "t" }, "<C-n>", function()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-n>", true, false, true), "n", false)
+end, { desc = "Pass Ctrl+n to Zellij" })
+
+vim.keymap.set({ "n", "i", "v", "t" }, "<C-m>", function()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-m>", true, false, true), "n", false)
+end, { desc = "Pass Ctrl+m to Zellij" })
+
 -- Copy relative path from working directory and line number to clipboard
 vim.keymap.set("n", "<leader>cp", function()
   local filename = vim.fn.expand("%:~:.")
