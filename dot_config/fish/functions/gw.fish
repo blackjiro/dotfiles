@@ -37,10 +37,10 @@ function gw --description "Git worktree management tool"
                 __gw_add_existing $project_worktrees_dir $argv[2..-1]
             case rm
                 # Remove worktree with fzf
-                __gw_remove_worktree
+                __gw_remove_worktree $argv[2..-1]
             case clean
                 # Clean up merged/deleted worktrees
-                __gw_clean_worktrees
+                __gw_clean_worktrees $argv[2..-1]
             case exp experiment
                 # Create experimental worktrees in zellij panes
                 __gw_create_experiment $project_worktrees_dir $argv[2..-1]
@@ -55,8 +55,8 @@ function gw --description "Git worktree management tool"
                 echo "  gw new <name>       - Create new worktree from main branch"
                 echo "  gw new -c <name>    - Create new worktree from current branch"
                 echo "  gw add              - Create worktree from existing branch"
-                echo "  gw rm               - Remove a worktree"
-                echo "  gw clean            - Remove merged/deleted worktrees"
+                echo "  gw rm [--force]     - Remove a worktree (force ignores local changes)"
+                echo "  gw clean [--force]  - Remove merged/deleted worktrees (force ignores local changes)"
                 echo "  gw exp              - Create experimental worktrees in zellij panes (3 columns)"
                 echo "  gw experiment       - Alias for 'gw exp'"
                 echo "  gw apply [target]   - Apply current worktree changes onto its base worktree"
@@ -751,6 +751,19 @@ end
 
 # Helper function: Remove worktree
 function __gw_remove_worktree
+    set -l force 0
+    for arg in $argv
+        switch $arg
+            case -f --force
+                set force 1
+            case ''
+                continue
+            case '*'
+                echo "Usage: gw rm [--force]" >&2
+                return 1
+        end
+    end
+
     set -l worktrees (git worktree list --porcelain | grep "^worktree" | sed 's/^worktree //' | grep -v (git rev-parse --show-toplevel))
 
     if test -z "$worktrees"
@@ -763,7 +776,11 @@ function __gw_remove_worktree
     if test -n "$selected"
         set -l branch_name (git -C $selected branch --show-current)
         echo "Removing worktree: $selected (branch: $branch_name)"
-        git worktree remove $selected
+        set -l remove_args remove
+        if test $force -eq 1
+            set remove_args $remove_args --force
+        end
+        git worktree $remove_args $selected
 
         # Also delete the branch
         if test -n "$branch_name"
@@ -775,6 +792,19 @@ end
 
 # Helper function: Clean merged/deleted worktrees
 function __gw_clean_worktrees
+    set -l force 0
+    for arg in $argv
+        switch $arg
+            case -f --force
+                set force 1
+            case ''
+                continue
+            case '*'
+                echo "Usage: gw clean [--force]" >&2
+                return 1
+        end
+    end
+
     set -l main_branch (__gw_get_main_branch)
     if test $status -ne 0
         return 1
@@ -802,7 +832,11 @@ function __gw_clean_worktrees
 
             if test $is_merged -gt 0 -o $remote_exists -eq 0
                 echo "Removing worktree: $worktree (branch: $branch)"
-                git worktree remove $worktree
+                set -l remove_args remove
+                if test $force -eq 1
+                    set remove_args $remove_args --force
+                end
+                git worktree $remove_args $worktree
 
                 # Also delete the branch
                 if test -n "$branch"
