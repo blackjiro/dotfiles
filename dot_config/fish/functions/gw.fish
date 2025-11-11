@@ -47,6 +47,18 @@ function gw --description "Git worktree management tool"
             case apply
                 # Apply current worktree changes to its base branch worktree
                 __gw_apply_to_base $project_worktrees_dir $argv[2..-1]
+            case prompt-gen
+                if test (count $argv) -lt 2
+                    echo "Usage: gw prompt-gen compare" >&2
+                    return 1
+                end
+                switch $argv[2]
+                    case compare
+                        __gw_prompt_gen_compare $project_worktrees_dir $repo_root
+                    case '*'
+                        echo "Usage: gw prompt-gen compare" >&2
+                        return 1
+                end
             case '*'
                 echo "Usage: gw [command] [options]"
                 echo "Commands:"
@@ -60,6 +72,7 @@ function gw --description "Git worktree management tool"
                 echo "  gw exp              - Create experimental worktrees in zellij panes (3 columns)"
                 echo "  gw experiment       - Alias for 'gw exp'"
                 echo "  gw apply [target]   - Apply current worktree changes onto its base worktree"
+                echo "  gw prompt-gen compare - Generate an AI比較用プロンプト for experiment worktrees"
                 echo ""
                 echo "Options for 'new' and 'add' commands:"
                 echo "  --copy-ignored <patterns>  - Copy specific ignored files (comma-separated)"
@@ -1060,4 +1073,102 @@ function __gw_create_experiment
     zellij action new-tab --layout "exp-dynamic" --name "$tab_name"
 
     echo "Created $pane_count experimental worktrees in tab '$tab_name'"
+end
+
+# Helper function: Generate comparison prompt for experiment worktrees
+function __gw_prompt_gen_compare
+    set -l project_worktrees_dir $argv[1]
+    set -l repo_root $argv[2]
+
+    set -l base_branch (git branch --show-current)
+    if test -z "$base_branch"
+        echo "Error: Not on a branch" >&2
+        return 1
+    end
+
+    set -l repo_name (basename $repo_root)
+    set -l base_container "$project_worktrees_dir/$base_branch"
+    if not test -d "$base_container"
+        echo "Error: No experiment container for branch '$base_branch'. Run 'gw exp' first." >&2
+        return 1
+    end
+
+    set -l experiment_paths
+    set -l experiment_branches
+    set -l target_prefix "$base_branch-exp-"
+    set -l current_path ""
+
+    for line in (git worktree list --porcelain)
+        if string match -q -r '^worktree ' $line
+            set current_path (string replace -r '^worktree ' '' $line)
+        else if string match -q -r '^branch ' $line
+            set -l branch_ref (string replace -r '^branch ' '' $line)
+            set -l branch_name (string replace -r '^refs/heads/' '' $branch_ref)
+            if string match -q "$target_prefix*" $branch_name
+                if test -d "$current_path"
+                    set experiment_paths $experiment_paths $current_path
+                    set experiment_branches $experiment_branches $branch_name
+                end
+            end
+        end
+    end
+
+    if test (count $experiment_paths) -eq 0
+        echo "Error: No experiment worktrees found for '$base_branch'. Run 'gw exp' first." >&2
+        return 1
+    end
+
+    set -l joined_branches (string join ', ' $experiment_branches)
+    set -l labels A B C D E F G H I J
+
+    printf "# Prompt\n"
+    printf "Goal: Compare the experimental implementations branched from '%s' and select the best candidate. Add any project-specific context if needed.\n\n" $base_branch
+
+    printf "## Common Info\n"
+    printf "- Repository: %s\n" $repo_name
+    printf "- Base branch: %s\n" $base_branch
+    printf "- Worktrees to compare: %s\n" $joined_branches
+    printf "- Candidate worktrees:\n"
+
+    set -l count_paths (count $experiment_paths)
+    for idx in (seq 1 $count_paths)
+        set -l worktree_path $experiment_paths[$idx]
+        set -l branch_name $experiment_branches[$idx]
+        set -l label $labels[$idx]
+        if test -z "$label"
+            set label $idx
+        end
+        if not test -d "$worktree_path"
+            printf "  - 候補%s (%s): (worktreeが見つかりません)\n" $label $branch_name
+            continue
+        end
+        printf "  - 候補%s (%s): %s\n" $label $branch_name $worktree_path
+    end
+    printf "\n"
+
+    printf "## Evaluation Criteria\n"
+    printf "- Accuracy: Alignment with requirements and absence of regressions\n"
+    printf "- Completeness: Test coverage and missing scope\n"
+    printf "- Maintainability: Readability, dependencies, extensibility\n"
+    printf "- Simplicity: Smaller implementation footprint and straightforward logic\n"
+    printf "- Risk: Blast radius and rollback ease if issues occur\n\n"
+
+    printf "Note: When reviewing each candidate, inspect the entire working tree including staged, unstaged, and uncommitted changes.\n\n"
+
+    printf "## Output Instructions\n"
+    printf "1. Score every candidate for each evaluation criterion on a 1-5 scale (1=low, 5=high) and justify each score.\n"
+    printf "2. Select exactly one winning candidate and provide three concrete adoption reasons.\n"
+    printf "3. Summarize rejection reasons or key risks for the remaining candidates in bullet form.\n"
+    printf "4. Propose TODO items (tests/log checks/reviews) required before merging.\n"
+    printf "5. Finish with a one-paragraph decision summary under 100 Japanese characters.\n"
+    printf "6. Write the entire analysis and final answer in Japanese.\n\n"
+
+    printf "### Output Example\n"
+    printf "- 優勝案: 候補A (総合スコア: 18)\n"
+    printf "- スコア表:\n"
+    printf "  - 候補A: 正確性4 / 完成度5 / 保守性3 / 簡潔性5 / リスク1\n"
+    printf "  - 候補B: ...\n"
+    printf "- 却下理由: <箇条書き>\n"
+    printf "- TODO: <箇条書き>\n"
+    printf "- サマリ: <100字以内テキスト>\n"
 end
