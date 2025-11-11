@@ -5,6 +5,10 @@
 -- Disable LazyVim auto format
 vim.g.autoformat = false
 
+-- netrwを完全に無効化してSnacks Dashboardの起動条件を満たす
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 if vim.g.vscode then
   -- diaable leader key for vspacecode
   vim.g.mapleader = ""

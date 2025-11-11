@@ -2,6 +2,10 @@ return {
   {
     "folke/snacks.nvim",
     opts = {
+      explorer = {
+        -- ディレクトリを開いたときにSnacksのExplorerを自動起動しない
+        replace_netrw = false,
+      },
       picker = {
         sources = {
           explorer = {
