@@ -1,5 +1,9 @@
 # Claude Code Global Instructions
 
+## Language and Documentation
+
+- Think in English but provide all answers and markdown document in Japanese unless otherwise specified.
+
 ## Pull Request Creation
 
 **MANDATORY**: Before creating any pull request, you MUST:
