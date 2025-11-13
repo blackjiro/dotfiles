@@ -21,7 +21,8 @@ keybinds {
     }
     locked {
         bind "Ctrl g" { SwitchToMode "Normal"; }
-        bind "Ctrl t" { SwitchToMode "Tab"; }
+        // bind "Ctrl t" { SwitchToMode "Tab"; }
+        unbind "Ctrl t"
         bind "Ctrl p" { SwitchToMode "Pane"; }
         bind "Ctrl n" { SwitchToMode "Resize"; }
         bind "Ctrl m" { SwitchToMode "Move"; }
