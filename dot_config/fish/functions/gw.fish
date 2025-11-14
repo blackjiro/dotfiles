@@ -1,4 +1,4 @@
-set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*"
+set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*" "mise.toml"
 set -g GW_BASE_METADATA_FILE ".gw-base"
 
 function gw --description "Git worktree management tool"
