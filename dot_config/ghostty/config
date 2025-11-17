@@ -1,9 +1,3 @@
-# Quick Terminal の基本設定
-keybind = global:alt+t=toggle_quick_terminal
-quick-terminal-position = top
-quick-terminal-screen = mouse
-quick-terminal-autohide = false
-
 # theme = "JetBrains Darcula"
 theme = "Monokai Pro"
 
