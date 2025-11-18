@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/aerospace/workspace-names.json"
+
+# Ensure config file exists
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    mkdir -p "$(dirname "$CONFIG_FILE")"
+    echo '{"1":"","2":"","3":"","4":"","5":"","6":"","7":"","8":"","9":""}' > "$CONFIG_FILE"
+fi
+
+show_usage() {
+    cat <<EOF
+Usage: workspace-name <command> [args]
+
+Commands:
+  set <number|current> <name>    Set name for workspace
+  get <number>                   Get name for workspace (returns number if not set)
+  list                           List all workspace names
+  edit                           Edit config file in \$EDITOR
+
+Examples:
+  workspace-name set 1 Main
+  workspace-name set current Dev
+  workspace-name get 1
+  workspace-name list
+  workspace-name edit
+EOF
+}
+
+cmd_set() {
+    local number="$1"
+    local name="$2"
+
+    # Handle "current" keyword
+    if [[ "$number" == "current" ]]; then
+        if command -v aerospace &> /dev/null; then
+            number=$(aerospace list-workspaces --focused)
+        else
+            echo "Error: aerospace command not found" >&2
+            exit 1
+        fi
+    fi
+
+    if [[ ! "$number" =~ ^[1-9]$ ]]; then
+        echo "Error: Workspace number must be 1-9" >&2
+        exit 1
+    fi
+
+    jq --arg num "$number" --arg name "$name" \
+        '.[$num] = $name' \
+        "$CONFIG_FILE" > "$CONFIG_FILE.tmp"
+    mv "$CONFIG_FILE.tmp" "$CONFIG_FILE"
+
+    # Trigger sketchybar update
+    if command -v sketchybar &> /dev/null; then
+        sketchybar --trigger aerospace_workspace_change
+    fi
+}
+
+cmd_get() {
+    local number="$1"
+
+    if [[ ! "$number" =~ ^[1-9]$ ]]; then
+        echo "Error: Workspace number must be 1-9" >&2
+        exit 1
+    fi
+
+    local name
+    name=$(jq -r --arg num "$number" '.[$num] // ""' "$CONFIG_FILE")
+
+    # Return number if name is empty
+    if [[ -z "$name" ]]; then
+        echo "$number"
+    else
+        echo "$name"
+    fi
+}
+
+cmd_list() {
+    jq -r 'to_entries | .[] | "\(.key): \(.value)"' "$CONFIG_FILE" | while IFS=: read -r num name; do
+        if [[ -z "${name# }" ]]; then
+            echo "$num: (not set)"
+        else
+            echo "$num:$name"
+        fi
+    done
+}
+
+cmd_edit() {
+    "${EDITOR:-vim}" "$CONFIG_FILE"
+}
+
+# Main command dispatcher
+case "${1:-}" in
+    set)
+        if [[ $# -ne 3 ]]; then
+            echo "Error: 'set' requires workspace number and name" >&2
+            show_usage
+            exit 1
+        fi
+        cmd_set "$2" "$3"
+        ;;
+    get)
+        if [[ $# -ne 2 ]]; then
+            echo "Error: 'get' requires workspace number" >&2
+            show_usage
+            exit 1
+        fi
+        cmd_get "$2"
+        ;;
+    list)
+        cmd_list
+        ;;
+    edit)
+        cmd_edit
+        ;;
+    -h|--help|help)
+        show_usage
+        ;;
+    *)
+        echo "Error: Unknown command '${1:-}'" >&2
+        show_usage
+        exit 1
+        ;;
+esac
