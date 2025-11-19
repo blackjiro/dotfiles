@@ -4,7 +4,7 @@
 # @raycast.schemaVersion 1
 # @raycast.title Set Current Workspace Name
 # @raycast.mode silent
-# @raycast.argument1 { "type": "text", "placeholder": "Workspace Name" }
+# @raycast.argument1 { "type": "text", "placeholder": "Workspace Name (empty to clear)", "optional": true }
 
 # Optional parameters:
 # @raycast.icon 🏷️
@@ -15,14 +15,11 @@
 # @raycast.author blackjiro
 # @raycast.authorURL https://raycast.com/blackjiro
 
-# Check if argument is provided
+# Set workspace name (or clear if empty)
 if [ -z "$1" ]; then
-    echo "Error: Workspace name is required"
-    exit 1
+    $HOME/.local/bin/workspace-name set current
+    echo "Workspace name cleared"
+else
+    $HOME/.local/bin/workspace-name set current "$1"
+    echo "Workspace name set to: $1"
 fi
-
-# Set workspace name
-$HOME/.local/bin/workspace-name set current "$1"
-
-# Show success notification
-echo "Workspace name set to: $1"
