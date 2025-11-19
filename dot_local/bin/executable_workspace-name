@@ -15,7 +15,7 @@ show_usage() {
 Usage: workspace-name <command> [args]
 
 Commands:
-  set <number|current> <name>    Set name for workspace
+  set <number|current> [name]    Set name for workspace (omit name to clear)
   get <number>                   Get name for workspace (returns number if not set)
   list                           List all workspace names
   edit                           Edit config file in \$EDITOR
@@ -31,7 +31,7 @@ EOF
 
 cmd_set() {
     local number="$1"
-    local name="$2"
+    local name="${2:-}"
 
     # Handle "current" keyword
     if [[ "$number" == "current" ]]; then
@@ -95,12 +95,12 @@ cmd_edit() {
 # Main command dispatcher
 case "${1:-}" in
     set)
-        if [[ $# -ne 3 ]]; then
-            echo "Error: 'set' requires workspace number and name" >&2
+        if [[ $# -lt 2 || $# -gt 3 ]]; then
+            echo "Error: 'set' requires workspace number and optional name" >&2
             show_usage
             exit 1
         fi
-        cmd_set "$2" "$3"
+        cmd_set "$2" "${3:-}"
         ;;
     get)
         if [[ $# -ne 2 ]]; then
