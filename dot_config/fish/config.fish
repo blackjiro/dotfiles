@@ -66,3 +66,7 @@ end
 
 # Prevent Cursor to hang in shell command execution
 source $(code --locate-shell-integration-path fish)
+
+# antigravigy
+fish_add_path $HOME/.antigravity/antigravity/bin
+
