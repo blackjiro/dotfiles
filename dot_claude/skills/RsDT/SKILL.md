@@ -162,6 +162,38 @@ Include as needed (not all sections are mandatory):
 ```markdown
 # <Feature Name> 設計
 
+## Refactoring Analysis (REQUIRED)
+
+### Existing Code Modification/Deletion Review
+
+| Target | File:Line | Current State | Proposal | Reason |
+|--------|-----------|---------------|----------|--------|
+| [Function/Class name] | `file.ts:42` | [Current impl] | Delete/Modify/Merge | [Reason] |
+
+### Deletion Targets
+- [ ] `function_name` in `file.ts:XX` - [Reason for deletion]
+
+### Modification Targets (including breaking changes)
+- [ ] `function_name` in `file.ts:XX` - [Change details and reason]
+
+### Consolidation Targets
+- [ ] `func_a` + `func_b` → `new_func` - [Reason for consolidation]
+
+### Justification for New Additions
+
+**Only fill this section if new code is truly necessary**
+
+| New Item | Reason Required | Why Existing Code Cannot Be Used |
+|----------|-----------------|----------------------------------|
+| [Function/Class name] | [Reason] | [Why existing code is insufficient] |
+
+### Code Volume Estimate
+
+- Lines to delete: XX
+- Lines to modify: XX
+- Lines to add: XX
+- **Net change: ±XX lines** (Goal: minimize net increase)
+
 ## 全体構成
 
 [System architecture diagram/explanation]
@@ -364,19 +396,60 @@ touch RsDT/$FEATURE/tasks.md
    - All tests passing
    - Update all checkboxes in tasks.md to `[x]`
 
+## Design Philosophy
+
+### Destructive Simplicity
+
+**CRITICAL: Prioritize "modify/delete" over "add" during design**
+
+When designing, consider in this order:
+
+1. **Can this be achieved by deleting/consolidating existing code?**
+   - Remove duplicate code
+   - Remove unused features
+   - Merge multiple functions into one
+
+2. **Can this be achieved by making breaking changes to existing functions?**
+   - Change signatures (prefer simplicity over backward compatibility)
+   - Reassign responsibilities
+   - Simplify interfaces
+
+3. **Only add new code as a last resort**
+   - New functions/classes are the last option
+   - When adding, simultaneously consider reducing existing code
+
+### Code Volume Principles
+
+- **Avoid net increase**: Even when adding features, minimize total code increase through refactoring
+- **Reduce cognitive load**: More functions/files = more cognitive load. Prefer consolidation
+- **Breaking changes are good**: Directly modify rather than creating wrappers/adapters for backward compatibility
+
+### Mandatory Design Checklist
+
+Before writing design.md, MUST verify:
+
+- [ ] Have you read ALL related existing code?
+- [ ] Is there code that can be deleted?
+- [ ] Are there functions that can be consolidated?
+- [ ] Can this be achieved by modifying existing functions?
+- [ ] Is new code addition truly necessary?
+
 ## Best Practices
 
 ### Simplicity First
-- Default to <100 lines of new code
+- Default to <100 lines of **net new** code (追加と削除の差分で計算)
 - Single-file implementation unless clearly justified
 - Be cautious about adding frameworks
 - Choose boring, proven patterns
+- **Prefer modifying existing functions over creating new ones**
+- **Delete code aggressively - dead code has negative value**
 
 ### When to Add Complexity
 Only add complexity when:
 - Performance data shows current solution is too slow
 - Concrete scale requirements (>1000 users, >100MB data)
 - Multiple proven use cases requiring abstraction
+- **Simpler alternatives have been explicitly ruled out**
 
 ### Clear References
 - Reference code locations in `file.ts:42` format
@@ -525,5 +598,8 @@ rm -rf RsDT/<feature_name>/
 7. **RsDT is temporary directory**: Create necessary documents after implementation completion and delete
 8. **ADR/Design Doc are selective**: Only create when needed, follow existing format
 9. **Files in Japanese**: All generated files (requirement-spec.md, design.md, tasks.md) must be in Japanese
+10. **Destructive Simplicity First**: Always consider deleting/modifying existing code before adding new code. New functions are the LAST resort.
+11. **Minimize net code increase**: Track lines added vs deleted. Aim for zero or negative net change when possible.
+12. **Breaking changes are acceptable**: Prefer clean code over backward compatibility. Don't create wrappers just to avoid breaking changes.
 
-Remember: Requirements are truth. Design guides implementation. Tasks track progress. RsDT is temporary. Files are in Japanese.
+Remember: Requirements are truth. Design guides implementation. Tasks track progress. RsDT is temporary. Files are in Japanese. **Deletion before Addition.**
