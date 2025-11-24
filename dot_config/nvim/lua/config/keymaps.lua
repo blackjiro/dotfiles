@@ -46,3 +46,21 @@ end, { desc = "Copy relative path from cwd:line to clipboard" })
 
 -- Terminal mode mappings
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+
+-- Zellij navigation (async version for faster pane switching)
+local function zellij_nav(short_direction, direction, action)
+  action = action or "move-focus"
+  local cur_winnr = vim.fn.winnr()
+  vim.cmd("wincmd " .. short_direction)
+  if cur_winnr == vim.fn.winnr() then
+    vim.uv.spawn("zellij", {
+      args = { "action", action, direction },
+      detached = true,
+    }, function() end)
+  end
+end
+
+vim.keymap.set("n", "<C-h>", function() zellij_nav("h", "left", "move-focus-or-tab") end, { silent = true, desc = "Navigate left or tab" })
+vim.keymap.set("n", "<C-j>", function() zellij_nav("j", "down") end, { silent = true, desc = "Navigate down" })
+vim.keymap.set("n", "<C-k>", function() zellij_nav("k", "up") end, { silent = true, desc = "Navigate up" })
+vim.keymap.set("n", "<C-l>", function() zellij_nav("l", "right", "move-focus-or-tab") end, { silent = true, desc = "Navigate right or tab" })
