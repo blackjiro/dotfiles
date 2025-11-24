@@ -15,6 +15,7 @@ Instructions for AI coding assistants using RsDT for specification-driven develo
 - Decide `<feature_name>`: kebab-case, verb-led (`add-`, `fix-`, `update-`, `refactor-`)
 - Deepen understanding: Codebase investigation, websearch, context7 MCP server, user questions
 - Generate 3 files: `requirement-spec.md`, `design.md`, `tasks.md` (all in Japanese)
+- **Review drafts**: Call `rsdt-spec-reviewer` sub-agent to verify compliance
 - Implementation: Follow tasks.md order and check off upon completion
 
 ## Workflow Overview
@@ -49,6 +50,11 @@ Instructions for AI coding assistants using RsDT for specification-driven develo
    - `requirement-spec.md`: Requirements and specifications
    - `design.md`: Design (as needed)
    - `tasks.md`: Task breakdown
+
+5. **Review Drafts (MANDATORY)**
+   - Call `rsdt-spec-reviewer` sub-agent using Task tool
+   - Verify compliance with Design Philosophy and Important Reminders
+   - Address any feedback before proceeding to Stage 2
 
 ### Stage 2: Implementation - Build
 
@@ -369,6 +375,18 @@ touch RsDT/$FEATURE/design.md
 touch RsDT/$FEATURE/tasks.md
 ```
 
+### Step 5: Draft Review (MANDATORY)
+
+**After creating the 3 draft files, you MUST call the `rsdt-spec-reviewer` sub-agent to review them.**
+
+Use the Task tool with `subagent_type='rsdt-spec-reviewer'` to verify that the created files comply with:
+- Design Philosophy (Destructive Simplicity)
+- Important Reminders
+- File format requirements
+- TDD workflow requirements
+
+The reviewer will check the draft files against the current SKILL.md guidelines and provide feedback. Address any issues before proceeding to implementation.
+
 ## Archive Guidelines
 
 ### ADR Creation
@@ -658,5 +676,6 @@ rm -rf RsDT/<feature_name>/
 12. **Breaking changes are acceptable**: Prefer clean code over backward compatibility. Don't create wrappers just to avoid breaking changes.
 13. **TDD is mandatory**: Always write tests first (Red), then implementation (Green), then refactor. Never write implementation without a failing test.
 14. **Document design alternatives**: When multiple valid approaches exist, briefly document the options and why the chosen one was selected.
+15. **Draft review is mandatory**: After creating draft files (requirement-spec.md, design.md, tasks.md), MUST call `rsdt-spec-reviewer` sub-agent to verify compliance with Design Philosophy and guidelines before proceeding to implementation.
 
-Remember: Requirements are truth. Design guides implementation. Tasks track progress. RsDT is temporary. Files are in Japanese. **Deletion before Addition. Test First.**
+Remember: Requirements are truth. Design guides implementation. Tasks track progress. RsDT is temporary. Files are in Japanese. **Deletion before Addition. Test First. Review Before Implementation.**
