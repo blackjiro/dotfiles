@@ -162,20 +162,20 @@ Include as needed (not all sections are mandatory):
 ```markdown
 # <Feature Name> 設計
 
-## Design Alternatives
+## 設計選択肢の検討
 
-**Note: Only include this section when multiple valid approaches exist. Skip for simple requirements with obvious solutions.**
+**Note: 複数の選択肢が存在する設計判断がある場合のみ記述。単純な要件で選択肢がほぼない場合は省略可。**
 
-### [Decision Topic]
+### [設計判断項目名]
 
-| Option | Overview | Pros | Cons |
-|--------|----------|------|------|
-| A: [Option A] | [Brief description] | [Advantages] | [Disadvantages] |
-| B: [Option B] | [Brief description] | [Advantages] | [Disadvantages] |
-| C: [Option C] | [Brief description] | [Advantages] | [Disadvantages] |
+| 選択肢 | 概要 | メリット | デメリット |
+|--------|------|----------|------------|
+| A: [選択肢A名] | [簡潔な説明] | [利点] | [欠点] |
+| B: [選択肢B名] | [簡潔な説明] | [利点] | [欠点] |
+| C: [選択肢C名] | [簡潔な説明] | [利点] | [欠点] |
 
-**Selected**: [Option X]
-**Rationale**: [1-2 sentences explaining why this option was chosen]
+**採用**: [選択肢X]
+**理由**: [なぜこの選択肢を選んだか1-2文で簡潔に]
 
 ## Refactoring Analysis (REQUIRED)
 
@@ -273,44 +273,44 @@ Include as needed (not all sections are mandatory):
 
 ## Phase 1: [Phase Name]
 
-### Task 1.1: [Task Name]
-- **Scenario**: [Scenario name from requirement-spec.md]
-- [ ] Write test: [Test description]
-- [ ] Run test → Confirm Red (failing)
-- [ ] Implement: [Implementation description]
-- [ ] Run test → Confirm Green (passing)
-- [ ] Refactor (if needed)
-- [ ] Verify with Playwright MCP server (for frontend tasks)
+### Task 1.1: [タスク名]
+- **対応シナリオ**: requirement-spec.mdの[シナリオ名]
+- [ ] テスト作成: [テスト内容の説明]
+- [ ] テスト実行 → Red確認
+- [ ] 実装: [実装内容の説明]
+- [ ] テスト実行 → Green確認
+- [ ] リファクタリング（必要な場合）
+- [ ] Playwright MCP serverで動作確認（フロントエンド実装の場合）
 
-### Task 1.2: [Task Name]
-- **Scenario**: [Scenario name from requirement-spec.md]
-- [ ] Write test: [Test description]
-- [ ] Run test → Confirm Red (failing)
-- [ ] Implement: [Implementation description]
-- [ ] Run test → Confirm Green (passing)
-- [ ] Refactor (if needed)
-- [ ] Verify with Playwright MCP server (for frontend tasks)
+### Task 1.2: [タスク名]
+- **対応シナリオ**: requirement-spec.mdの[シナリオ名]
+- [ ] テスト作成: [テスト内容の説明]
+- [ ] テスト実行 → Red確認
+- [ ] 実装: [実装内容の説明]
+- [ ] テスト実行 → Green確認
+- [ ] リファクタリング（必要な場合）
+- [ ] Playwright MCP serverで動作確認（フロントエンド実装の場合）
 
-## Phase 2: [Phase Name]
+## Phase 2: [フェーズ名]
 
-### Task 2.1: [Task Name]
-- **Scenario**: [Scenario name from requirement-spec.md]
-- [ ] Write test: [Test description]
-- [ ] Run test → Confirm Red (failing)
-- [ ] Implement: [Implementation description]
-- [ ] Run test → Confirm Green (passing)
-- [ ] Refactor (if needed)
-- [ ] Verify with Playwright MCP server (for frontend tasks)
+### Task 2.1: [タスク名]
+- **対応シナリオ**: requirement-spec.mdの[シナリオ名]
+- [ ] テスト作成: [テスト内容の説明]
+- [ ] テスト実行 → Red確認
+- [ ] 実装: [実装内容の説明]
+- [ ] テスト実行 → Green確認
+- [ ] リファクタリング（必要な場合）
+- [ ] Playwright MCP serverで動作確認（フロントエンド実装の場合）
 
-## Phase 3: Integration & Documentation
+## Phase 3: 統合テスト & ドキュメント
 
-### Task 3.1: Integration Testing
-- [ ] Create and run integration tests
-- [ ] Confirm all tests are Green (passing)
-- [ ] E2E verification with Playwright MCP server (for frontend tasks)
+### Task 3.1: 統合テスト
+- [ ] 統合テスト作成・実行
+- [ ] 全テストがGreenであることを確認
+- [ ] Playwright MCP serverでE2E動作確認（フロントエンド実装の場合）
 
-### Task 3.2: Documentation Update
-- [ ] [Update necessary documentation]
+### Task 3.2: ドキュメント更新
+- [ ] [必要なドキュメントを更新]
 ```
 
 **Key Points:**
