@@ -162,6 +162,21 @@ Include as needed (not all sections are mandatory):
 ```markdown
 # <Feature Name> 設計
 
+## 設計選択肢の検討
+
+**Note: 複数の選択肢が存在する設計判断がある場合のみ記述。単純な要件で選択肢がほぼない場合は省略可。**
+
+### [設計判断項目名]
+
+| 選択肢 | 概要 | メリット | デメリット |
+|--------|------|----------|------------|
+| A: [選択肢A名] | [簡潔な説明] | [利点] | [欠点] |
+| B: [選択肢B名] | [簡潔な説明] | [利点] | [欠点] |
+| C: [選択肢C名] | [簡潔な説明] | [利点] | [欠点] |
+
+**採用**: [選択肢X]
+**理由**: [なぜこの選択肢を選んだか1-2文で簡潔に]
+
 ## Refactoring Analysis (REQUIRED)
 
 ### Existing Code Modification/Deletion Review
@@ -251,38 +266,58 @@ Include as needed (not all sections are mandatory):
 
 **IMPORTANT: Write this file in Japanese.**
 
+**IMPORTANT: Tasks MUST be structured for TDD (Test-Driven Development). Each task should include writing the test first, then the implementation.**
+
 ```markdown
 # <Feature Name> タスク
 
 ## Phase 1: [Phase Name]
 
-### Task 1.1: [Task Name]
-- [ ] [Detailed TODO 1]
-- [ ] [Detailed TODO 2]
-- [ ] [Detailed TODO 3]
+### Task 1.1: [タスク名]
+- **対応シナリオ**: requirement-spec.mdの[シナリオ名]
+- [ ] テスト作成: [テスト内容の説明]
+- [ ] テスト実行 → Red確認
+- [ ] 実装: [実装内容の説明]
+- [ ] テスト実行 → Green確認
+- [ ] リファクタリング（必要な場合）
+- [ ] Playwright MCP serverで動作確認（フロントエンド実装の場合）
 
-### Task 1.2: [Task Name]
-- [ ] [Detailed TODO 1]
-- [ ] [Detailed TODO 2]
+### Task 1.2: [タスク名]
+- **対応シナリオ**: requirement-spec.mdの[シナリオ名]
+- [ ] テスト作成: [テスト内容の説明]
+- [ ] テスト実行 → Red確認
+- [ ] 実装: [実装内容の説明]
+- [ ] テスト実行 → Green確認
+- [ ] リファクタリング（必要な場合）
+- [ ] Playwright MCP serverで動作確認（フロントエンド実装の場合）
 
-## Phase 2: [Phase Name]
+## Phase 2: [フェーズ名]
 
-### Task 2.1: [Task Name]
-- [ ] [Detailed TODO 1]
-- [ ] [Detailed TODO 2]
+### Task 2.1: [タスク名]
+- **対応シナリオ**: requirement-spec.mdの[シナリオ名]
+- [ ] テスト作成: [テスト内容の説明]
+- [ ] テスト実行 → Red確認
+- [ ] 実装: [実装内容の説明]
+- [ ] テスト実行 → Green確認
+- [ ] リファクタリング（必要な場合）
+- [ ] Playwright MCP serverで動作確認（フロントエンド実装の場合）
 
-## Phase 3: Testing & Documentation
+## Phase 3: 統合テスト & ドキュメント
 
-### Task 3.1: テスト実装
-- [ ] [Implement tests for corresponding scenarios]
+### Task 3.1: 統合テスト
+- [ ] 統合テスト作成・実行
+- [ ] 全テストがGreenであることを確認
+- [ ] Playwright MCP serverでE2E動作確認（フロントエンド実装の場合）
 
 ### Task 3.2: ドキュメント更新
-- [ ] [Update necessary documentation]
+- [ ] [必要なドキュメントを更新]
 ```
 
 **Key Points:**
 - Break down into phases for gradual implementation
-- Include detailed TODO list for each task
+- **Each task MUST follow TDD cycle**: Test → Red → Implement → Green → Refactor
+- Link each task to its corresponding scenario in requirement-spec.md
+- **For frontend implementations**: Use Playwright MCP server to verify UI behavior after each task
 - Time estimates are not required
 - Track with TodoWrite tool during implementation
 
@@ -381,20 +416,40 @@ touch RsDT/$FEATURE/tasks.md
 
 ### Stage 2 Implementation Notes
 
-1. **Utilize TodoWrite Tool**
+1. **TDD (Test-Driven Development) Approach**
+   - **MUST** follow TDD cycle for each task: Red → Green → Refactor
+   - **Red**: Write a failing test first based on requirement-spec.md scenarios
+   - **Green**: Write minimal code to make the test pass
+   - **Refactor**: Clean up code while keeping tests green
+   - Never write implementation code without a failing test first
+
+2. **Utilize TodoWrite Tool**
    - Register tasks.md content in TodoWrite at implementation start
    - Update each task from `in_progress` → `completed`
    - Keep only one task in `in_progress` state at a time
 
-2. **Sequential Implementation**
+3. **Sequential Implementation**
    - Follow tasks.md order
    - Confirm completion per phase
    - Map tests to requirement scenarios
 
-3. **Completion Confirmation**
+4. **Completion Confirmation**
    - All tasks completed
    - All tests passing
    - Update all checkboxes in tasks.md to `[x]`
+
+### TDD Workflow Per Task
+
+```
+For each task in tasks.md:
+1. Identify the scenario from requirement-spec.md
+2. Write test case (Red - test should fail)
+3. Run test to confirm it fails
+4. Write minimal implementation (Green - test should pass)
+5. Run test to confirm it passes
+6. Refactor if needed (keep tests green)
+7. Mark task as completed
+```
 
 ## Design Philosophy
 
@@ -601,5 +656,7 @@ rm -rf RsDT/<feature_name>/
 10. **Destructive Simplicity First**: Always consider deleting/modifying existing code before adding new code. New functions are the LAST resort.
 11. **Minimize net code increase**: Track lines added vs deleted. Aim for zero or negative net change when possible.
 12. **Breaking changes are acceptable**: Prefer clean code over backward compatibility. Don't create wrappers just to avoid breaking changes.
+13. **TDD is mandatory**: Always write tests first (Red), then implementation (Green), then refactor. Never write implementation without a failing test.
+14. **Document design alternatives**: When multiple valid approaches exist, briefly document the options and why the chosen one was selected.
 
-Remember: Requirements are truth. Design guides implementation. Tasks track progress. RsDT is temporary. Files are in Japanese. **Deletion before Addition.**
+Remember: Requirements are truth. Design guides implementation. Tasks track progress. RsDT is temporary. Files are in Japanese. **Deletion before Addition. Test First.**
