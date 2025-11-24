@@ -77,7 +77,9 @@ sketchybar --add item clock right \
            --subscribe volume volume_change \
            --add item battery right \
            --set battery update_freq=120 script="$PLUGIN_DIR/battery.sh" \
-           --subscribe battery system_woke power_source_change
+           --subscribe battery system_woke power_source_change \
+           --add item docker right \
+           --set docker update_freq=5 icon=󰡨 script="$PLUGIN_DIR/docker.sh"
 
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update
