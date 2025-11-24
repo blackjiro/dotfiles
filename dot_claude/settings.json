@@ -111,7 +111,8 @@
       "mcp__playwright",
       "mcp__terraform",
       "mcp__linear-server__get_issue",
-      "Bash(openspec:*)"
+      "Bash(openspec:*)",
+      "Skill(RsDT)"
     ],
     "deny": [
       "Bash(rm -rf /*)",
