@@ -280,6 +280,7 @@ Include as needed (not all sections are mandatory):
 - [ ] 実装: [実装内容の説明]
 - [ ] テスト実行 → Green確認
 - [ ] リファクタリング（必要な場合）
+- [ ] Playwright MCP serverで動作確認（フロントエンド実装の場合）
 
 ### Task 1.2: [Task Name]
 - **対応シナリオ**: requirement-spec.mdの[シナリオ名]
@@ -288,6 +289,7 @@ Include as needed (not all sections are mandatory):
 - [ ] 実装: [実装内容の説明]
 - [ ] テスト実行 → Green確認
 - [ ] リファクタリング（必要な場合）
+- [ ] Playwright MCP serverで動作確認（フロントエンド実装の場合）
 
 ## Phase 2: [Phase Name]
 
@@ -298,12 +300,14 @@ Include as needed (not all sections are mandatory):
 - [ ] 実装: [実装内容の説明]
 - [ ] テスト実行 → Green確認
 - [ ] リファクタリング（必要な場合）
+- [ ] Playwright MCP serverで動作確認（フロントエンド実装の場合）
 
 ## Phase 3: Integration & Documentation
 
 ### Task 3.1: 統合テスト
 - [ ] 統合テスト作成・実行
 - [ ] 全テストがGreenであることを確認
+- [ ] Playwright MCP serverでE2E動作確認（フロントエンド実装の場合）
 
 ### Task 3.2: ドキュメント更新
 - [ ] [Update necessary documentation]
@@ -313,6 +317,7 @@ Include as needed (not all sections are mandatory):
 - Break down into phases for gradual implementation
 - **Each task MUST follow TDD cycle**: Test → Red → Implement → Green → Refactor
 - Link each task to its corresponding scenario in requirement-spec.md
+- **For frontend implementations**: Use Playwright MCP server to verify UI behavior after each task
 - Time estimates are not required
 - Track with TodoWrite tool during implementation
 
