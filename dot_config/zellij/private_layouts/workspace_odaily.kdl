@@ -10,10 +10,13 @@ layout {
   }
   tab name="main" split_direction="vertical" {
     pane
-    pane {
-      command "fish"
-      args "-c" "odaily"
-      focus true
+    pane split_direction="horizontal" {
+      pane
+      pane {
+        command "fish"
+        args "-c" "odaily"
+        focus true
+      }
     }
   }
 }
