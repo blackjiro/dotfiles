@@ -12,15 +12,6 @@ type = "stdio"
 command = "npx"
 args = ["@playwright/mcp@latest"]
 
-[mcp_servers.todoist]
-command = "npx"
-args = ["-y", "mcp-remote", "https://ai.todoist.net/mcp"]
-
-[mcp_servers.linear]
-command = "npx"
-args = ["-y", "mcp-remote", "https://mcp.linear.app/mcp"]
-startup_timeout_sec = 100
-
 [tui]
 notifications = true
 
