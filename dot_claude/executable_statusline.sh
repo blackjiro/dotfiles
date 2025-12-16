@@ -1,32 +1,37 @@
 #!/bin/bash
-
-# Read JSON input from stdin
 input=$(cat)
 
-# Extract fields from JSON
-cwd=$(echo "$input" | jq -r '.workspace.current_dir')
+# Helper functions
+get_dir() { echo "$input" | jq -r '.workspace.current_dir'; }
+get_model() { echo "$input" | jq -r '.model.display_name'; }
+get_cost() { echo "$input" | jq -r '.cost.total_cost_usd // 0'; }
+get_lines_added() { echo "$input" | jq -r '.cost.total_lines_added // 0'; }
+get_lines_removed() { echo "$input" | jq -r '.cost.total_lines_removed // 0'; }
+get_context_percent() {
+  local size=$(echo "$input" | jq -r '.context_window.context_window_size // 0')
+  local usage=$(echo "$input" | jq -r '
+    (.context_window.current_usage.input_tokens // 0) +
+    (.context_window.current_usage.cache_creation_input_tokens // 0) +
+    (.context_window.current_usage.cache_read_input_tokens // 0)
+  ')
+  if [ "$size" -gt 0 ]; then
+    echo $((usage * 100 / size))
+  else
+    echo 0
+  fi
+}
 
-# Get git information
-git_branch=$(cd "$cwd" && git branch --show-current 2>/dev/null || echo '')
-git_status=$(cd "$cwd" && git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+# Build statusline
+DIR=$(basename "$(get_dir)")
+MODEL=$(get_model)
+CONTEXT=$(get_context_percent)
+COST=$(get_cost)
+ADDED=$(get_lines_added)
+REMOVED=$(get_lines_removed)
 
-# Get Python virtual environment
-venv=${VIRTUAL_ENV##*/}
-
-# Try to get ccusage information if all required fields are present
-# Check if required fields exist before calling ccusage
-has_required_fields=$(echo "$input" | jq -r 'has("session_id") and has("transcript_path") and has("cwd") and has("model") and .workspace.project_dir != null')
-
-if [ "$has_required_fields" = "true" ]; then
-    ccusage_info=$(echo "$input" | bunx ccusage statusline 2>/dev/null || echo '')
-else
-    ccusage_info=""
-fi
-
-# Build and output the status line
-printf "\033[34m%s\033[0m" "$(basename "$cwd")"
-[ -n "$git_branch" ] && printf " \033[90m%s\033[0m" "$git_branch"
-[ "$git_status" -gt 0 ] && printf "\033[36m*\033[0m"
-[ -n "$venv" ] && printf " \033[90m%s\033[0m" "$venv"
-[ -n "$ccusage_info" ] && printf " %s" "$ccusage_info"
-
+# Output with ANSI colors
+printf "\033[34m%s\033[0m" "$DIR"
+printf " \033[33m[%s]\033[0m" "$MODEL"
+printf " \033[36m%d%%\033[0m" "$CONTEXT"
+printf " \033[32m\$%.2f\033[0m" "$COST"
+printf " \033[90m+%d/-%d\033[0m" "$ADDED" "$REMOVED"
