@@ -84,7 +84,7 @@ RATE=$(get_rate_limit)
 # Output with ANSI colors
 printf "\033[34m%s\033[0m" "$DIR"
 printf " \033[33m[%s]\033[0m" "$MODEL"
-printf " \033[36m%d%%\033[0m" "$CONTEXT"
-printf " \033[32m\$%.2f\033[0m" "$COST"
-printf " \033[90m+%d/-%d\033[0m" "$ADDED" "$REMOVED"
-[ -n "$RATE" ] && printf " \033[35m%s\033[0m" "$RATE"
+printf " | \033[36m %d%%\033[0m" "$CONTEXT"
+printf " | \033[32m\$%.2f\033[0m" "$COST"
+printf " | \033[90m +%d/-%d\033[0m" "$ADDED" "$REMOVED"
+[ -n "$RATE" ] && printf " | \033[35m %s\033[0m" "$RATE"
