@@ -39,15 +39,26 @@ get_rate_limit() {
     fi
   fi
 
-  # Fetch from API
+  # Try to get token from multiple sources
+  local token=""
+
+  # 1. Try Anthropic OAuth (keychain)
   local creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
-  local token=$(echo "$creds" | jq -r '.claudeAiOauth.accessToken // empty')
+  if [ -n "$creds" ]; then
+    token=$(echo "$creds" | jq -r '.claudeAiOauth.accessToken // empty')
+  fi
+
+  # 2. Try environment variable (Vertex AI or other setups)
+  if [ -z "$token" ] && [ -n "$ANTHROPIC_API_KEY" ]; then
+    token="$ANTHROPIC_API_KEY"
+  fi
 
   if [ -z "$token" ]; then
     echo ""
     return
   fi
 
+  # Try Anthropic API first (works with OAuth tokens)
   local response=$(curl -s --max-time 2 \
     -H "Authorization: Bearer $token" \
     -H "anthropic-beta: oauth-2025-04-20" \
@@ -73,18 +84,28 @@ get_rate_limit() {
 }
 
 # Build statusline
-DIR=$(basename "$(get_dir)")
-MODEL=$(get_model)
-CONTEXT=$(get_context_percent)
-COST=$(get_cost)
-ADDED=$(get_lines_added)
-REMOVED=$(get_lines_removed)
-RATE=$(get_rate_limit)
+DIR=$(basename "$(get_dir)" 2>/dev/null)
+MODEL=$(get_model 2>/dev/null)
+CONTEXT=$(get_context_percent 2>/dev/null)
+COST=$(get_cost 2>/dev/null)
+ADDED=$(get_lines_added 2>/dev/null)
+REMOVED=$(get_lines_removed 2>/dev/null)
+RATE=$(get_rate_limit 2>/dev/null)
+
+# Provide defaults for missing values
+DIR="${DIR:-unknown}"
+MODEL="${MODEL:-unknown}"
+CONTEXT="${CONTEXT:-0}"
+COST="${COST:-0}"
+ADDED="${ADDED:-0}"
+REMOVED="${REMOVED:-0}"
 
 # Output with ANSI colors
 printf "\033[34m%s\033[0m" "$DIR"
-printf " \033[33m[%s]\033[0m" "$MODEL"
-printf " | \033[36m %d%%\033[0m" "$CONTEXT"
-printf " | \033[32m\$%.2f\033[0m" "$COST"
-printf " | \033[90m +%d/-%d\033[0m" "$ADDED" "$REMOVED"
-[ -n "$RATE" ] && printf " | \033[35m %s\033[0m" "$RATE"
+[ "$MODEL" != "unknown" ] && printf " \033[33m[%s]\033[0m" "$MODEL"
+[ "$CONTEXT" != "0" ] && printf " | \033[36m %d%%\033[0m" "$CONTEXT"
+[ "$COST" != "0" ] && printf " | \033[32m\$%.2f\033[0m" "$COST"
+[ "$ADDED" != "0" ] || [ "$REMOVED" != "0" ] && printf " | \033[90m +%d/-%d\033[0m" "$ADDED" "$REMOVED"
+[ -n "$RATE" ] && printf " | \033[35m %s\033[0m" "$RATE"
+
+exit 0
