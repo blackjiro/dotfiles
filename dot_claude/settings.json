@@ -227,6 +227,5 @@
     "document-skills@anthropic-agent-skills": true,
     "example-skills@anthropic-agent-skills": true,
     "frontend-design@claude-code-plugins": true
-  },
-  "alwaysThinkingEnabled": false
+  }
 }
