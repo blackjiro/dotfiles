@@ -19,20 +19,6 @@
 
 **IMPORTANT**: Never create git commits unless explicitly instructed by the user. Only commit changes when the user specifically asks you to do so.
 
-## Gemini Search
-
-`gemini` is google gemini cli. **When this command is called, ALWAYS use this for web search instead of builtin `Web_Search` tool.**
-
-When web search is needed, you MUST use `gemini --model gemini-2.5-flash --prompt` via Task Tool.
-
-**IMPORTANT**: Always ensure you get the most current and up-to-date information by explicitly requesting recent data in your search queries.
-
-Run web search via Task Tool with enhanced prompts for current data:
-
-```bash
-gemini --model gemini-2.5-flash --prompt "WebSearch: <query>"
-```
-
 ## Development Principles (Kent Beck's TDD & Tidy First)
 
 **Core Philosophy**: Simplicity first, following Kent Beck's methodologies
