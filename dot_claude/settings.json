@@ -112,7 +112,8 @@
       "mcp__terraform",
       "mcp__linear-server__get_issue",
       "Bash(openspec:*)",
-      "Skill(RsDT)"
+      "Skill(RsDT)",
+      "Skill(creating-skills)"
     ],
     "deny": [
       "Bash(rm -rf /*)",
