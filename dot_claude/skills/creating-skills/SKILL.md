@@ -1,6 +1,6 @@
 ---
 name: creating-skills
-description: Create new Agent Skills with structured planning and best practices. Use when designing and developing custom Skills for Claude Code, from planning through SKILL.md creation.
+description: Create and improve Agent Skills with structured planning and best practices. Use when designing new Skills, enhancing existing Skills, refactoring existing Skills, or ensuring Skill quality in Claude Code.
 ---
 
 # Creating Agent Skills
