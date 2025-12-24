@@ -6,6 +6,7 @@ Stop 毎に軽量レビュー、完成時に包括的レビューを自動実行
 """
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -44,6 +45,26 @@ COMPLETION_KEYWORDS = [
     "implementation complete",
     "all done",
 ]
+
+
+# =============================================================================
+# Git 変更検出
+# =============================================================================
+
+
+def has_uncommitted_changes() -> bool:
+    """未コミットの変更があるかチェック"""
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--name-only"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        return bool(result.stdout.strip())
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        # git がない、タイムアウトなどの場合は変更ありとみなす
+        return True
 
 
 # =============================================================================
@@ -180,16 +201,25 @@ def build_lightweight_review(is_vertex: bool, review_count: int) -> dict:
     """軽量レビュー（Stop 毎）の指示を生成"""
     thinking = get_thinking_level(is_vertex, is_comprehensive=False)
 
-    reason = f"""{thinking}
+    # Vertex AI 環境では Codex は使用不可
+    codex_instruction = ""
+    if not is_vertex:
+        codex_instruction = """
+## Codex 並行レビュー
+mcp__codex__codex ツールが利用可能な場合は、以下も並行実行：
+- prompt: "Review the recent code changes for bugs, security issues, and best practices"
+"""
+
+    reason = f"""[自動レビュー] 軽量コードレビューを実行します ({review_count}/{MAX_REVIEW_COUNT})
+
+{thinking}
 
 /pr-review-toolkit:review-pr code を実行してください。
-
+{codex_instruction}
 ## 対応方針
-- 🔴 Critical Issues → 今すぐ修正
-- 🟡 Important/Suggestions → メモして後で対応
-- 🟠 判断困難な問題 → AskUserQuestion で確認
-
-(レビュー {review_count}/{MAX_REVIEW_COUNT})"""
+- Critical Issues → 今すぐ修正
+- Important/Suggestions → メモして後で対応
+- 判断困難な問題 → AskUserQuestion で確認"""
 
     return {"decision": "block", "reason": reason}
 
@@ -198,17 +228,26 @@ def build_comprehensive_review(is_vertex: bool) -> dict:
     """包括的レビュー（完成時）の指示を生成"""
     thinking = get_thinking_level(is_vertex, is_comprehensive=True)
 
-    reason = f"""{thinking}
+    # Vertex AI 環境では Codex は使用不可
+    codex_instruction = ""
+    if not is_vertex:
+        codex_instruction = """
+## Codex 並行レビュー
+mcp__codex__codex ツールが利用可能な場合は、以下も並行実行：
+- prompt: "Perform a comprehensive code review of all changes. Check for bugs, security vulnerabilities, performance issues, and adherence to best practices"
+"""
+
+    reason = f"""[自動レビュー] 完成時の包括的レビューを実行します
+
+{thinking}
 
 /pr-review-toolkit:review-pr all を実行してください。
-
+{codex_instruction}
 ## 対応方針
 - Critical Issues → 自動修正
 - Important Issues → 修正推奨（私の意見を添えて）
 - Suggestions → 検討事項として報告
-- 判断困難な問題 → AskUserQuestion で確認
-
-完成時の最終レビューです。"""
+- 判断困難な問題 → AskUserQuestion で確認"""
 
     return {"decision": "block", "reason": reason}
 
@@ -235,6 +274,10 @@ def main() -> None:
 
     # Plan モードはスキップ
     if input_data.get("permission_mode") == "plan":
+        sys.exit(0)
+
+    # 未コミット変更がなければスキップ
+    if not has_uncommitted_changes():
         sys.exit(0)
 
     # セッション ID 取得
