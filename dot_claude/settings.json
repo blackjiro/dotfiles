@@ -113,7 +113,8 @@
       "mcp__linear-server__get_issue",
       "Bash(openspec:*)",
       "Skill(RsDT)",
-      "Skill(creating-skills)"
+      "Skill(creating-skills)",
+      "Skill(generating-images)"
     ],
     "deny": [
       "Bash(rm -rf /*)",
