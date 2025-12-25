@@ -230,8 +230,6 @@
     "command": "~/.claude/statusline.sh"
   },
   "enabledPlugins": {
-    "document-skills@anthropic-agent-skills": true,
-    "example-skills@anthropic-agent-skills": true,
     "pyright-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "context7@claude-plugins-official": true,

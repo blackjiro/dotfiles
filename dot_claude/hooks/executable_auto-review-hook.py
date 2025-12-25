@@ -216,10 +216,15 @@ mcp__codex__codex ツールが利用可能な場合は、以下も並行実行�
 
 /pr-review-toolkit:review-pr code を実行してください。
 {codex_instruction}
+## 注意
+レビュー結果は必ずしも妥当とは限りません。修正前に妥当性を確認してください。
+
 ## 対応方針
-- Critical Issues → 今すぐ修正
-- Important/Suggestions → メモして後で対応
-- 判断困難な問題 → AskUserQuestion で確認"""
+1. 各レビューコメントの妥当性を確認
+2. 妥当なもの → 修正
+3. 判断困難 → AskUserQuestion で確認
+4. 修正後、再度レビューを実行
+5. 妥当でないコメントのみ or コメントなしになるまで繰り返す"""
 
     return {"decision": "block", "reason": reason}
 
@@ -243,11 +248,16 @@ mcp__codex__codex ツールが利用可能な場合は、以下も並行実行�
 
 /pr-review-toolkit:review-pr all を実行してください。
 {codex_instruction}
+## 注意
+レビュー結果は必ずしも妥当とは限りません。修正前に妥当性を確認してください。
+
 ## 対応方針
-- Critical Issues → 自動修正
-- Important Issues → 修正推奨（私の意見を添えて）
-- Suggestions → 検討事項として報告
-- 判断困難な問題 → AskUserQuestion で確認"""
+1. 各レビューコメントの妥当性を確認
+2. Critical/Important で妥当なもの → 修正
+3. Suggestions → 検討事項として報告
+4. 判断困難 → AskUserQuestion で確認
+5. 修正後、再度レビューを実行
+6. 妥当でないコメントのみ or コメントなしになるまで繰り返す"""
 
     return {"decision": "block", "reason": reason}
 
