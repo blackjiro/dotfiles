@@ -16,6 +16,8 @@ from pathlib import Path
 
 MAX_REVIEW_COUNT = 3
 COUNT_FILE_TEMPLATE = "/tmp/claude_review_count_{session_id}.txt"
+MIN_LINES_FOR_REVIEW = 50  # この行数以下の変更はレビューをスキップ
+RECENT_ENTRIES_FOR_COMPLETION = 10  # 完成キーワード検出対象の直近エントリ数
 
 # 実装を示すツール名
 IMPLEMENTATION_TOOLS = {"Edit", "MultiEdit", "Write"}
@@ -67,6 +69,30 @@ def has_uncommitted_changes() -> bool:
         return True
 
 
+def get_changed_lines_count() -> int:
+    """変更行数を取得（追加行 + 削除行）"""
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--numstat"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        total_lines = 0
+        for line in result.stdout.strip().split("\n"):
+            if not line:
+                continue
+            parts = line.split("\t")
+            if len(parts) >= 2:
+                added = int(parts[0]) if parts[0] != "-" else 0
+                deleted = int(parts[1]) if parts[1] != "-" else 0
+                total_lines += added + deleted
+        return total_lines
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError, ValueError):
+        # エラー時は大きな値を返してレビューを実行させる
+        return 9999
+
+
 # =============================================================================
 # レビューカウント管理
 # =============================================================================
@@ -110,7 +136,7 @@ def reset_review_count(session_id: str) -> None:
 # =============================================================================
 
 
-def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool]:
+def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool, str | None]:
     """
     トランスクリプトを解析して実装変更と完成状態を検出
 
@@ -118,17 +144,19 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool]:
         transcript_path: transcript.jsonl のパス
 
     Returns:
-        (has_implementation, is_complete) のタプル
+        (has_implementation, is_complete, detected_keyword) のタプル
     """
     if not transcript_path:
-        return (False, False)
+        return (False, False, None)
 
     path = Path(transcript_path).expanduser()
     if not path.exists():
-        return (False, False)
+        return (False, False, None)
 
     has_implementation = False
     is_complete = False
+    detected_keyword: str | None = None
+    all_entries: list[dict] = []
 
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -138,10 +166,12 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool]:
         for line in lines:
             try:
                 entry = json.loads(line)
+                all_entries.append(entry)
             except json.JSONDecodeError:
                 continue
 
-            # 実装変更検出: assistant メッセージ内の tool_use から Edit/MultiEdit/Write を検出
+        # 実装変更検出: 全エントリから Edit/MultiEdit/Write を検出
+        for entry in all_entries:
             entry_type = entry.get("type")
             if entry_type == "assistant":
                 message = entry.get("message", {})
@@ -152,10 +182,16 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool]:
                             tool_name = item.get("name", "")
                             if tool_name in IMPLEMENTATION_TOOLS:
                                 has_implementation = True
+                                break
+                if has_implementation:
+                    break
 
-            # 完成キーワード検出: 直近のメッセージから検出
+        # 完成キーワード検出: 直近N件のエントリのみ対象
+        for entry in all_entries[-RECENT_ENTRIES_FOR_COMPLETION:]:
             text_content = ""
-            if entry.get("type") == "human":
+            entry_type = entry.get("type")
+
+            if entry_type == "human":
                 message = entry.get("message", {})
                 content = message.get("content", "")
                 if isinstance(content, str):
@@ -164,7 +200,7 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool]:
                     for item in content:
                         if isinstance(item, dict) and item.get("type") == "text":
                             text_content += item.get("text", "")
-            elif entry.get("type") == "assistant":
+            elif entry_type == "assistant":
                 message = entry.get("message", {})
                 content = message.get("content", [])
                 if isinstance(content, list):
@@ -172,16 +208,20 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool]:
                         if isinstance(item, dict) and item.get("type") == "text":
                             text_content += item.get("text", "")
 
-            text_lower = text_content.lower()
-            for keyword in COMPLETION_KEYWORDS:
-                if keyword.lower() in text_lower:
-                    is_complete = True
+            if text_content:
+                text_lower = text_content.lower()
+                for keyword in COMPLETION_KEYWORDS:
+                    if keyword.lower() in text_lower:
+                        is_complete = True
+                        detected_keyword = keyword
+                        break
+                if is_complete:
                     break
 
     except Exception:
-        return (False, False)
+        return (False, False, None)
 
-    return (has_implementation, is_complete)
+    return (has_implementation, is_complete, detected_keyword)
 
 
 # =============================================================================
@@ -189,49 +229,16 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool]:
 # =============================================================================
 
 
-def get_thinking_level(is_vertex: bool, is_comprehensive: bool) -> str:
-    """環境とレビュータイプに応じた Thinking レベルを決定"""
-    if is_vertex:
-        return "think hard" if is_comprehensive else "think"
-    else:
-        return "ultrathink" if is_comprehensive else "think hard"
+def get_thinking_level(is_vertex: bool) -> str:
+    """環境に応じた Thinking レベルを決定"""
+    return "think hard" if is_vertex else "ultrathink"
 
 
-def build_lightweight_review(is_vertex: bool, review_count: int) -> dict:
-    """軽量レビュー（Stop 毎）の指示を生成"""
-    thinking = get_thinking_level(is_vertex, is_comprehensive=False)
-
-    # Vertex AI 環境では Codex は使用不可
-    codex_instruction = ""
-    if not is_vertex:
-        codex_instruction = """
-## Codex 並行レビュー
-mcp__codex__codex ツールが利用可能な場合は、以下も並行実行：
-- prompt: "Review the recent code changes for bugs, security issues, and best practices"
-"""
-
-    reason = f"""[自動レビュー] 軽量コードレビューを実行します ({review_count}/{MAX_REVIEW_COUNT})
-
-{thinking}
-
-/pr-review-toolkit:review-pr code を実行してください。
-{codex_instruction}
-## 注意
-レビュー結果は必ずしも妥当とは限りません。修正前に妥当性を確認してください。
-
-## 対応方針
-1. 各レビューコメントの妥当性を確認
-2. 妥当なもの → 修正
-3. 判断困難 → AskUserQuestion で確認
-4. 修正後、再度レビューを実行
-5. 妥当でないコメントのみ or コメントなしになるまで繰り返す"""
-
-    return {"decision": "block", "reason": reason}
-
-
-def build_comprehensive_review(is_vertex: bool) -> dict:
-    """包括的レビュー（完成時）の指示を生成"""
-    thinking = get_thinking_level(is_vertex, is_comprehensive=True)
+def build_review_instruction(
+    is_vertex: bool, detected_keyword: str | None, changed_lines: int
+) -> dict:
+    """レビュー指示を生成"""
+    thinking = get_thinking_level(is_vertex)
 
     # Vertex AI 環境では Codex は使用不可
     codex_instruction = ""
@@ -242,12 +249,23 @@ mcp__codex__codex ツールが利用可能な場合は、以下も並行実行�
 - prompt: "Perform a comprehensive code review of all changes. Check for bugs, security vulnerabilities, performance issues, and adherence to best practices"
 """
 
+    # 検知理由の表示
+    detection_info = f"""検知理由:
+- 完成キーワード: 「{detected_keyword}」を検出
+- 変更規模: {changed_lines}行（閾値{MIN_LINES_FOR_REVIEW}行以上）"""
+
     reason = f"""[自動レビュー] 完成時の包括的レビューを実行します
 
 {thinking}
 
+{detection_info}
+
 /pr-review-toolkit:review-pr all を実行してください。
 {codex_instruction}
+## 軽微な変更の場合
+変更内容が軽微（設定変更、リネーム、フォーマット修正など）と判断した場合は、
+詳細レビューをスキップし「軽微な変更のため詳細レビュー不要」と報告してください。
+
 ## 注意
 レビュー結果は必ずしも妥当とは限りません。修正前に妥当性を確認してください。
 
@@ -290,6 +308,25 @@ def main() -> None:
     if not has_uncommitted_changes():
         sys.exit(0)
 
+    # 3. トランスクリプト解析
+    transcript_path = input_data.get("transcript_path")
+    has_implementation, is_complete, detected_keyword = analyze_transcript(
+        transcript_path
+    )
+
+    # 実装がなければスキップ
+    if not has_implementation:
+        sys.exit(0)
+
+    # 完成キーワードがなければスキップ（完成時のみレビュー）
+    if not is_complete:
+        sys.exit(0)
+
+    # 4. 変更行数チェック
+    changed_lines = get_changed_lines_count()
+    if changed_lines <= MIN_LINES_FOR_REVIEW:
+        sys.exit(0)
+
     # セッション ID 取得
     session_id = input_data.get("session_id", "default")
 
@@ -299,28 +336,14 @@ def main() -> None:
         reset_review_count(session_id)
         sys.exit(0)
 
-    # 3. トランスクリプト解析
-    transcript_path = input_data.get("transcript_path")
-    has_implementation, is_complete = analyze_transcript(transcript_path)
-
-    # 実装がなければスキップ
-    if not has_implementation:
-        sys.exit(0)
-
-    # 4. 環境検出
+    # 5. 環境検出
     is_vertex = os.environ.get("CLAUDE_CODE_USE_VERTEX") == "1"
 
-    # 5. レビュー指示生成
-    if is_complete:
-        # 包括的レビュー（完成時）
-        reset_review_count(session_id)
-        instruction = build_comprehensive_review(is_vertex)
-    else:
-        # 軽量レビュー（Stop 毎）
-        increment_review_count(session_id)
-        instruction = build_lightweight_review(is_vertex, review_count + 1)
+    # 6. レビュー指示生成
+    increment_review_count(session_id)
+    instruction = build_review_instruction(is_vertex, detected_keyword, changed_lines)
 
-    # 6. 出力
+    # 7. 出力
     print(json.dumps(instruction, ensure_ascii=False))
     sys.exit(0)
 
