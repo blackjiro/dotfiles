@@ -229,17 +229,10 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool, str | N
 # =============================================================================
 
 
-def get_thinking_level(is_vertex: bool) -> str:
-    """環境に応じた Thinking レベルを決定"""
-    return "think hard" if is_vertex else "ultrathink"
-
-
 def build_review_instruction(
     is_vertex: bool, detected_keyword: str | None, changed_lines: int
 ) -> dict:
     """レビュー指示を生成"""
-    thinking = get_thinking_level(is_vertex)
-
     # Vertex AI 環境では Codex は使用不可
     codex_instruction = ""
     if not is_vertex:
@@ -255,8 +248,6 @@ mcp__codex__codex ツールが利用可能な場合は、以下も並行実行�
 - 変更規模: {changed_lines}行（閾値{MIN_LINES_FOR_REVIEW}行以上）"""
 
     reason = f"""[自動レビュー] 完成時の包括的レビューを実行します
-
-{thinking}
 
 {detection_info}
 
