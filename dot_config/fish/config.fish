@@ -70,3 +70,6 @@ source $(code --locate-shell-integration-path fish)
 # antigravigy
 fish_add_path $HOME/.antigravity/antigravity/bin
 
+# jj autocomplete
+COMPLETE=fish jj | source
+
