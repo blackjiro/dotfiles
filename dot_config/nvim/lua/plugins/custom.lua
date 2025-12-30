@@ -11,6 +11,7 @@ return {
         "shfmt",
         "lua-language-server",
         "svelte-language-server",
+        "copilot-language-server",
       },
     },
   },
