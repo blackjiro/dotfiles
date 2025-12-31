@@ -1,0 +1,30 @@
+#!/bin/bash
+# gw-handoff: Create worktree in new Zellij pane
+# Usage: gw-handoff <branch-name> [-c|--from-current]
+
+set -euo pipefail
+
+BRANCH_NAME="${1:-}"
+FROM_CURRENT=""
+
+# Parse arguments
+shift || true
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -c|--from-current)
+            FROM_CURRENT="-c"
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$BRANCH_NAME" ]]; then
+    echo "Usage: gw-handoff <branch-name> [-c|--from-current]"
+    exit 1
+fi
+
+# 新ペインで gw new を実行し、その後 claude --resume（失敗しても継続）
+zellij run --direction right -- fish -c "gw new $FROM_CURRENT $BRANCH_NAME; and begin; claude --resume; or true; end"
