@@ -69,6 +69,7 @@ function gw --description "Git worktree management tool"
                 echo "  gw main             - Switch to main branch worktree"
                 echo "  gw new <name>       - Create new worktree from main branch"
                 echo "  gw new -c <name>    - Create new worktree from current branch"
+                echo "  gw new --carry <name> - Create worktree and carry uncommitted changes"
                 echo "  gw add              - Create worktree from existing branch"
                 echo "  gw rm [--force]     - Remove a worktree (force ignores local changes)"
                 echo "  gw clean [--force]  - Remove merged/deleted worktrees (force ignores local changes)"
@@ -544,6 +545,7 @@ function __gw_create_new
     set -l branch_name ""
     set -l copy_patterns $GW_DEFAULT_COPY_PATTERNS
     set -l no_copy_ignored 0
+    set -l carry_changes 0
     set -l source_dir (pwd)
     set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
     if test -z "$repo_root"
@@ -569,6 +571,8 @@ function __gw_create_new
                 end
             case --no-copy-ignored
                 set no_copy_ignored 1
+            case --carry
+                set carry_changes 1
             case '*'
                 if test -z "$branch_name"
                     set branch_name $argv[$i]
@@ -579,8 +583,32 @@ function __gw_create_new
 
     if test -z "$branch_name"
         echo "Error: Branch name required" >&2
-        echo "Usage: gw new [-c] [--copy-ignored <patterns>] [--no-copy-ignored] <branch-name>" >&2
+        echo "Usage: gw new [-c] [--carry] [--copy-ignored <patterns>] [--no-copy-ignored] <branch-name>" >&2
         return 1
+    end
+
+    # Capture changes before creating worktree (if --carry is specified)
+    set -l carry_temp_dir ""
+    set -l carry_patch ""
+    set -l carry_untracked_files
+
+    if test $carry_changes -eq 1
+        set carry_temp_dir (mktemp -d /tmp/gw-carry.XXXXXX)
+        if test $status -ne 0 -o -z "$carry_temp_dir"
+            echo "Warning: Failed to create temporary directory for carrying changes" >&2
+            set carry_changes 0
+        else
+            set carry_patch "$carry_temp_dir/changes.patch"
+
+            # Capture unstaged changes
+            git diff --binary HEAD > $carry_patch
+            if test $status -ne 0
+                echo "Warning: Failed to capture unstaged changes" >&2
+            end
+
+            # Get list of untracked files
+            set carry_untracked_files (git ls-files --others --exclude-standard)
+        end
     end
 
     set -l base_branch ""
@@ -648,7 +676,50 @@ function __gw_create_new
 
         __gw_write_base_metadata "$worktree_path" $repo_name $base_branch $base_worktree
 
+        # Apply carried changes (if --carry was specified)
+        if test $carry_changes -eq 1
+            # Apply patch if it has content
+            if test -s $carry_patch
+                if git -C "$worktree_path" apply --allow-empty --whitespace=nowarn $carry_patch
+                    echo "  Carried: unstaged changes applied"
+                else
+                    echo "  Warning: Failed to apply unstaged changes (possible conflict)" >&2
+                end
+            end
+
+            # Copy untracked files
+            set -l copied_untracked 0
+            for file in $carry_untracked_files
+                set -l src_path "$source_dir/$file"
+                set -l tgt_path "$worktree_path/$file"
+
+                if not test -e $src_path
+                    continue
+                end
+
+                set -l tgt_dir (dirname $tgt_path)
+                if test "$tgt_dir" != "."
+                    mkdir -p $tgt_dir
+                end
+
+                if cp -p $src_path $tgt_path
+                    set copied_untracked (math $copied_untracked + 1)
+                else
+                    echo "  Warning: Failed to copy '$file'" >&2
+                end
+            end
+
+            if test $copied_untracked -gt 0
+                echo "  Carried: $copied_untracked untracked file(s) copied"
+            end
+        end
+
         cd "$worktree_path"
+    end
+
+    # Always cleanup temp directory if it exists
+    if test -n "$carry_temp_dir" -a -d "$carry_temp_dir"
+        rm -rf $carry_temp_dir
     end
 end
 

@@ -41,3 +41,8 @@ gw-handoff スクリプトを実行してください。
 - ユーザー認証機能の追加 → `gw-handoff feat/add-user-auth`
 - ログインバグの修正 → `gw-handoff fix/login-validation`
 - API クライアントのリファクタリング → `gw-handoff refactor/api-client`
+
+## 重要
+
+**gw-handoff コマンドを実行したら、このコマンドの処理は完了です。**
+新しい worktree で `claude --resume` が自動実行されるため、追加の作業は不要です。
