@@ -22,5 +22,5 @@ if [[ -d "$HOME/.local/share/aquaproj-aqua/bin" ]]; then
 fi
 
 # Editor
-export EDITOR=vim
+export EDITOR=nvim
 export VISUAL=nvim

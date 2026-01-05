@@ -8,6 +8,15 @@ export PATH="/opt/homebrew/bin:$PATH"
 
 alias claude='~/.claude/local/claude'
 
+# ============================================
+# Functions
+# ============================================
+
+# Open nvim in a new Zellij pane
+zn() {
+  zellij run -i -c -- nvim .
+}
+
 # Switch to fish if available
 if [[ -x /opt/homebrew/bin/fish ]] || command -v fish &> /dev/null; then
     # Only switch if we're in an interactive shell and not already in fish

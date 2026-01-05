@@ -43,6 +43,7 @@ abbr --add -- lg 'lazygit'
 # Aliases
 alias vim nvim
 alias vi nvim
+alias zn 'zellij run -i -c -- nvim .'
 # alias claude '~/.claude/local/claude'
 alias odaily 'vi (obsidian-cli print-default --path-only)/Daily/(date +%Y-%m-%d).md'
 
