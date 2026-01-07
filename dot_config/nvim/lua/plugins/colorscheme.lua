@@ -7,11 +7,20 @@ return {
   { "sainnhe/sonokai" },
   { "rebelot/kanagawa.nvim" },
   { "projekt0n/github-nvim-theme" },
+  {
+    "pmouraguedes/neodarcula.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      transparent = false,
+      dim = false,
+    },
+  },
 
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "github_dark",
+      colorscheme = "neodarcula",
     },
   },
 }
