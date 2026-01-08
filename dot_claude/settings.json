@@ -1,4 +1,5 @@
 {
+  "language": "ja",
   "env": {
     "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
     "DISABLE_COST_WARNINGS": "1",

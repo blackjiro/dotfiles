@@ -2,7 +2,7 @@
 
 ## Language and Documentation
 
-Think in English but provide all answers and markdown document in Japanese unless otherwise specified.
+Generate all markdown documents in Japanese unless otherwise specified.
 
 ## Pull Request Creation
 
