@@ -1,5 +1,59 @@
 set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*" "mise.local.toml" "master.key"
 set -g GW_BASE_METADATA_FILE ".gw-base"
+set -g GW_OLLAMA_MODEL "llama3.2:1b"
+
+# Helper function: Generate branch name from task description using Ollama
+function __gw_generate_branch_name
+    set -l task_description $argv[1]
+
+    # Check if ollama is available
+    if not command -q ollama
+        echo "Error: ollama is not installed. Install with: brew install ollama" >&2
+        return 1
+    end
+
+    # Check if ollama is running
+    if not ollama list >/dev/null 2>&1
+        echo "Error: ollama is not running. Start with: ollama serve" >&2
+        return 1
+    end
+
+    # Check if model is available
+    if not ollama list 2>/dev/null | string match -q "*$GW_OLLAMA_MODEL*"
+        echo "Error: Model '$GW_OLLAMA_MODEL' not found. Install with: ollama pull $GW_OLLAMA_MODEL" >&2
+        return 1
+    end
+
+    set -l prompt "Conventional Commits のブランチ命名規則に従って、以下のタスクに適したブランチ名を1つだけ出力。
+プレフィックス: feat, fix, docs, style, refactor, perf, test, chore, ci, build
+形式: <prefix>/<kebab-case-description>
+余計な説明は不要。ブランチ名のみ出力。
+
+タスク: $task_description"
+
+    # Remove ANSI escape sequences and all whitespace from ollama output
+    set -l branch_name (ollama run $GW_OLLAMA_MODEL "$prompt" 2>/dev/null | string replace -ra '\e\[[0-9;?]*[a-zA-Z]' '' | string replace -ra '\s+' '' | string trim)
+
+    if test -z "$branch_name"
+        echo "Error: Failed to generate branch name" >&2
+        return 1
+    end
+
+    # Validate the generated branch name format (relaxed: allow underscore, nested paths)
+    if not string match -qr '^(feat|fix|docs|style|refactor|perf|test|chore|ci|build)/[a-z0-9_/-]+$' $branch_name
+        # Try to extract just the branch name if there's extra text
+        set -l matches (string match -r '(feat|fix|docs|style|refactor|perf|test|chore|ci|build)/[a-z0-9_/-]+' $branch_name)
+        if test (count $matches) -gt 0
+            set branch_name $matches[1]
+        else
+            echo "Error: Generated invalid branch name format" >&2
+            return 1
+        end
+    end
+
+    # Final cleanup: remove any remaining whitespace
+    echo (string trim $branch_name)
+end
 
 function gw --description "Git worktree management tool"
     # Default patterns for ignored files to copy
@@ -67,9 +121,10 @@ function gw --description "Git worktree management tool"
                 echo "Commands:"
                 echo "  gw                  - Select and switch to a worktree"
                 echo "  gw main             - Switch to main branch worktree"
-                echo "  gw new <name>       - Create new worktree from main branch"
-                echo "  gw new -c <name>    - Create new worktree from current branch"
-                echo "  gw new --carry <name> - Create worktree and carry uncommitted changes"
+                echo "  gw new \"<task>\"     - Create worktree with AI-generated branch name + Claude Code"
+                echo "  gw new -b <name>    - Create worktree with specified branch name (traditional)"
+                echo "  gw new -c \"<task>\"  - Create from current branch with AI-generated name"
+                echo "  gw new --carry \"<task>\" - Create worktree and carry uncommitted changes"
                 echo "  gw add              - Create worktree from existing branch"
                 echo "  gw rm [--force]     - Remove a worktree (force ignores local changes)"
                 echo "  gw clean [--force]  - Remove merged/deleted worktrees (force ignores local changes)"
@@ -80,6 +135,7 @@ function gw --description "Git worktree management tool"
                 echo "  gw prompt-gen compare - Generate an AI比較用プロンプト for experiment worktrees"
                 echo ""
                 echo "Options for 'new' and 'add' commands:"
+                echo "  -b, --branch <name>        - Use specified branch name directly"
                 echo "  --copy-ignored <patterns>  - Copy specific ignored files (comma-separated)"
                 echo "  --no-copy-ignored         - Don't copy any ignored files"
                 echo ""
@@ -543,6 +599,8 @@ function __gw_create_new
     set -l project_worktrees_dir $argv[1]
     set -l from_current 0
     set -l branch_name ""
+    set -l task_description ""
+    set -l use_branch_directly 0
     set -l copy_patterns $GW_DEFAULT_COPY_PATTERNS
     set -l no_copy_ignored 0
     set -l carry_changes 0
@@ -560,6 +618,15 @@ function __gw_create_new
         switch $argv[$i]
             case -c
                 set from_current 1
+            case -b --branch
+                set use_branch_directly 1
+                set i (math $i + 1)
+                if test $i -le (count $argv)
+                    set branch_name $argv[$i]
+                else
+                    echo "Error: -b/--branch requires a branch name" >&2
+                    return 1
+                end
             case --copy-ignored
                 set i (math $i + 1)
                 if test $i -le (count $argv)
@@ -574,16 +641,35 @@ function __gw_create_new
             case --carry
                 set carry_changes 1
             case '*'
-                if test -z "$branch_name"
-                    set branch_name $argv[$i]
+                # Default: treat as task description (for AI branch name generation)
+                if test -z "$task_description"
+                    set task_description $argv[$i]
                 end
         end
         set i (math $i + 1)
     end
 
+    # Generate branch name from task description if not using -b
+    if test $use_branch_directly -eq 0
+        if test -z "$task_description"
+            echo "Error: Task description required" >&2
+            echo "Usage: gw new \"<task>\"     - Generate branch name from task + Claude Code" >&2
+            echo "       gw new -b <name>    - Use branch name directly (traditional)" >&2
+            echo "Options: [-c] [--carry] [--copy-ignored <patterns>] [--no-copy-ignored]" >&2
+            return 1
+        end
+
+        echo "Generating branch name from task..."
+        if not set branch_name (__gw_generate_branch_name "$task_description")
+            return 1
+        end
+        # Ensure no trailing whitespace in branch name
+        set branch_name (string trim $branch_name)
+        echo "Branch name: $branch_name"
+    end
+
     if test -z "$branch_name"
         echo "Error: Branch name required" >&2
-        echo "Usage: gw new [-c] [--carry] [--copy-ignored <patterns>] [--no-copy-ignored] <branch-name>" >&2
         return 1
     end
 
@@ -715,6 +801,15 @@ function __gw_create_new
         end
 
         cd "$worktree_path"
+
+        # If task description was provided (AI mode), set up Claude Code command
+        if test -n "$task_description"
+            # Use Fish's string escape for proper shell escaping
+            set -l escaped_task (string escape -- "$task_description")
+            commandline "claude $escaped_task"
+            echo ""
+            echo "Claude Code command ready. Press Enter to start."
+        end
     end
 
     # Always cleanup temp directory if it exists

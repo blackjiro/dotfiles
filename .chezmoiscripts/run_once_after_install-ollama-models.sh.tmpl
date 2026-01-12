@@ -1,0 +1,27 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if ! command -v ollama &> /dev/null; then
+    echo "ollama is not installed. Skipping model download."
+    exit 0
+fi
+
+MODEL="llama3.2:1b"
+
+# Check if ollama server is running
+if ! ollama list &> /dev/null; then
+    echo "ollama server is not running. Run 'ollama serve' first, then 'ollama pull $MODEL'"
+    exit 0
+fi
+
+# Check if model is already downloaded
+if ollama list 2>/dev/null | grep -q "$MODEL"; then
+    echo "Model $MODEL is already downloaded. Skipping."
+    exit 0
+fi
+
+echo "Downloading ollama model: $MODEL"
+ollama pull "$MODEL"
+{{ end }}
