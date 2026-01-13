@@ -7,6 +7,12 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 eval "$(/opt/homebrew/bin/brew shellenv)"
 {{ end -}}
 
+# Check if fish is installed, exit if not
+if ! command -v fish >/dev/null 2>&1; then
+	echo "Fish shell is not installed yet. Skipping fisher setup."
+	exit 0
+fi
+
 if ! fish -c "type fisher" >/dev/null 2>&1; then
 	echo "Installing fisher"
 	fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
