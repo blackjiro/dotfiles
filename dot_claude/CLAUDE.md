@@ -15,3 +15,7 @@ Commit changes first if needed. Use `.github/pull_request_template.md` format if
 ## Development Principles
 
 Follow Kent Beck's TDD and Tidy First approach. Simplicity first.
+
+## GitHub Operations
+
+Use `gh` CLI for viewing GitHub issues and pull requests.
