@@ -247,7 +247,7 @@ mcp__codex__codex ツールが利用可能な場合は、以下も並行実行�
 - 完成キーワード: 「{detected_keyword}」を検出
 - 変更規模: {changed_lines}行（閾値{MIN_LINES_FOR_REVIEW}行以上）"""
 
-    reason = f"""[自動レビュー] 完成時の包括的レビューを実行します
+    reason = f"""[自動レビューリマインド] 完成時の包括的レビューを実行します
 
 {detection_info}
 
