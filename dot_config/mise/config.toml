@@ -13,4 +13,6 @@ experimental = true
 # Use .nvmrc, .node-version, etc. files
 legacy_version_file = true
 idiomatic_version_file_enable_tools = ["node"]
+# Trusted directories for mise config files
+trusted_config_paths = ["~/workspaces", "~/worktrees"]
 
