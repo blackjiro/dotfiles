@@ -1,58 +1,114 @@
 set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*" "mise.local.toml" "master.key"
 set -g GW_BASE_METADATA_FILE ".gw-base"
-set -g GW_OLLAMA_MODEL "llama3.2:1b"
 
-# Helper function: Generate branch name from task description using Ollama
-function __gw_generate_branch_name
-    set -l task_description $argv[1]
+# Helper function: Generate branch name and pane name using Claude Code headless
+# Returns: branch_name (line 1), pane_name (line 2)
+function __gw_generate_branch_info
+    set -l input $argv[1]
 
-    # Check if ollama is available
-    if not command -q ollama
-        echo "Error: ollama is not installed. Install with: brew install ollama" >&2
+    # Check if claude is available
+    if not command -q claude
+        echo "Error: claude is not installed" >&2
         return 1
     end
 
-    # Check if ollama is running
-    if not ollama list >/dev/null 2>&1
-        echo "Error: ollama is not running. Start with: ollama serve" >&2
+    # Check if jq is available
+    if not command -q jq
+        echo "Error: jq is not installed" >&2
         return 1
     end
 
-    # Check if model is available
-    if not ollama list 2>/dev/null | string match -q "*$GW_OLLAMA_MODEL*"
-        echo "Error: Model '$GW_OLLAMA_MODEL' not found. Install with: ollama pull $GW_OLLAMA_MODEL" >&2
+    set -l json_schema '{"type":"object","properties":{"branch_name":{"type":"string"},"pane_name":{"type":"string"}},"required":["branch_name","pane_name"]}'
+
+    set -l prompt "あなたはブランチ名生成アシスタントです。
+
+## 入力
+$input
+
+## タスク
+
+1. 入力がIssue参照（#番号、issue #番号、GitHub Issue URL）の場合:
+   - \`gh issue view <番号>\` を実行してIssue情報を取得
+   - Issue情報からブランチ名と短い説明を生成
+
+2. 入力がタスク説明の場合:
+   - 説明からブランチ名と短い説明を生成
+
+## 出力形式
+
+JSON形式で以下を出力:
+- branch_name: Conventional Commits形式のブランチ名（feat/xxx, fix/xxx等）
+- pane_name: 短い日本語説明（Issue番号があれば \"#番号 説明\" 形式）
+
+## ブランチ名の規則
+- prefix: feat, fix, docs, style, refactor, perf, test, chore, ci, build
+- 形式: <prefix>/<kebab-case-description>
+- 英語、ケバブケース、簡潔に（2-4単語程度）
+
+## 重要
+- 余計な説明は不要。JSON のみ出力。
+- pane_name は日本語で、何をやっているか一目でわかるようにする"
+
+    # Run Claude Code headless with Haiku model
+    # --permission-mode bypassPermissions allows gh commands without prompts
+    set -l result (claude --print --model haiku \
+        --allowed-tools "Bash(gh:*)" \
+        --permission-mode bypassPermissions \
+        --output-format json \
+        --json-schema "$json_schema" \
+        "$prompt" 2>/dev/null)
+    set -l claude_status $status
+
+    if test $claude_status -ne 0 -o -z "$result"
+        echo "Error: Failed to generate branch info from Claude" >&2
         return 1
     end
 
-    set -l prompt "Conventional Commits のブランチ命名規則に従って、以下のタスクに適したブランチ名を1つだけ出力。
-プレフィックス: feat, fix, docs, style, refactor, perf, test, chore, ci, build
-形式: <prefix>/<kebab-case-description>
-余計な説明は不要。ブランチ名のみ出力。
-
-タスク: $task_description"
-
-    # Remove ANSI escape sequences and all whitespace from ollama output
-    set -l branch_name (ollama run $GW_OLLAMA_MODEL "$prompt" 2>/dev/null | string replace -ra '\e\[[0-9;?]*[a-zA-Z]' '' | string replace -ra '\s+' '' | string trim)
+    # Parse JSON result using jq - structured_output contains the schema-validated response
+    set -l branch_name (echo "$result" | jq -r '.structured_output.branch_name // empty')
+    if test $status -ne 0
+        echo "Error: Failed to parse JSON response from Claude" >&2
+        return 1
+    end
+    set -l pane_name (echo "$result" | jq -r '.structured_output.pane_name // empty')
+    if test $status -ne 0
+        echo "Error: Failed to parse pane_name from JSON response" >&2
+        return 1
+    end
 
     if test -z "$branch_name"
-        echo "Error: Failed to generate branch name" >&2
+        echo "Error: Failed to parse branch_name from result" >&2
         return 1
     end
 
-    # Validate the generated branch name format (relaxed: allow underscore, nested paths)
+    # Fallback pane_name if empty
+    if test -z "$pane_name"
+        set pane_name (__gw_pane_name_from_branch "$branch_name")
+    end
+
+    # Validate the generated branch name format
     if not string match -qr '^(feat|fix|docs|style|refactor|perf|test|chore|ci|build)/[a-z0-9_/-]+$' $branch_name
         # Try to extract just the branch name if there's extra text
         set -l matches (string match -r '(feat|fix|docs|style|refactor|perf|test|chore|ci|build)/[a-z0-9_/-]+' $branch_name)
         if test (count $matches) -gt 0
             set branch_name $matches[1]
         else
-            echo "Error: Generated invalid branch name format" >&2
+            echo "Error: Generated invalid branch name format: $branch_name" >&2
             return 1
         end
     end
 
-    # Final cleanup: remove any remaining whitespace
-    echo (string trim $branch_name)
+    # Return branch_name and pane_name separated by ||| delimiter
+    # Fish command substitution converts newlines to spaces, so we use a delimiter
+    printf '%s|||%s' "$branch_name" "$pane_name"
+end
+
+# Helper function: Generate pane name from branch name (fallback for -b option)
+function __gw_pane_name_from_branch
+    set -l branch_name $argv[1]
+    # Remove prefix (feat/, fix/, etc.) and convert kebab-case to spaces
+    set -l short_name (string replace -r '^(feat|fix|docs|style|refactor|perf|test|chore|ci|build)/' '' $branch_name)
+    echo $short_name
 end
 
 function gw --description "Git worktree management tool"
@@ -599,6 +655,7 @@ function __gw_create_new
     set -l project_worktrees_dir $argv[1]
     set -l from_current 0
     set -l branch_name ""
+    set -l pane_name ""
     set -l task_description ""
     set -l use_branch_directly 0
     set -l copy_patterns $GW_DEFAULT_COPY_PATTERNS
@@ -659,13 +716,24 @@ function __gw_create_new
             return 1
         end
 
-        echo "Generating branch name from task..."
-        if not set branch_name (__gw_generate_branch_name "$task_description")
+        echo "Generating branch info from task..."
+        set -l branch_info (__gw_generate_branch_info "$task_description")
+        if test $status -ne 0
             return 1
         end
-        # Ensure no trailing whitespace in branch name
-        set branch_name (string trim $branch_name)
+        # Parse result: branch_name|||pane_name format
+        set -l parts (string split "|||" "$branch_info")
+        if test (count $parts) -lt 2
+            echo "Error: Invalid branch info format" >&2
+            return 1
+        end
+        set branch_name (string trim $parts[1])
+        set pane_name (string trim $parts[2])
         echo "Branch name: $branch_name"
+        echo "Pane name: $pane_name"
+    else
+        # Generate pane name from branch name when using -b option
+        set pane_name (__gw_pane_name_from_branch "$branch_name")
     end
 
     if test -z "$branch_name"
@@ -802,13 +870,9 @@ function __gw_create_new
 
         cd "$worktree_path"
 
-        # If task description was provided (AI mode), set up Claude Code command
-        if test -n "$task_description"
-            # Use Fish's string escape for proper shell escaping
-            set -l escaped_task (string escape -- "$task_description")
-            commandline "claude $escaped_task"
-            echo ""
-            echo "Claude Code command ready. Press Enter to start."
+        # Rename Zellij pane if inside a Zellij session
+        if set -q ZELLIJ; and test -n "$pane_name"
+            zellij action rename-pane "$pane_name" 2>/dev/null
         end
     end
 
