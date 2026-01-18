@@ -5,7 +5,6 @@ Claude Code 自動レビューフック
 Stop 毎に軽量レビュー、完成時に包括的レビューを自動実行する。
 """
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -229,45 +228,11 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool, str | N
 # =============================================================================
 
 
-def build_review_instruction(
-    is_vertex: bool, detected_keyword: str | None, changed_lines: int
-) -> dict:
-    """レビュー指示を生成"""
-    # Vertex AI 環境では Codex は使用不可
-    codex_instruction = ""
-    if not is_vertex:
-        codex_instruction = """
-## Codex 並行レビュー
-mcp__codex__codex ツールが利用可能な場合は、以下も並行実行：
-- prompt: "Perform a comprehensive code review of all changes. Check for bugs, security vulnerabilities, performance issues, and adherence to best practices"
-"""
+def build_review_instruction(detected_keyword: str | None, changed_lines: int) -> dict:
+    """レビュー指示を生成（軽量版）"""
+    reason = f"""[自動レビュー] 完成キーワード「{detected_keyword}」を検出 (変更{changed_lines}行)
 
-    # 検知理由の表示
-    detection_info = f"""検知理由:
-- 完成キーワード: 「{detected_keyword}」を検出
-- 変更規模: {changed_lines}行（閾値{MIN_LINES_FOR_REVIEW}行以上）"""
-
-    reason = f"""[自動レビューリマインド] 完成時の包括的レビューを実行します
-
-{detection_info}
-
-/pr-review-toolkit:review-pr all を実行してください。
-{codex_instruction}
-## 軽微な変更の場合
-変更内容が軽微（設定変更、リネーム、フォーマット修正など）と判断した場合は、
-詳細レビューをスキップし「軽微な変更のため詳細レビュー不要」と報告してください。
-
-## 注意
-レビュー結果は必ずしも妥当とは限りません。修正前に妥当性を確認してください。
-
-## 対応方針
-1. 各レビューコメントの妥当性を確認
-2. Critical/Important で妥当なもの → 修正
-3. Suggestions → 検討事項として報告
-4. 判断困難 → AskUserQuestion で確認
-5. 修正後、再度レビューを実行
-6. 妥当でないコメントのみ or コメントなしになるまで繰り返す"""
-
+/auto-reviewing を実行してください。"""
     return {"decision": "block", "reason": reason}
 
 
@@ -327,12 +292,9 @@ def main() -> None:
         reset_review_count(session_id)
         sys.exit(0)
 
-    # 5. 環境検出
-    is_vertex = os.environ.get("CLAUDE_CODE_USE_VERTEX") == "1"
-
-    # 6. レビュー指示生成
+    # 5. レビュー指示生成
     increment_review_count(session_id)
-    instruction = build_review_instruction(is_vertex, detected_keyword, changed_lines)
+    instruction = build_review_instruction(detected_keyword, changed_lines)
 
     # 7. 出力
     print(json.dumps(instruction, ensure_ascii=False))

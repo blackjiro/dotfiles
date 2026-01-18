@@ -117,7 +117,8 @@
       "Bash(openspec:*)",
       "Skill(RsDT)",
       "Skill(creating-skills)",
-      "Skill(generating-images)"
+      "Skill(generating-images)",
+      "Skill(auto-reviewing)"
     ],
     "deny": [
       "Bash(rm -rf /*)",
