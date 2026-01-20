@@ -118,7 +118,9 @@
       "Skill(RsDT)",
       "Skill(creating-skills)",
       "Skill(generating-images)",
-      "Skill(auto-reviewing)"
+      "Skill(auto-reviewing)",
+      "Bash(agent-browser:*)",
+      "Skill(agent-browser)"
     ],
     "deny": [
       "Bash(rm -rf /*)",
