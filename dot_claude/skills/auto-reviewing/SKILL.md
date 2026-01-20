@@ -19,15 +19,17 @@ description: コード変更のレビューを実行。「レビューして」�
    - `git diff --stat` で変更ファイルと行数を確認
    - 軽微な変更（設定変更、リネーム、フォーマット修正など）の場合は「軽微な変更のため詳細レビュー不要」と報告して終了
 
-2. **レビュー実行**
-   - `/pr-review-toolkit:review-pr all` を実行
-   - `codex` コマンドが利用可能な場合は並行実行:
-     ```bash
-     # デフォルトブランチを取得
-     git remote show origin 2>/dev/null | grep 'HEAD branch' | awk '{print $NF}'
-     # レビュー実行
-     codex review --base <デフォルトブランチ>
-     ```
+2. **レビュー実行（両方必須）**
+
+   以下の2つを**必ず両方実行**すること。片方だけで終わらない。
+
+   - [ ] `/pr-review-toolkit:review-pr all` を実行
+   - [ ] `codex review` を実行（以下のルールで引数を決定）:
+     - 未コミット変更がある場合: `codex review --uncommitted`
+     - 未コミット変更がない場合: `codex review --base <デフォルトブランチ>`
+       - デフォルトブランチは `git remote show origin | grep 'HEAD branch' | awk '{print $NF}'` で取得
+
+   **注意**: codex コマンドが見つからない場合のみスキップ可。それ以外の理由でスキップしない。
 
 3. **結果の対応**
    - Critical/Important で妥当なもの → 修正
