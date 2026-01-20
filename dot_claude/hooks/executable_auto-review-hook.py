@@ -5,9 +5,14 @@ Claude Code 自動レビューフック
 Stop 毎に軽量レビュー、完成時に包括的レビューを自動実行する。
 """
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
+
+# --print モードの場合はスキップ（StructuredOutput との競合を防ぐ）
+if os.environ.get("CLAUDE_CODE_ENTRYPOINT") == "cli-print":
+    sys.exit(0)
 
 # =============================================================================
 # 設定
