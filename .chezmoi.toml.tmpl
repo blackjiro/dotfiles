@@ -12,7 +12,7 @@
 {{- $hostname := .chezmoi.hostname -}}
 
 {{- if not $ephemeral -}}
-{{-   if or (eq $hostname "HirokinoMacBook-Pro") (eq $hostname "HirokinoMacBook-Air") -}}
+{{-   if or (eq $hostname "HirokinoMacBook-Pro") (eq $hostname "HirokinoMacBook-Air") (eq $hostname "HirokinoiMac") -}}
 {{-     $personal = true -}}
 {{-   else if eq $hostname "J9PP2VJ1H6" -}}
 {{-     $work = true -}}
