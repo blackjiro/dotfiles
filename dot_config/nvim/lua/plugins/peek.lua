@@ -1,7 +1,6 @@
 return {
   {
     "toppair/peek.nvim",
-    event = { "VeryLazy" },
     build = "deno task --quiet build:fast",
     config = function()
       require("peek").setup({
@@ -10,7 +9,7 @@ return {
     end,
     keys = {
       {
-        "<leader>mp",
+        "<leader>mo",
         function()
           local peek = require("peek")
           if peek.is_open() then
