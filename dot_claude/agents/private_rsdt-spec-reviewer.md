@@ -36,6 +36,13 @@ For each RsDT file reviewed, organize your findings as:
 ### Design Philosophy 準拠状況
 - [各ポイントの確認結果]
 
+### Behavior-Driven Test Principles 準拠状況
+- [ ] テスト対象はpublic/exportインターフェースか
+- [ ] 不要なモックはないか（自己管理リソースはモックしない）
+- [ ] 外部APIは適切にモックされているか
+- [ ] 高コストテストに環境変数マーカーがあるか
+- [ ] テストインフラ（実DB接続等）の確認が行われているか
+
 ### Important Reminders 準拠状況
 - [各ポイントの確認結果]
 
@@ -43,6 +50,30 @@ For each RsDT file reviewed, organize your findings as:
 - 準拠: X/Y項目
 - 要修正: [具体的な修正内容]
 ```
+
+## Behavior-Driven Test Principles Check
+
+When reviewing design.md test design sections, verify the following:
+
+### Test Target Verification
+- ✅ Tests target public/exported interfaces only
+- ❌ Tests targeting private functions or internal implementations
+
+### Mocking Policy Verification
+- ✅ Self-managed resources (DB, file system, etc.) use real connections
+- ✅ External APIs (paid services, AI APIs) are mocked
+- ❌ Unnecessary mocking of self-managed resources
+- ❌ Direct calls to paid external APIs without mocking
+
+### Test Infrastructure Check
+- If design.md includes tests requiring real DB connections:
+  1. Verify project has test infrastructure (testcontainers, docker-compose, etc.)
+  2. If missing, flag this as a blocker and recommend infrastructure setup first
+  3. Add recommendation to discuss with user before proceeding
+
+### Expensive Test Markers
+- Tests calling external APIs or long-running operations must be marked for `RUN_EXPENSIVE_TESTS=1` control
+- Flag any expensive tests without proper environment variable control
 
 ## Important Guidelines
 

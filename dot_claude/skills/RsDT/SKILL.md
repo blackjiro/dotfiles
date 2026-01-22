@@ -255,13 +255,22 @@ Include as needed (not all sections are mandatory):
 
 ## テスト設計
 
-### [Test Type]
+### テスト方針
+- **テスト対象**: [public API / export関数 / クラスの公開メソッド]
+- **モック対象**: [外部API名]（理由: 課金/不安定）
+- **実DB使用**: [はい/いいえ]
+- **テストインフラ**: [testcontainers / docker-compose / in-memory DB / N/A]
+- **高コストテスト**: [あり/なし] → 環境変数制御
+
+### [Test Type: Integration / E2E / Unit]
 
 #### Test: [Test Name]
 - **対応シナリオ**: requirement-spec.mdの[シナリオ名]
+- **テスト対象**: [public関数/メソッド名]
 - **Given/Arrange**: [Preconditions]
 - **When/Act**: [Execution]
 - **Then/Assert**: [Verification]
+- **モック**: [なし / 外部API名]
 ```
 
 **Key Points:**
@@ -468,6 +477,50 @@ For each task in tasks.md:
 6. Refactor if needed (keep tests green)
 7. Mark task as completed
 ```
+
+## Behavior-Driven Test Principles
+
+### Test Targets
+- **Test**: Public/exported interfaces (public methods, exported functions)
+- **Do NOT test**: Private functions, internal implementation details
+
+### Test Granularity
+- Test end-to-end behavior flows
+- Example: For APIs, test request → response flow
+
+### Mocking Policy
+
+| Target | Policy | Reason |
+|--------|--------|--------|
+| Self-managed resources (DB, etc.) | Do NOT mock | Verify actual behavior |
+| External APIs (paid services, AI APIs, etc.) | Mock them | Cost and stability |
+
+### Expensive Tests
+- Control execution with `RUN_EXPENSIVE_TESTS=1` environment variable
+- Skip in regular CI runs, explicitly run when needed
+
+### Test Infrastructure Check (MANDATORY)
+
+**Before writing tests that require real DB connections, MUST verify test infrastructure exists:**
+
+1. **Check for existing infrastructure** - Look for these indicators:
+
+   | Language/Framework | What to Look For |
+   |-------------------|------------------|
+   | Java/Kotlin | `testcontainers` in pom.xml/build.gradle |
+   | Node.js/TypeScript | `testcontainers` in package.json, `docker-compose.test.yml` |
+   | Python | `testcontainers` in requirements.txt/pyproject.toml |
+   | Go | `testcontainers-go` in go.mod |
+   | Any | `docker-compose.yml`, `docker-compose.test.yml`, `.devcontainer/` |
+
+2. **If infrastructure is missing**, discuss with user:
+   - "実DBテストのインフラがないようです。テスト作成前にセットアップしますか？"
+   - Propose setup options:
+     - **testcontainers**: Recommended for most cases (programmatic container management)
+     - **docker-compose**: Good for complex multi-service setups
+     - **In-memory DB**: SQLite for simple cases (limited compatibility)
+
+3. **Only proceed with test design after infrastructure is confirmed**
 
 ## Design Philosophy
 
@@ -677,5 +730,9 @@ rm -rf RsDT/<feature_name>/
 13. **TDD is mandatory**: Always write tests first (Red), then implementation (Green), then refactor. Never write implementation without a failing test.
 14. **Document design alternatives**: When multiple valid approaches exist, briefly document the options and why the chosen one was selected.
 15. **Draft review is mandatory**: After creating draft files (requirement-spec.md, design.md, tasks.md), MUST call `rsdt-spec-reviewer` sub-agent to verify compliance with Design Philosophy and guidelines before proceeding to implementation.
+16. **Behavior-driven test targets**: Only test public/exported interfaces. Do NOT test private functions or internal implementations.
+17. **Smart mocking policy**: Do NOT mock self-managed resources (DB, etc.) - use real connections. Only mock external APIs (paid services, AI APIs).
+18. **Test infrastructure first**: Before writing tests requiring real DB, verify test infrastructure exists (testcontainers, docker-compose, etc.). If missing, discuss with user and set up first.
+19. **Expensive test control**: Tests with significant cost (external API calls, long-running operations) must be controlled with `RUN_EXPENSIVE_TESTS=1` environment variable.
 
-Remember: Requirements are truth. Design guides implementation. Tasks track progress. RsDT is temporary. Files are in Japanese. **Deletion before Addition. Test First. Review Before Implementation.**
+Remember: Requirements are truth. Design guides implementation. Tasks track progress. RsDT is temporary. Files are in Japanese. **Deletion before Addition. Test First. Review Before Implementation. Real DB over Mocks.**
