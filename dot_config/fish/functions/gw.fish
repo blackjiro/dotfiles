@@ -177,7 +177,8 @@ function gw --description "Git worktree management tool"
                 echo "Commands:"
                 echo "  gw                  - Select and switch to a worktree"
                 echo "  gw main             - Switch to main branch worktree"
-                echo "  gw new \"<task>\"     - Create worktree with AI-generated branch name + Claude Code"
+                echo "  gw new \"<task>\"     - Create worktree with AI-generated branch name"
+                echo "  gw new -p \"<task>\"  - Create worktree + start Claude Code in plan mode"
                 echo "  gw new -b <name>    - Create worktree with specified branch name (traditional)"
                 echo "  gw new -c \"<task>\"  - Create from current branch with AI-generated name"
                 echo "  gw new --carry \"<task>\" - Create worktree and carry uncommitted changes"
@@ -190,10 +191,13 @@ function gw --description "Git worktree management tool"
                 echo "  gw apply [target]   - Apply current worktree changes onto its base worktree"
                 echo "  gw prompt-gen compare - Generate an AI比較用プロンプト for experiment worktrees"
                 echo ""
-                echo "Options for 'new' and 'add' commands:"
+                echo "Options for 'new' command:"
+                echo "  -p, --plan                 - Start Claude Code in plan mode after creation"
                 echo "  -b, --branch <name>        - Use specified branch name directly"
+                echo "  -c                         - Create from current branch instead of main"
+                echo "  --carry                    - Carry uncommitted changes to new worktree"
                 echo "  --copy-ignored <patterns>  - Copy specific ignored files (comma-separated)"
-                echo "  --no-copy-ignored         - Don't copy any ignored files"
+                echo "  --no-copy-ignored          - Don't copy any ignored files"
                 echo ""
                 echo "Default copy patterns: $GW_DEFAULT_COPY_PATTERNS"
                 return 1
@@ -661,6 +665,7 @@ function __gw_create_new
     set -l copy_patterns $GW_DEFAULT_COPY_PATTERNS
     set -l no_copy_ignored 0
     set -l carry_changes 0
+    set -l start_plan_mode 0
     set -l source_dir (pwd)
     set -l repo_root (git rev-parse --show-toplevel 2>/dev/null)
     if test -z "$repo_root"
@@ -697,6 +702,8 @@ function __gw_create_new
                 set no_copy_ignored 1
             case --carry
                 set carry_changes 1
+            case -p --plan
+                set start_plan_mode 1
             case '*'
                 # Default: treat as task description (for AI branch name generation)
                 if test -z "$task_description"
@@ -873,6 +880,11 @@ function __gw_create_new
         # Rename Zellij pane if inside a Zellij session
         if set -q ZELLIJ; and test -n "$pane_name"
             zellij action rename-pane "$pane_name" 2>/dev/null
+        end
+
+        # Start Claude Code in plan mode if -p option was specified
+        if test $start_plan_mode -eq 1; and test -n "$task_description"
+            claude --permission-mode plan "$task_description"
         end
     end
 
