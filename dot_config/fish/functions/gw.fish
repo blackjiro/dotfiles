@@ -884,7 +884,7 @@ function __gw_create_new
 
         # Start Claude Code in plan mode if -p option was specified
         if test $start_plan_mode -eq 1; and test -n "$task_description"
-            claude --permission-mode plan "$task_description"
+            claude --dangerously-skip-permissions --append-system-prompt "$(cat ~/.claude/auto-plan-mode.txt)" "$task_description"
         end
     end
 
