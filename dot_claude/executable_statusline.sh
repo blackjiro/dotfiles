@@ -26,6 +26,47 @@ get_context_percent() {
 }
 
 # Rate limit from OAuth API with caching
+# Get listening ports for current workspace
+get_listening_ports() {
+  local cwd=$(echo "$input" | jq -r '.workspace.current_dir')
+  [ -z "$cwd" ] && return
+
+  local found_ports=""
+
+  # Find node processes listening on TCP ports and match by CWD
+  for pid in $(lsof -iTCP -sTCP:LISTEN -P -n 2>/dev/null | grep node | awk '{print $2}' | sort -u); do
+    local proc_cwd=$(lsof -p "$pid" 2>/dev/null | grep cwd | awk '{print $NF}')
+    # Check if process CWD starts with our workspace
+    if [[ "$proc_cwd" == "$cwd"* ]]; then
+      # Get TCP ports only (IPv4/IPv6), extract port number
+      local all_ports=$(lsof -p "$pid" -iTCP -sTCP:LISTEN -P -n 2>/dev/null | \
+        awk 'NR>1 && ($5=="IPv4" || $5=="IPv6") {print $9}' | \
+        sed 's/.*://' | sort -nu)
+
+      # Well-known dev server ports:
+      # - Vite: 5173-5180 (auto-increments when port is busy)
+      # - Next.js/React: 3000-3005
+      # - Python/FastAPI: 8000, 8080
+      # - Other common: 4000, 4200 (Angular)
+      for port in $all_ports; do
+        if [[ ($port -ge 5173 && $port -le 5180) || \
+              ($port -ge 3000 && $port -le 3005) || \
+              $port -eq 8000 || $port -eq 8080 || \
+              $port -eq 4000 || $port -eq 4200 ]]; then
+          # Add only if not already in found_ports
+          if [[ ! ",$found_ports," == *",$port,"* ]]; then
+            found_ports="${found_ports}${port},"
+          fi
+        fi
+      done
+    fi
+  done
+
+  # Remove trailing comma and output
+  found_ports="${found_ports%,}"
+  [ -n "$found_ports" ] && echo "$found_ports"
+}
+
 get_rate_limit() {
   local now=$(date +%s)
 
@@ -91,6 +132,7 @@ COST=$(get_cost 2>/dev/null)
 ADDED=$(get_lines_added 2>/dev/null)
 REMOVED=$(get_lines_removed 2>/dev/null)
 RATE=$(get_rate_limit 2>/dev/null)
+PORTS=$(get_listening_ports 2>/dev/null)
 
 # Provide defaults for missing values
 DIR="${DIR:-unknown}"
@@ -107,5 +149,6 @@ printf "\033[34m%s\033[0m" "$DIR"
 [ "$COST" != "0" ] && printf " | \033[32m\$%.2f\033[0m" "$COST"
 [ "$ADDED" != "0" ] || [ "$REMOVED" != "0" ] && printf " | \033[90m +%d/-%d\033[0m" "$ADDED" "$REMOVED"
 [ -n "$RATE" ] && printf " | \033[35m %s\033[0m" "$RATE"
+[ -n "$PORTS" ] && printf " | \033[32m🔌 :%s\033[0m" "$PORTS"
 
 exit 0
