@@ -10,6 +10,7 @@ end
 set fish_greeting # Disable greeting
 set -g -x FZF_DEFAULT_COMMAND "fd . $HOME"
 set -g -x SHELL (which fish)
+set -x EDITOR nvim
 set -x VISUAL nvim
 
 # PATH configuration

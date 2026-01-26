@@ -1,7 +1,7 @@
 # Zsh configuration
 
 # Set default editor
-export EDITOR=vim
+export EDITOR=nvim
 
 # Set up PATH first to ensure fish can be found
 export PATH="/opt/homebrew/bin:$PATH"
