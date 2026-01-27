@@ -26,31 +26,16 @@ RECENT_ENTRIES_FOR_COMPLETION = 10  # 完成キーワード検出対象の直近
 # 実装を示すツール名
 IMPLEMENTATION_TOOLS = {"Edit", "MultiEdit", "Write"}
 
-# 完成を示すキーワード（小文字で比較）
-COMPLETION_KEYWORDS = [
-    # 日本語
-    "完成",
-    "完了",
-    "実装完了",
-    "終了",
-    "終わり",
-    "できました",
-    "コミットします",
-    "コミットしました",
-    "pr作成",
-    "プルリクエスト",
+# 完成を示す複合パターン（required の全てと any_of のいずれかを含む場合に発火）
+COMPLETION_PATTERNS = [
+    # 日本語: 「実装」+「完了/完成」の両方を含む
+    {"required": ["実装"], "any_of": ["完了", "完成"]},
     # 英語
-    "done",
-    "finished",
-    "completed",
-    "complete",
-    "ready",
-    "ready for review",
-    "ready to commit",
-    "creating pr",
-    "implementation complete",
-    "all done",
+    {"required": ["implementation"], "any_of": ["complete", "completed", "done"]},
 ]
+
+# これらのキーワードを含む場合は除外（「レビューが完了しました」等の誤発火防止）
+EXCLUDE_PATTERNS = ["レビュー", "review"]
 
 
 # =============================================================================
@@ -190,34 +175,44 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool, str | N
                 if has_implementation:
                     break
 
-        # 完成キーワード検出: 直近N件のエントリのみ対象
+        # 完成キーワード検出: 直近N件のユーザー発言のみ対象
         for entry in all_entries[-RECENT_ENTRIES_FOR_COMPLETION:]:
-            text_content = ""
             entry_type = entry.get("type")
+            if entry_type != "human":
+                continue
 
-            if entry_type == "human":
-                message = entry.get("message", {})
-                content = message.get("content", "")
-                if isinstance(content, str):
-                    text_content = content
-                elif isinstance(content, list):
-                    for item in content:
-                        if isinstance(item, dict) and item.get("type") == "text":
-                            text_content += item.get("text", "")
-            elif entry_type == "assistant":
-                message = entry.get("message", {})
-                content = message.get("content", [])
-                if isinstance(content, list):
-                    for item in content:
-                        if isinstance(item, dict) and item.get("type") == "text":
-                            text_content += item.get("text", "")
+            text_content = ""
+            message = entry.get("message", {})
+            content = message.get("content", "")
+            if isinstance(content, str):
+                text_content = content
+            elif isinstance(content, list):
+                for item in content:
+                    if isinstance(item, dict) and item.get("type") == "text":
+                        text_content += item.get("text", "")
 
             if text_content:
                 text_lower = text_content.lower()
-                for keyword in COMPLETION_KEYWORDS:
-                    if keyword.lower() in text_lower:
+                # 除外パターンチェック
+                if any(ep in text_lower for ep in EXCLUDE_PATTERNS):
+                    continue
+                # 複合パターンマッチ
+                for pattern in COMPLETION_PATTERNS:
+                    has_required = all(
+                        r in text_lower for r in pattern["required"]
+                    )
+                    has_any = any(
+                        a in text_lower for a in pattern["any_of"]
+                    )
+                    if has_required and has_any:
                         is_complete = True
-                        detected_keyword = keyword
+                        detected_keyword = (
+                            pattern["required"][0]
+                            + "+"
+                            + next(
+                                a for a in pattern["any_of"] if a in text_lower
+                            )
+                        )
                         break
                 if is_complete:
                     break
@@ -235,9 +230,9 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool, str | N
 
 def build_review_instruction(detected_keyword: str | None, changed_lines: int) -> dict:
     """レビュー指示を生成（軽量版）"""
-    reason = f"""[自動レビュー] 完成キーワード「{detected_keyword}」を検出 (変更{changed_lines}行)
-
-/auto-reviewing を実行してください。"""
+    reason = f"""[自動リマインド] 実装完了を検出しました（「{detected_keyword}」, 変更{changed_lines}行）。
+本タスクの実装が完了している場合は /auto-reviewing を実行してください。
+まだ実装途中の場合や、レビュー不要な場合はスキップして構いません。"""
     return {"decision": "block", "reason": reason}
 
 
