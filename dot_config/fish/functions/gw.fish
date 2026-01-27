@@ -44,6 +44,7 @@ JSON形式で以下を出力:
 - prefix: feat, fix, docs, style, refactor, perf, test, chore, ci, build
 - 形式: <prefix>/<kebab-case-description>
 - 英語、ケバブケース、簡潔に（2-4単語程度）
+- 設計・要件定義・計画策定などのドキュメント作成は docs/ を使用
 
 ## 重要
 - 余計な説明は不要。JSON のみ出力。
