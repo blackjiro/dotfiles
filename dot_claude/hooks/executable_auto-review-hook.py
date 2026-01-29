@@ -21,21 +21,9 @@ if os.environ.get("CLAUDE_CODE_ENTRYPOINT") == "cli-print":
 MAX_REVIEW_COUNT = 3
 COUNT_FILE_TEMPLATE = "/tmp/claude_review_count_{session_id}.txt"
 MIN_LINES_FOR_REVIEW = 50  # この行数以下の変更はレビューをスキップ
-RECENT_ENTRIES_FOR_COMPLETION = 10  # 完成キーワード検出対象の直近エントリ数
 
 # 実装を示すツール名
 IMPLEMENTATION_TOOLS = {"Edit", "MultiEdit", "Write"}
-
-# 完成を示す複合パターン（required の全てと any_of のいずれかを含む場合に発火）
-COMPLETION_PATTERNS = [
-    # 日本語: 「実装」+「完了/完成」の両方を含む
-    {"required": ["実装"], "any_of": ["完了", "完成"]},
-    # 英語
-    {"required": ["implementation"], "any_of": ["complete", "completed", "done"]},
-]
-
-# これらのキーワードを含む場合は除外（「レビューが完了しました」等の誤発火防止）
-EXCLUDE_PATTERNS = ["レビュー", "review"]
 
 
 # =============================================================================
@@ -125,27 +113,26 @@ def reset_review_count(session_id: str) -> None:
 # =============================================================================
 
 
-def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool, str | None]:
+def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool]:
     """
-    トランスクリプトを解析して実装変更と完成状態を検出
+    トランスクリプトを解析して実装変更とタスク全完了を検出
 
     Args:
         transcript_path: transcript.jsonl のパス
 
     Returns:
-        (has_implementation, is_complete, detected_keyword) のタプル
+        (has_implementation, is_complete) のタプル
     """
     if not transcript_path:
-        return (False, False, None)
+        return (False, False)
 
     path = Path(transcript_path).expanduser()
     if not path.exists():
-        return (False, False, None)
+        return (False, False)
 
     has_implementation = False
-    is_complete = False
-    detected_keyword: str | None = None
-    all_entries: list[dict] = []
+    total_tasks = 0
+    completed_task_ids: set[str] = set()
 
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -155,72 +142,46 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool, str | N
         for line in lines:
             try:
                 entry = json.loads(line)
-                all_entries.append(entry)
             except json.JSONDecodeError:
                 continue
 
-        # 実装変更検出: 全エントリから Edit/MultiEdit/Write を検出
-        for entry in all_entries:
             entry_type = entry.get("type")
-            if entry_type == "assistant":
-                message = entry.get("message", {})
-                content = message.get("content", [])
-                if isinstance(content, list):
-                    for item in content:
-                        if isinstance(item, dict) and item.get("type") == "tool_use":
-                            tool_name = item.get("name", "")
-                            if tool_name in IMPLEMENTATION_TOOLS:
-                                has_implementation = True
-                                break
-                if has_implementation:
-                    break
-
-        # 完成キーワード検出: 直近N件のユーザー発言のみ対象
-        for entry in all_entries[-RECENT_ENTRIES_FOR_COMPLETION:]:
-            entry_type = entry.get("type")
-            if entry_type != "human":
+            if entry_type != "assistant":
                 continue
 
-            text_content = ""
             message = entry.get("message", {})
-            content = message.get("content", "")
-            if isinstance(content, str):
-                text_content = content
-            elif isinstance(content, list):
-                for item in content:
-                    if isinstance(item, dict) and item.get("type") == "text":
-                        text_content += item.get("text", "")
+            content = message.get("content", [])
+            if not isinstance(content, list):
+                continue
 
-            if text_content:
-                text_lower = text_content.lower()
-                # 除外パターンチェック
-                if any(ep in text_lower for ep in EXCLUDE_PATTERNS):
+            for item in content:
+                if not isinstance(item, dict) or item.get("type") != "tool_use":
                     continue
-                # 複合パターンマッチ
-                for pattern in COMPLETION_PATTERNS:
-                    has_required = all(
-                        r in text_lower for r in pattern["required"]
-                    )
-                    has_any = any(
-                        a in text_lower for a in pattern["any_of"]
-                    )
-                    if has_required and has_any:
-                        is_complete = True
-                        detected_keyword = (
-                            pattern["required"][0]
-                            + "+"
-                            + next(
-                                a for a in pattern["any_of"] if a in text_lower
-                            )
-                        )
-                        break
-                if is_complete:
-                    break
+
+                tool_name = item.get("name", "")
+
+                # 実装変更検出
+                if tool_name in IMPLEMENTATION_TOOLS:
+                    has_implementation = True
+
+                # タスク作成検出
+                if tool_name == "TaskCreate":
+                    total_tasks += 1
+
+                # タスク完了検出
+                if tool_name == "TaskUpdate":
+                    tool_input = item.get("input", {})
+                    if tool_input.get("status") == "completed":
+                        task_id = tool_input.get("taskId")
+                        if task_id:
+                            completed_task_ids.add(task_id)
 
     except Exception:
-        return (False, False, None)
+        return (False, False)
 
-    return (has_implementation, is_complete, detected_keyword)
+    # タスクリスト未使用なら完了とみなさない
+    is_complete = total_tasks > 0 and total_tasks == len(completed_task_ids)
+    return (has_implementation, is_complete)
 
 
 # =============================================================================
@@ -228,11 +189,11 @@ def analyze_transcript(transcript_path: str | None) -> tuple[bool, bool, str | N
 # =============================================================================
 
 
-def build_review_instruction(detected_keyword: str | None, changed_lines: int) -> dict:
-    """レビュー指示を生成（軽量版）"""
-    reason = f"""[自動リマインド] 実装完了を検出しました（「{detected_keyword}」, 変更{changed_lines}行）。
-本タスクの実装が完了している場合は /auto-reviewing を実行してください。
-まだ実装途中の場合や、レビュー不要な場合はスキップして構いません。"""
+def build_review_instruction(changed_lines: int) -> dict:
+    """レビュー指示を生成"""
+    reason = f"""[自動リマインド] 全タスク完了を検出しました（変更{changed_lines}行）。
+/auto-reviewing を実行してください。
+レビュー不要な場合はスキップして構いません。"""
     return {"decision": "block", "reason": reason}
 
 
@@ -266,15 +227,13 @@ def main() -> None:
 
     # 3. トランスクリプト解析
     transcript_path = input_data.get("transcript_path")
-    has_implementation, is_complete, detected_keyword = analyze_transcript(
-        transcript_path
-    )
+    has_implementation, is_complete = analyze_transcript(transcript_path)
 
     # 実装がなければスキップ
     if not has_implementation:
         sys.exit(0)
 
-    # 完成キーワードがなければスキップ（完成時のみレビュー）
+    # 全タスク完了でなければスキップ
     if not is_complete:
         sys.exit(0)
 
@@ -294,7 +253,7 @@ def main() -> None:
 
     # 5. レビュー指示生成
     increment_review_count(session_id)
-    instruction = build_review_instruction(detected_keyword, changed_lines)
+    instruction = build_review_instruction(changed_lines)
 
     # 7. 出力
     print(json.dumps(instruction, ensure_ascii=False))
