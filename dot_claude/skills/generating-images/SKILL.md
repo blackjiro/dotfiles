@@ -149,6 +149,12 @@ Error: GEMINI_API_KEY environment variable is not set
 → Set it: export GEMINI_API_KEY='your-api-key'
 ```
 
+このエラーが出た場合、`~/.zshenv.local` に以下を追記してシェルを再起動してください:
+```bash
+export GEMINI_API_KEY='your-api-key'
+```
+※ `~/.zshenv.local` はdotfiles管理外のファイルです。APIキーを平文でgitに入れないための運用です。
+
 **Rate limit exceeded**:
 ```
 Error: Rate limit exceeded

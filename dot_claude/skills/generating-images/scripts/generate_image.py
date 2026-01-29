@@ -103,7 +103,8 @@ def generate_image(
         if hasattr(part, "text") and part.text:
             print(f"Response text: {part.text}")
         elif hasattr(part, "inline_data") and part.inline_data:
-            image_data = base64.b64decode(part.inline_data.data)
+            raw = part.inline_data.data
+            image_data = raw if isinstance(raw, bytes) else base64.b64decode(raw)
             with open(output_path, "wb") as f:
                 f.write(image_data)
             print(f"Image saved to: {output_path}")

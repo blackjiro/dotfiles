@@ -24,3 +24,6 @@ fi
 # Editor
 export EDITOR=nvim
 export VISUAL=nvim
+
+# Load local environment variables (API keys, etc.)
+[[ -f "$HOME/.zshenv.local" ]] && source "$HOME/.zshenv.local"
