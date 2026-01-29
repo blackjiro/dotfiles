@@ -33,8 +33,8 @@ get_listening_ports() {
 
   local found_ports=""
 
-  # Find all processes listening on TCP ports and match by CWD + port whitelist
-  for pid in $(lsof -iTCP -sTCP:LISTEN -P -n 2>/dev/null | awk 'NR>1{print $2}' | sort -u); do
+  # Find dev server processes listening on TCP ports and match by CWD
+  for pid in $(lsof -iTCP -sTCP:LISTEN -P -n 2>/dev/null | grep -E 'node|python|go|ruby|java|deno|bun|docker-pr' | awk '{print $2}' | sort -u); do
     local proc_cwd=$(lsof -p "$pid" 2>/dev/null | grep cwd | awk '{print $NF}')
     # Check if process CWD starts with our workspace
     if [[ "$proc_cwd" == "$cwd" || "$proc_cwd" == "$cwd/"* ]]; then
