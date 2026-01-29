@@ -33,14 +33,14 @@ get_listening_ports() {
 
   local found_ports=""
 
-  # Find node processes listening on TCP ports and match by CWD
-  for pid in $(lsof -iTCP -sTCP:LISTEN -P -n 2>/dev/null | grep node | awk '{print $2}' | sort -u); do
+  # Find dev server processes listening on TCP ports and match by CWD
+  for pid in $(lsof -iTCP -sTCP:LISTEN -P -n 2>/dev/null | grep -E 'node|python' | awk '{print $2}' | sort -u); do
     local proc_cwd=$(lsof -p "$pid" 2>/dev/null | grep cwd | awk '{print $NF}')
     # Check if process CWD starts with our workspace
-    if [[ "$proc_cwd" == "$cwd"* ]]; then
+    if [[ "$proc_cwd" == "$cwd" || "$proc_cwd" == "$cwd/"* ]]; then
       # Get TCP ports only (IPv4/IPv6), extract port number
-      local all_ports=$(lsof -p "$pid" -iTCP -sTCP:LISTEN -P -n 2>/dev/null | \
-        awk 'NR>1 && ($5=="IPv4" || $5=="IPv6") {print $9}' | \
+      local all_ports=$(lsof -iTCP -sTCP:LISTEN -P -n 2>/dev/null | \
+        awk -v p="$pid" '$2==p && ($5=="IPv4" || $5=="IPv6") {print $9}' | \
         sed 's/.*://' | sort -nu)
 
       # Well-known dev server ports:
