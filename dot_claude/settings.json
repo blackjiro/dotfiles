@@ -149,7 +149,8 @@
       "Skill(auto-reviewing)",
       "Skill(pr-review-toolkit:review-pr)",
       "Bash(agent-browser:*)",
-      "Skill(agent-browser)"
+      "Skill(agent-browser)",
+      "Skill(retrospecting)"
     ],
     "deny": [
       "Bash(rm -rf /*)",
