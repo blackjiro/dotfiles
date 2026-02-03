@@ -54,7 +54,8 @@ def generate_image(
         print("Set it with: export GEMINI_API_KEY='your-api-key'")
         return False
 
-    client = genai.Client(api_key=api_key)
+    # vertexai=False to use Google AI Studio API (not Vertex AI)
+    client = genai.Client(api_key=api_key, vertexai=False)
     model = MODELS.get(quality, MODELS["flash"])
 
     contents = []
