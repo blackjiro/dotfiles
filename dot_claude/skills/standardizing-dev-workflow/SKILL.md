@@ -1,6 +1,6 @@
 ---
 name: standardizing-dev-workflow
-description: タスク実行をTaskfileで一元管理する標準開発フローを構築・監査。taskfile、aqua、lefthook、開発ワークフロー標準化、lint、format、git hooks、モノレポのセットアップや既存プロジェクトの監査時に使用。
+description: aqua経由でtaskとlefthookを導入し、標準開発フローを構築・監査。Use when setting up task/aqua/lefthook, standardizing dev workflow, or when the user mentions "taskをセットアップ", "aquaでtaskを入れて", "lefthookを設定", "開発ワークフロー標準化", "git hooks設定", "Taskfile作成"。
 ---
 
 # Standardizing Dev Workflow
