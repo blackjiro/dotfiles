@@ -222,10 +222,16 @@ tasks:
 
 **After**:
 ```yaml
-- run: aqua install
+- uses: aquaproj/aqua-installer@v4.0.4
+  with:
+    aqua_version: v2.36.0
 - run: task lint
 - run: task test
 ```
+
+> **注意**: `aquaproj/aqua-installer`はメジャーバージョンタグ（@v3, @v4）が存在しない。
+> 必ずフルバージョン（@v4.0.4等）を指定すること。
+> 最新版は `gh api repos/aquaproj/aqua-installer/releases/latest --jq '.tag_name'` で確認。
 
 ## includeオプション一覧
 
@@ -237,6 +243,50 @@ tasks:
 | `aliases` | namespaceの別名（例: `[api]`） |
 | `vars` | サブTaskfileへの変数渡し |
 | `flatten: true` | namespaceなしで呼び出し可能 |
+
+## 重要な注意事項
+
+### node_modules内コマンドの呼び出し
+
+Taskfile.ymlでnode_modules/.bin内のコマンド（vitest, eslint, prettier等）を呼び出す際は、
+**必ず`npx`経由で実行する**こと。直接呼び出すとCI環境でPATHが通らずエラーになる。
+
+```yaml
+# ❌ NG - PATHが通らない環境でエラー
+cmds:
+  - vitest
+
+# ✅ OK - npx経由で実行
+cmds:
+  - npx vitest
+```
+
+### installタスクをdepsとして使用
+
+主要なタスク（dev, build, test等）には`install`タスクを依存関係として設定し、
+依存関係のインストールを自動化する：
+
+```yaml
+tasks:
+  install:
+    desc: 依存関係インストール
+    cmds:
+      - npm install
+    sources:
+      - package.json
+      - package-lock.json
+    generates:
+      - node_modules/.package-lock.json
+
+  dev:
+    desc: 開発サーバー起動
+    deps: [install]
+    cmds:
+      - npm run dev
+```
+
+`sources`と`generates`を設定することで、package.jsonが変更されていない場合は
+インストールをスキップして効率的に動作する。
 
 ## Error Handling
 
