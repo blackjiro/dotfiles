@@ -245,10 +245,6 @@
           {
             "type": "command",
             "command": "~/.claude/bash-safety-hook.sh"
-          },
-          {
-            "type": "command",
-            "command": "~/.claude/worktree-merge-hook.sh"
           }
         ]
       }
