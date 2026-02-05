@@ -79,6 +79,11 @@ run_task() {
     # Claude CLI実行
     cd "$REPO_PATH"
 
+    # miseの環境変数を読み込む（mise.toml, mise.local.tomlから）
+    if command -v mise &> /dev/null; then
+        eval "$(mise env -C "$REPO_PATH" 2>/dev/null)" || true
+    fi
+
     # 設定からClaude CLIオプションを構築
     local claude_opts=(
         --print
