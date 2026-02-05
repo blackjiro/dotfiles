@@ -92,7 +92,7 @@ run_task() {
     fi
 
     local result
-    if claude "${claude_opts[@]}" "$(cat "$task_file")" 2>&1 | tee -a "$log_file"; then
+    if cat "$task_file" | claude "${claude_opts[@]}" 2>&1 | tee -a "$log_file"; then
         result="success"
     else
         result="failed"
@@ -126,7 +126,7 @@ main() {
         ((task_num++))
 
         # タスク間の待機時間（設定されている場合）
-        if [[ -n "${TASK_INTERVAL:-}" ]] && [[ $task_num -le ${#TASKS[@]} ]]; then
+        if [[ -n "${TASK_INTERVAL:-}" ]]; then
             sleep "$TASK_INTERVAL"
         fi
     done
