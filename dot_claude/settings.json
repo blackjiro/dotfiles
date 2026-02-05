@@ -247,6 +247,16 @@
             "command": "~/.claude/bash-safety-hook.sh"
           }
         ]
+      },
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"$(git branch --show-current 2>/dev/null)\" != \"main\" ] && [ \"$(git branch --show-current 2>/dev/null)\" != \"master\" ] || { echo 'Cannot edit files on main/master branch. Create a feature branch first.' >&2; exit 2; }",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUse": [
