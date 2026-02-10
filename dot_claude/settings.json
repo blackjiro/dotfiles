@@ -206,10 +206,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/auto-review-hook.py"
-          },
-          {
-            "type": "command",
             "command": "~/.claude/claude-notifier.sh"
           }
         ]
