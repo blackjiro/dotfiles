@@ -35,6 +35,9 @@ Follow these principles when writing tests:
 ### Test Granularity
 - Test end-to-end behavior flows (e.g., API request → response)
 
+### Test Code and Production Code Boundary
+- Never modify production code to accommodate test concerns
+
 ### Expensive Tests
 - Control with `RUN_EXPENSIVE_TESTS=1` environment variable
 - Skip in regular CI runs
