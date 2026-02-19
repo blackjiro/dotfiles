@@ -2,5 +2,6 @@
 .supermaven/
 .env
 .claude/settings.local.json
+.claude/BEHAVIORS.md
 .DS_Store
 .gw-base
