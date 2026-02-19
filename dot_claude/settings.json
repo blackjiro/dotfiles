@@ -125,8 +125,7 @@
       "mcp__plugin_context7_context7",
       "mcp__plugin_context7_context7__*",
       "mcp__serena",
-      "mcp__playwright",
-      "mcp__plugin_playwright_playwright__*",
+      "Bash(playwright-cli:*)",
       "mcp__terraform",
       "mcp__linear-server__get_issue",
       "mcp__claude-in-chrome",
@@ -136,8 +135,6 @@
       "Skill(generating-images)",
       "Skill(auto-reviewing)",
       "Skill(pr-review-toolkit:review-pr)",
-      "Bash(agent-browser:*)",
-      "Skill(agent-browser)",
       "Skill(retrospecting)"
     ],
     "deny": [
@@ -254,7 +251,7 @@
     "typescript-lsp@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true
+    "playwright@claude-plugins-official": false
   },
   "alwaysThinkingEnabled": false
 }
