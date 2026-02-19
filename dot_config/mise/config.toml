@@ -6,6 +6,9 @@ node = "lts"
 ruby = "3"
 terraform = "latest"
 python = "3.13"
+"npm:pyright" = "latest"
+"npm:typescript-language-server" = "latest"
+"go:golang.org/x/tools/gopls" = "latest"
 
 [settings]
 # Always use the latest version when "latest" is specified
