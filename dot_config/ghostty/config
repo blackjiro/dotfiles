@@ -2,6 +2,7 @@
 theme = "Monokai Pro"
 
 font-family = "JetBrainsMono Nerd Font Mono"
+font-family = "UDEV Gothic NF"
 font-size = 14
 font-feature = "-calt"
 font-feature = "-dlig"
@@ -9,7 +10,6 @@ font-feature = "-liga"
 
 
 font-thicken = true
-adjust-cell-height = 10%
 alpha-blending = linear
 freetype-load-flags = hinting, autohint
 background-opacity = 0.95
