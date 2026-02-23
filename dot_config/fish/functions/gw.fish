@@ -1,9 +1,8 @@
 set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*" "mise.local.toml" "master.key"
 set -g GW_BASE_METADATA_FILE ".gw-base"
 
-# Helper function: Generate branch name and pane name using Claude Code headless
-# Returns: branch_name (line 1), pane_name (line 2)
-function __gw_generate_branch_info
+# Helper function: Generate branch name using Claude Code headless
+function __gw_generate_branch_name
     set -l input $argv[1]
 
     # Check if claude is available
@@ -18,7 +17,7 @@ function __gw_generate_branch_info
         return 1
     end
 
-    set -l json_schema '{"type":"object","properties":{"branch_name":{"type":"string"},"pane_name":{"type":"string"}},"required":["branch_name","pane_name"]}'
+    set -l json_schema '{"type":"object","properties":{"branch_name":{"type":"string"}},"required":["branch_name"]}'
 
     set -l prompt "あなたはブランチ名生成アシスタントです。
 
@@ -29,16 +28,15 @@ $input
 
 1. 入力がIssue参照（#番号、issue #番号、GitHub Issue URL）の場合:
    - \`gh issue view <番号>\` を実行してIssue情報を取得
-   - Issue情報からブランチ名と短い説明を生成
+   - Issue情報からブランチ名を生成
 
 2. 入力がタスク説明の場合:
-   - 説明からブランチ名と短い説明を生成
+   - 説明からブランチ名を生成
 
 ## 出力形式
 
 JSON形式で以下を出力:
 - branch_name: Conventional Commits形式のブランチ名（feat/xxx, fix/xxx等）
-- pane_name: 短い日本語説明（Issue番号があれば \"#番号 説明\" 形式）
 
 ## ブランチ名の規則
 - prefix: feat, fix, docs, style, refactor, perf, test, chore, ci, build
@@ -47,8 +45,7 @@ JSON形式で以下を出力:
 - 設計・要件定義・計画策定などのドキュメント作成は docs/ を使用
 
 ## 重要
-- 余計な説明は不要。JSON のみ出力。
-- pane_name は日本語で、何をやっているか一目でわかるようにする"
+- 余計な説明は不要。JSON のみ出力。"
 
     # Run Claude Code headless with Haiku model
     # --permission-mode bypassPermissions allows gh commands without prompts
@@ -71,20 +68,10 @@ JSON形式で以下を出力:
         echo "Error: Failed to parse JSON response from Claude" >&2
         return 1
     end
-    set -l pane_name (echo "$result" | jq -r '.structured_output.pane_name // empty')
-    if test $status -ne 0
-        echo "Error: Failed to parse pane_name from JSON response" >&2
-        return 1
-    end
 
     if test -z "$branch_name"
         echo "Error: Failed to parse branch_name from result" >&2
         return 1
-    end
-
-    # Fallback pane_name if empty
-    if test -z "$pane_name"
-        set pane_name (__gw_pane_name_from_branch "$branch_name")
     end
 
     # Validate the generated branch name format
@@ -99,17 +86,7 @@ JSON形式で以下を出力:
         end
     end
 
-    # Return branch_name and pane_name separated by ||| delimiter
-    # Fish command substitution converts newlines to spaces, so we use a delimiter
-    printf '%s|||%s' "$branch_name" "$pane_name"
-end
-
-# Helper function: Generate pane name from branch name (fallback for -b option)
-function __gw_pane_name_from_branch
-    set -l branch_name $argv[1]
-    # Remove prefix (feat/, fix/, etc.) and convert kebab-case to spaces
-    set -l short_name (string replace -r '^(feat|fix|docs|style|refactor|perf|test|chore|ci|build)/' '' $branch_name)
-    echo $short_name
+    echo "$branch_name"
 end
 
 function gw --description "Git worktree management tool"
@@ -660,7 +637,6 @@ function __gw_create_new
     set -l project_worktrees_dir $argv[1]
     set -l from_current 0
     set -l branch_name ""
-    set -l pane_name ""
     set -l task_description ""
     set -l use_branch_directly 0
     set -l copy_patterns $GW_DEFAULT_COPY_PATTERNS
@@ -724,24 +700,12 @@ function __gw_create_new
             return 1
         end
 
-        echo "Generating branch info from task..."
-        set -l branch_info (__gw_generate_branch_info "$task_description")
+        echo "Generating branch name from task..."
+        set branch_name (__gw_generate_branch_name "$task_description")
         if test $status -ne 0
             return 1
         end
-        # Parse result: branch_name|||pane_name format
-        set -l parts (string split "|||" "$branch_info")
-        if test (count $parts) -lt 2
-            echo "Error: Invalid branch info format" >&2
-            return 1
-        end
-        set branch_name (string trim $parts[1])
-        set pane_name (string trim $parts[2])
         echo "Branch name: $branch_name"
-        echo "Pane name: $pane_name"
-    else
-        # Generate pane name from branch name when using -b option
-        set pane_name (__gw_pane_name_from_branch "$branch_name")
     end
 
     if test -z "$branch_name"
@@ -877,11 +841,6 @@ function __gw_create_new
         end
 
         cd "$worktree_path"
-
-        # Rename Zellij pane if inside a Zellij session
-        if set -q ZELLIJ; and test -n "$pane_name"
-            zellij action rename-pane "$pane_name" 2>/dev/null
-        end
 
         # Start Claude Code in plan mode if -p option was specified
         if test $start_plan_mode -eq 1; and test -n "$task_description"
