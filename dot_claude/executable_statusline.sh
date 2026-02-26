@@ -80,18 +80,10 @@ get_rate_limit() {
     fi
   fi
 
-  # Try to get token from multiple sources
+  # Get token
   local token=""
-
-  # 1. Try Anthropic OAuth (keychain)
-  local creds=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)
-  if [ -n "$creds" ]; then
-    token=$(echo "$creds" | jq -r '.claudeAiOauth.accessToken // empty')
-  fi
-
-  # 2. Try environment variable (Vertex AI or other setups)
-  if [ -z "$token" ] && [ -n "$ANTHROPIC_API_KEY" ]; then
-    token="$ANTHROPIC_API_KEY"
+  if [ -f ~/.claude/.credentials.json ]; then
+    token=$(jq -r '.claudeAiOauth.accessToken // empty' ~/.claude/.credentials.json 2>/dev/null)
   fi
 
   if [ -z "$token" ]; then
