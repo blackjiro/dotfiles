@@ -79,7 +79,10 @@ sketchybar --add item clock right \
            --set battery update_freq=120 script="$PLUGIN_DIR/battery.sh" \
            --subscribe battery system_woke power_source_change \
            --add item docker right \
-           --set docker update_freq=5 icon=󰡨 script="$PLUGIN_DIR/docker.sh"
+           --set docker update_freq=5 icon=󰡨 script="$PLUGIN_DIR/docker.sh" \
+           --add item tailscale right \
+           --set tailscale update_freq=5 icon=󰖂 script="$PLUGIN_DIR/tailscale.sh" \
+                click_script="if /usr/local/bin/tailscale status > /dev/null 2>&1; then /usr/local/bin/tailscale down; else /usr/local/bin/tailscale up; fi"
 
 ##### Force all scripts to run the first time (never do this in a script) #####
 sketchybar --update
