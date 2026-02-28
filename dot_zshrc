@@ -6,8 +6,6 @@ export EDITOR=nvim
 # Set up PATH first to ensure fish can be found
 export PATH="/opt/homebrew/bin:$PATH"
 
-alias claude='~/.claude/local/claude'
-
 # ============================================
 # Functions
 # ============================================
