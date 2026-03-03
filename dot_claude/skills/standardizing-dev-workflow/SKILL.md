@@ -1,6 +1,6 @@
 ---
 name: standardizing-dev-workflow
-description: aqua経由でtaskとlefthookを導入し、標準開発フローを構築・監査。Use when setting up task/aqua/lefthook, standardizing dev workflow, or when the user mentions "taskをセットアップ", "aquaでtaskを入れて", "lefthookを設定", "開発ワークフロー標準化", "git hooks設定", "Taskfile作成"。
+description: aqua経由でtaskとlefthookを導入し、標準開発フローを構築・監査。worktreeやマルチサービス環境ではportlessによるポート競合解消もサポート。Use when setting up task/aqua/lefthook/portless, standardizing dev workflow, or when the user mentions "taskをセットアップ", "aquaでtaskを入れて", "lefthookを設定", "開発ワークフロー標準化", "git hooks設定", "Taskfile作成", "portless", "ポート競合", "worktreeで開発サーバー", "マルチサービス開発"。
 ---
 
 # Standardizing Dev Workflow
@@ -32,6 +32,7 @@ lefthook install
 - **task**: YAMLベースのタスクランナー。Makefileの代替
 - **lefthook**: 高速なGitフックマネージャー。pre-commit/pre-pushを管理
 - **includes**: モノレポで複数Taskfileを連携
+- **portless**: Vercel Labs製のリバースプロキシ。`portless <name> <command>` でプロセスを `<name>.localhost:1355` にマッピング。worktree間のポート競合を解消
 - **標準フロー**: format（pre-commit）→ lint（pre-push）
 
 ## Workflows
@@ -144,7 +145,81 @@ tasks:
 - `task frontend:dev` - frontendのdevタスク
 - `task all:build` - 全プロジェクトのビルド
 
-### Workflow 4: 既存リポジトリの監査
+### Workflow 4: portless によるマルチサービス開発
+
+worktree間のポート競合を解消し、名前ベースでサービスにアクセスできるようにする。
+
+#### ステップ 1: portless のインストール確認
+
+```bash
+portless --version
+# なければインストール
+npm install -g portless
+```
+
+#### ステップ 2: Vite プロジェクトの PORT 環境変数対応
+
+`vite.config.ts` に `server.port` を `process.env.PORT` から読む設定を追加する。
+portless なしの環境でも壊れない（後方互換あり）。
+
+```typescript
+server: {
+  port: Number(process.env.PORT) || 5173,
+}
+```
+
+#### ステップ 3: Taskfile への `dev:portless` タスク生成
+
+**単一サービス:**
+```yaml
+vars:
+  WT_NAME:
+    sh: basename $(pwd)
+
+tasks:
+  dev:portless:
+    desc: portless経由で開発サーバー起動
+    cmds:
+      - portless {{.SERVICE_NAME}}.{{.WT_NAME}} npx vite
+```
+
+**モノレポ（複数サービス並列起動）:**
+```yaml
+vars:
+  WT_NAME:
+    sh: basename $(pwd)
+
+tasks:
+  dev:portless:
+    desc: 全サービスをportless経由で並列起動
+    cmds:
+      - portless proxy start 2>/dev/null || true
+      - task dev:portless:api & task dev:portless:widget & task dev:portless:admin & wait
+
+  dev:portless:widget:
+    env:
+      VITE_API_BASE_URL: http://api.{{.WT_NAME}}.localhost:1355
+    cmds:
+      - portless widget.{{.WT_NAME}} pnpm --dir widget dev
+```
+
+#### ステップ 4: 環境変数の上書き（サービス間接続設定）
+
+`.env.local` 生成ではなく Taskfile の `env` で直接渡す方式を推奨する。
+`VITE_API_BASE_URL` 等をworktree名を含む動的URLに設定する。
+
+#### ステップ 5: CORS 設定の提案（Cookie 認証使用時）
+
+サブドメイン命名規則: `widget.main.localhost:1355`, `api.main.localhost:1355`
+
+`*.main.localhost` は同一サイトとして扱われ、Cookie が正しく送信される。
+CORS の正規表現パターン例:
+
+```
+CORS_ADMIN_ORIGIN_REGEX=^http://admin(\.[a-z0-9-]+)*\.localhost:1355$
+```
+
+### Workflow 5: 既存リポジトリの監査
 
 以下をチェックし、ガイドライン逸脱があれば修正提案する:
 
@@ -157,6 +232,7 @@ tasks:
 - [ ] package.json scriptsがtask経由になっているか
 - [ ] Makefileがtask経由になっているか
 - [ ] .github/workflows内がtask経由になっているか
+- [ ] マルチサービス/worktree開発時にdev:portlessタスクが定義されているか（任意）
 
 ## Examples
 
@@ -233,6 +309,40 @@ tasks:
 > 必ずフルバージョン（@v4.0.4等）を指定すること。
 > 最新版は `gh api repos/aquaproj/aqua-installer/releases/latest --jq '.tag_name'` で確認。
 
+### Example 4: portless を使ったマルチサービス開発
+
+**Before（ポート固定）**:
+```yaml
+tasks:
+  dev:widget:
+    env:
+      VITE_API_BASE_URL: http://localhost:3000
+    cmds:
+      - pnpm --dir widget dev --port 5173
+
+  dev:api:
+    cmds:
+      - pnpm --dir api dev --port 3000
+```
+
+**After（portless 名前ベース）**:
+```yaml
+vars:
+  WT_NAME:
+    sh: basename $(pwd)
+
+tasks:
+  dev:portless:widget:
+    env:
+      VITE_API_BASE_URL: http://api.{{.WT_NAME}}.localhost:1355
+    cmds:
+      - portless widget.{{.WT_NAME}} pnpm --dir widget dev
+
+  dev:portless:api:
+    cmds:
+      - portless api.{{.WT_NAME}} pnpm --dir api dev
+```
+
 ## includeオプション一覧
 
 | オプション | 説明 |
@@ -306,8 +416,17 @@ lefthook install  # hookを再インストール
 task --list  # エラーがあれば表示される
 ```
 
+**portlessが見つからない**:
+```bash
+npm install -g portless
+```
+
+**portlessでアクセスできない**:
+`*.localhost` の名前解決を確認する。macOSではデフォルトで `*.localhost` は `127.0.0.1` に解決される。
+
 ## Reference
 
 - [Task公式ドキュメント](https://taskfile.dev/)
 - [lefthook公式ドキュメント](https://github.com/evilmartians/lefthook)
 - [Aqua公式ドキュメント](https://aquaproj.github.io/)
+- [portless 公式リポジトリ](https://github.com/vercel-labs/portless)
