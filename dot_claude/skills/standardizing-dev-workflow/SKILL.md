@@ -157,15 +157,23 @@ portless --version
 npm install -g portless
 ```
 
-#### ステップ 2: Vite プロジェクトの PORT 環境変数対応
+#### ステップ 2: Vite プロジェクトの PORT 環境変数対応（必須）
 
-`vite.config.ts` に `server.port` を `process.env.PORT` から読む設定を追加する。
+portless は子プロセスに `PORT` 環境変数でリッスンすべきポートを渡すが、**Vite はデフォルトでは `PORT` を読まない**。
+また `pnpm dev` / `npx vite` 経由では portless のフラグ自動注入（`--port`）が効かないため、`vite.config.ts` への以下の追加が**必須**。
+この設定がないと portless 経由で起動しても Vite が固定ポート（5173）で listen してしまい、名前ベースのルーティングが機能しない。
+
 portless なしの環境でも壊れない（後方互換あり）。
 
 ```typescript
-server: {
-  port: Number(process.env.PORT) || 5173,
-}
+// vite.config.ts
+export default defineConfig({
+  server: {
+    port: process.env.PORT ? parseInt(process.env.PORT) : 5173,
+    strictPort: !!process.env.PORT,
+    host: process.env.HOST || 'localhost',
+  },
+})
 ```
 
 #### ステップ 3: Taskfile への `dev:portless` タスク生成
