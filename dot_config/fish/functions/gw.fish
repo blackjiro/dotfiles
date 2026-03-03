@@ -1,6 +1,24 @@
 set -g GW_DEFAULT_COPY_PATTERNS ".env" ".env.*" "**/.env" "**/.env.*" "mise.local.toml" "master.key"
 set -g GW_BASE_METADATA_FILE ".gw-base"
 
+# Helper function: Generate random branch name (adjective-noun)
+function __gw_generate_random_branch_name
+    set -l adjectives swift calm bold bright quick sharp warm cool fresh keen \
+        clear smart light deep fast slim wise pure safe true \
+        able dark flat free gold gray half high holy iron \
+        just kind lazy lean long loud mild neat next pale \
+        pink rare raw red rich ripe soft tall thin warm
+    set -l nouns oak fox elm ray arc bay dew gem hub oak \
+        river creek stone ridge trail blaze ember frost spark drift \
+        falcon cedar maple birch aspen grove cliff shore brook delta \
+        arrow flame orbit pulse prism realm scope vault crest forge
+
+    set -l adj_idx (random 1 (count $adjectives))
+    set -l noun_idx (random 1 (count $nouns))
+
+    echo "work/$adjectives[$adj_idx]-$nouns[$noun_idx]"
+end
+
 # Helper function: Generate branch name using Claude Code headless
 function __gw_generate_branch_name
     set -l input $argv[1]
@@ -156,11 +174,11 @@ function gw --description "Git worktree management tool"
                 echo "Commands:"
                 echo "  gw                  - Select and switch to a worktree"
                 echo "  gw main             - Switch to main branch worktree"
-                echo "  gw new \"<task>\"     - Create worktree with AI-generated branch name"
-                echo "  gw new -p \"<task>\"  - Create worktree + start Claude Code in plan mode"
-                echo "  gw new -b <name>    - Create worktree with specified branch name (traditional)"
-                echo "  gw new -c \"<task>\"  - Create from current branch with AI-generated name"
-                echo "  gw new --carry \"<task>\" - Create worktree and carry uncommitted changes"
+                echo "  gw new              - Create worktree with random branch name"
+                echo "  gw new -p \"<task>\"  - Create worktree with AI branch name + Claude Code plan mode"
+                echo "  gw new -b <name>    - Create worktree with specified branch name"
+                echo "  gw new -c           - Create from current branch with random name"
+                echo "  gw new --carry      - Create worktree and carry uncommitted changes"
                 echo "  gw add              - Create worktree from existing branch"
                 echo "  gw rm [--force]     - Remove a worktree (force ignores local changes)"
                 echo "  gw clean [--force]  - Remove merged/deleted worktrees (force ignores local changes)"
@@ -171,7 +189,7 @@ function gw --description "Git worktree management tool"
                 echo "  gw prompt-gen compare - Generate an AI比較用プロンプト for experiment worktrees"
                 echo ""
                 echo "Options for 'new' command:"
-                echo "  -p, --plan                 - Start Claude Code in plan mode after creation"
+                echo "  -p, --plan \"<task>\"        - AI branch name + Claude Code plan mode"
                 echo "  -b, --branch <name>        - Use specified branch name directly"
                 echo "  -c                         - Create from current branch instead of main"
                 echo "  --carry                    - Carry uncommitted changes to new worktree"
@@ -624,13 +642,26 @@ function __gw_fast_forward_branch_from_remote
         return $status
     end
 
-    git merge-base --is-ancestor $local_sha $remote_sha >/dev/null
+    # Use whichever is newer: local or remote
+    # If local is ancestor of remote -> fast-forward to remote
+    git merge-base --is-ancestor $local_sha $remote_sha 2>/dev/null
     if test $status -eq 0
         git update-ref $local_ref $remote_sha
-    else
-        echo "Warning: '$branch' has diverged from '$remote/$remote_branch'; skipped auto fast-forward." >&2
-        return 1
+        echo "Synced '$branch' to '$remote/$remote_branch' (fast-forward)" >&2
+        return 0
     end
+
+    # If remote is ancestor of local -> local is ahead, keep local
+    git merge-base --is-ancestor $remote_sha $local_sha 2>/dev/null
+    if test $status -eq 0
+        echo "Local '$branch' is ahead of '$remote/$remote_branch'; using local" >&2
+        return 0
+    end
+
+    # Diverged: force update to remote (discard local uncommitted state)
+    echo "Warning: '$branch' has diverged from '$remote/$remote_branch'; forcing to remote" >&2
+    git update-ref $local_ref $remote_sha
+    return 0
 end
 
 # Helper function: Create new worktree
@@ -691,22 +722,21 @@ function __gw_create_new
         set i (math $i + 1)
     end
 
-    # Generate branch name from task description if not using -b
+    # Determine branch name
     if test $use_branch_directly -eq 0
-        if test -z "$task_description"
-            echo "Error: Task description required" >&2
-            echo "Usage: gw new \"<task>\"     - Generate branch name from task + Claude Code" >&2
-            echo "       gw new -b <name>    - Use branch name directly (traditional)" >&2
-            echo "Options: [-c] [--carry] [--copy-ignored <patterns>] [--no-copy-ignored]" >&2
-            return 1
+        if test $start_plan_mode -eq 1; and test -n "$task_description"
+            # -p with task description: use AI to generate branch name
+            echo "Generating branch name from task..."
+            set branch_name (__gw_generate_branch_name "$task_description")
+            if test $status -ne 0
+                return 1
+            end
+            echo "Branch name: $branch_name"
+        else
+            # Default: generate random branch name
+            set branch_name (__gw_generate_random_branch_name)
+            echo "Branch name: $branch_name"
         end
-
-        echo "Generating branch name from task..."
-        set branch_name (__gw_generate_branch_name "$task_description")
-        if test $status -ne 0
-            return 1
-        end
-        echo "Branch name: $branch_name"
     end
 
     if test -z "$branch_name"
