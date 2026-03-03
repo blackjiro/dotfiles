@@ -218,7 +218,10 @@ tasks:
 
 #### ステップ 5: CORS 設定の提案（Cookie 認証使用時）
 
-サブドメイン命名規則: `widget.main.localhost:1355`, `api.main.localhost:1355`
+`admin.localhost` → `api.localhost` のようなフラットな命名では、ブラウザが異なるサイトと判定し `SameSite=lax` の Cookie が送信されない。
+worktree名をサブドメインプレフィックスにする命名規則で回避する:
+
+`widget.main.localhost:1355`, `api.main.localhost:1355`, `admin.main.localhost:1355`
 
 `*.main.localhost` は同一サイトとして扱われ、Cookie が正しく送信される。
 CORS の正規表現パターン例:
