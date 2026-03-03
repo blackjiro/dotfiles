@@ -1,6 +1,4 @@
 {
-  "enableAllProjectMcpServers": true,
-  "language": "ja",
   "env": {
     "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
     "DISABLE_COST_WARNINGS": "1",
@@ -196,6 +194,7 @@
       "Bash(truncate -s 0 /var/log:*)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "hooks": {
     "Stop": [
       {
@@ -253,5 +252,7 @@
     "pr-review-toolkit@claude-plugins-official": true,
     "playwright@claude-plugins-official": false
   },
-  "alwaysThinkingEnabled": false
+  "language": "ja",
+  "alwaysThinkingEnabled": false,
+  "skipDangerousModePermissionPrompt": true
 }
