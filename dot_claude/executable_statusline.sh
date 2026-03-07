@@ -3,7 +3,8 @@ input=$(cat)
 
 # Cache settings
 CACHE_FILE="/tmp/claude_rate_limit_cache.json"
-CACHE_TTL=60  # seconds
+CACHE_TTL=300  # seconds
+LOCK_FILE="/tmp/claude_rate_limit.lock"
 
 # Helper functions
 get_dir() { echo "$input" | jq -r '.workspace.current_dir'; }
@@ -80,6 +81,14 @@ get_rate_limit() {
     fi
   fi
 
+  # Another instance is already fetching - use stale cache or skip
+  if ! mkdir "$LOCK_FILE" 2>/dev/null; then
+    [ -f "$CACHE_FILE" ] && jq -r '.data' "$CACHE_FILE" 2>/dev/null
+    return
+  fi
+  # Ensure lock is released on exit
+  trap 'rmdir "$LOCK_FILE" 2>/dev/null' RETURN
+
   # Get token
   local token=""
   if [ -f ~/.claude/.credentials.json ]; then
@@ -112,7 +121,8 @@ get_rate_limit() {
     echo "{\"timestamp\":$now,\"data\":\"$result\"}" > "$CACHE_FILE"
     echo "$result"
   else
-    echo ""
+    # API failed - return stale cache if available
+    [ -f "$CACHE_FILE" ] && jq -r '.data' "$CACHE_FILE" 2>/dev/null
   fi
 }
 
