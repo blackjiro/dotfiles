@@ -82,9 +82,16 @@ get_rate_limit() {
   fi
 
   # Another instance is already fetching - use stale cache or skip
+  # If lock is stale (>60s), remove it and retry
   if ! mkdir "$LOCK_FILE" 2>/dev/null; then
-    [ -f "$CACHE_FILE" ] && jq -r '.data' "$CACHE_FILE" 2>/dev/null
-    return
+    local lock_age=$(( now - $(stat -f %m "$LOCK_FILE" 2>/dev/null || echo "$now") ))
+    if [ "$lock_age" -gt 60 ]; then
+      rmdir "$LOCK_FILE" 2>/dev/null
+      mkdir "$LOCK_FILE" 2>/dev/null || { [ -f "$CACHE_FILE" ] && jq -r '.data' "$CACHE_FILE" 2>/dev/null; return; }
+    else
+      [ -f "$CACHE_FILE" ] && jq -r '.data' "$CACHE_FILE" 2>/dev/null
+      return
+    fi
   fi
   # Ensure lock is released on exit
   trap 'rmdir "$LOCK_FILE" 2>/dev/null' RETURN
