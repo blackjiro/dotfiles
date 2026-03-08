@@ -15,3 +15,6 @@ alternate_screen = "never"
 
 [sandbox_workspace_write]
 network_access = true
+
+[otel]
+exporter = { otlp-grpc = { endpoint = "http://localhost:4317" } }
