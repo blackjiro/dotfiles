@@ -121,8 +121,12 @@ get_rate_limit() {
     echo "{\"timestamp\":$now,\"data\":\"$result\"}" > "$CACHE_FILE"
     echo "$result"
   else
-    # API failed - return stale cache if available
-    [ -f "$CACHE_FILE" ] && jq -r '.data' "$CACHE_FILE" 2>/dev/null
+    # API failed - update timestamp to prevent retry storm, keep stale data
+    if [ -f "$CACHE_FILE" ]; then
+      local stale_data=$(jq -r '.data' "$CACHE_FILE" 2>/dev/null)
+      echo "{\"timestamp\":$now,\"data\":\"$stale_data\"}" > "$CACHE_FILE"
+      echo "$stale_data"
+    fi
   fi
 }
 
