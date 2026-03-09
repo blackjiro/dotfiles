@@ -3,8 +3,7 @@ input=$(cat)
 
 # Cache settings
 CACHE_FILE="/tmp/claude_rate_limit_cache.json"
-CACHE_TTL=300  # seconds
-LOCK_FILE="/tmp/claude_rate_limit.lock"
+CACHE_TTL=1800  # 30 minutes
 
 # Helper functions
 get_dir() { echo "$input" | jq -r '.workspace.current_dir'; }
@@ -71,44 +70,31 @@ get_listening_ports() {
 get_rate_limit() {
   local now=$(date +%s)
 
-  # Check cache
+  # Read existing cache
+  local last_fetch=0 data=""
   if [ -f "$CACHE_FILE" ]; then
-    local cache_time=$(jq -r '.timestamp // 0' "$CACHE_FILE" 2>/dev/null)
-    local age=$((now - cache_time))
-    if [ "$age" -lt "$CACHE_TTL" ]; then
-      jq -r '.data' "$CACHE_FILE" 2>/dev/null
-      return
-    fi
+    last_fetch=$(jq -r '.last_fetch // 0' "$CACHE_FILE" 2>/dev/null)
+    data=$(jq -r '.data // empty' "$CACHE_FILE" 2>/dev/null)
   fi
 
-  # Another instance is already fetching - use stale cache or skip
-  # If lock is stale (>60s), remove it and retry
-  if ! mkdir "$LOCK_FILE" 2>/dev/null; then
-    local lock_age=$(( now - $(stat -f %m "$LOCK_FILE" 2>/dev/null || echo "$now") ))
-    if [ "$lock_age" -gt 60 ]; then
-      rmdir "$LOCK_FILE" 2>/dev/null
-      mkdir "$LOCK_FILE" 2>/dev/null || { [ -f "$CACHE_FILE" ] && jq -r '.data' "$CACHE_FILE" 2>/dev/null; return; }
-    else
-      [ -f "$CACHE_FILE" ] && jq -r '.data' "$CACHE_FILE" 2>/dev/null
-      return
-    fi
+  # Return cached data if within TTL
+  if [ $((now - last_fetch)) -lt "$CACHE_TTL" ]; then
+    [ -n "$data" ] && echo "$data"
+    return
   fi
-  # Ensure lock is released on exit
-  trap 'rmdir "$LOCK_FILE" 2>/dev/null' RETURN
 
   # Get token
   local token=""
   if [ -f ~/.claude/.credentials.json ]; then
     token=$(jq -r '.claudeAiOauth.accessToken // empty' ~/.claude/.credentials.json 2>/dev/null)
   fi
-
   if [ -z "$token" ]; then
-    echo ""
+    [ -n "$data" ] && echo "$data"
     return
   fi
 
-  # Try Anthropic API first (works with OAuth tokens)
-  local response=$(curl -s --max-time 2 \
+  # Call API
+  local response=$(curl -s --max-time 3 \
     -H "Authorization: Bearer $token" \
     -H "anthropic-beta: oauth-2025-04-20" \
     "https://api.anthropic.com/api/oauth/usage" 2>/dev/null)
@@ -124,15 +110,13 @@ get_rate_limit() {
     local result="${util%.*}%"
     [ -n "$reset_local" ] && result="${result}(${reset_local})"
 
-    # Save to cache
-    echo "{\"timestamp\":$now,\"data\":\"$result\"}" > "$CACHE_FILE"
+    # Success: update everything
+    printf '{"last_fetch":%d,"data":"%s"}\n' "$now" "$result" > "$CACHE_FILE"
     echo "$result"
   else
-    # API failed - update timestamp to prevent retry storm, keep stale data
-    local stale_data=""
-    [ -f "$CACHE_FILE" ] && stale_data=$(jq -r '.data' "$CACHE_FILE" 2>/dev/null)
-    echo "{\"timestamp\":$now,\"data\":\"${stale_data}\"}" > "$CACHE_FILE"
-    [ -n "$stale_data" ] && echo "$stale_data"
+    # Failure: update last_fetch only (prevents retry storm), keep old data
+    printf '{"last_fetch":%d,"data":"%s"}\n' "$now" "$data" > "$CACHE_FILE"
+    [ -n "$data" ] && echo "$data"
   fi
 }
 
