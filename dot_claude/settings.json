@@ -198,7 +198,8 @@
       "Bash(rm -rf /var/log:*)",
       "Bash(> /var/log:*)",
       "Bash(truncate -s 0 /var/log:*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "enableAllProjectMcpServers": true,
   "hooks": {
@@ -260,5 +261,7 @@
   },
   "language": "ja",
   "alwaysThinkingEnabled": false,
-  "skipDangerousModePermissionPrompt": true
+  "voiceEnabled": true,
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true
 }
